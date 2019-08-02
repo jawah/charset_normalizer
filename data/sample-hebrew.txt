@@ -1,0 +1,21 @@
+‪xxxx    Unicode/XML Westminster Leningrad Codex [4.20]‬
+‪xxxx‬
+‪xxxx    Produced by the J. Alan Groves Center for Advanced Biblical Research‬
+‪xxxx    2960 Church Road / Glenside, PA 19038-2000 / USA‬
+‪xxxx    ‬
+‪xxxx    Editor: Stephen K. Salisbury <Steve@GrovesCenter.org>‬
+‪xxxx    Senior Editor: Kirk E. Lowery <Kirk@GrovesCenter.org>‬
+‪xxxx‬
+‪xxxx    Transcriber: Christopher V. Kimball, West Redding, CT USA‬
+‪xxxx    Transcribed by WLC2XML of 28 July 2016 at 12 Aug 2017 @ 15:45.45. Build number: 25.2.‬
+‪xxxx    Transformed to text by XML2Text.xsl.xml of 2 Jun 2011 at 2019.07.25-11.21, Build number: 25.2. ‬
+‪xxxx    Layout: Full; Content: Accents.‬
+‪xxxx‬
+‪xxxx    Numbers 1:1-1:2‬
+‪xxxx‬
+‪xxxx  Chapter 1   (54 verses)‬
+‪xxxx‬
+‫ 1  ׃1   וַיְדַבֵּ֨ר יְהוָ֧ה אֶל־מֹשֶׁ֛ה בְּמִדְבַּ֥ר סִינַ֖י בְּאֹ֣הֶל מוֹעֵ֑ד בְּאֶחָד֩ לַחֹ֨דֶשׁ הַשֵּׁנִ֜י בַּשָּׁנָ֣ה הַשֵּׁנִ֗ית לְצֵאתָ֛ם מֵאֶ֥רֶץ מִצְרַ֖יִם לֵאמֹֽר׃ ‬
+‫ 2  ׃1   שְׂא֗וּ אֶת־רֹאשׁ֙ כָּל־עֲדַ֣ת בְּנֵֽי־יִשְׂרָאֵ֔ל לְמִשְׁפְּחֹתָ֖ם לְבֵ֣ית אֲבֹתָ֑ם בְּמִסְפַּ֣ר שֵׁמ֔וֹת כָּל־זָכָ֖ר לְגֻלְגְּלֹתָֽם׃ ‬
+‪xxxx‬
+‪xxxx    End of Numbers 1:1-1:2

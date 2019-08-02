@@ -1,0 +1,2 @@
+from charset_normalizer.normalizer import CharsetNormalizerMatches, CharsetNormalizerMatch
+from charset_normalizer.unicode import UnicodeRangeIdentify
