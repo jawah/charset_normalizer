@@ -21,7 +21,7 @@ Also as of July, August 2019 it's still experimental. Use it with caution.
 | `Free & Open`  | ✅             | ✅                |
 
 <p align="center">
-<img src="https://i.imgflip.com/373iay.gif" alt="Reading Normalized Text" width="226"/><img src="https://image.noelshack.com/fichiers/2019/31/5/1564761284-giphy.gif" alt="Cat Reading Text" width="200"/>
+<img src="https://i.imgflip.com/373iay.gif" alt="Reading Normalized Text" width="226"/><img src="https://image.noelshack.com/fichiers/2019/31/5/1564761473-ezgif-5-cf1bd9dd66b0.gif" alt="Cat Reading Text" width="200"/>
 
 <small>Cats are going to enjoy newly decoded text</small>
 <p> 
