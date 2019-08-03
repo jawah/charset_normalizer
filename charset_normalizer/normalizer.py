@@ -13,6 +13,8 @@ from charset_normalizer.probe_chaos import ProbeChaos
 
 class CharsetNormalizerMatch:
 
+    RE_PRINTABLE_LETTER = re.compile(r'[0-9\W\n\r\t]+')
+
     def __init__(self, b_content, guessed_source_encoding, chaos_ratio, ranges):
         """
         :param bytes b_content: Raw binary content
@@ -26,13 +28,13 @@ class CharsetNormalizerMatch:
 
         self._string = str(self._raw, encoding=self._encoding).replace('\r', '')
 
-        self.char_counter = collections.Counter(re.sub(r'[0-9\W\n\r\t]+', '', self._string.lower()))
+        self.char_counter = collections.Counter(re.sub(CharsetNormalizerMatch.RE_PRINTABLE_LETTER, '', self._string.lower()))
 
         self.ranges = ranges
 
     @cached_property
     def w_counter(self):
-        return collections.Counter(re.sub(r'[0-9\W\n\r\t]+', ' ', self._string.lower()).split())
+        return collections.Counter(re.sub(CharsetNormalizerMatch.RE_PRINTABLE_LETTER, ' ', self._string.lower()).split())
 
     @cached_property
     def alphabets(self):

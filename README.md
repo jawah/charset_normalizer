@@ -1,6 +1,7 @@
 <h1 align="center">Welcome to Charset for Human 👋</h1>
 
 <p align="center">
+  <sup>The Real First Universal Charset Detector</sup><br>
   <img src="https://travis-ci.org/Ousret/charset_normalizer.svg?branch=master"/>
   <img src="https://img.shields.io/pypi/pyversions/charset_normalizer.svg?orange=blue" />
   <a href="https://github.com/ousret/charset_normalizer/blob/master/LICENSE">
@@ -20,7 +21,7 @@ Also as of July, August 2019 it's still an alpha release.
 | Feature       | [Chardet](https://github.com/chardet/chardet)       | Charset Normalizer | [cChardet](https://github.com/PyYoshi/cChardet) |
 | ------------- | :-------------: | :------------------: | :------------------: |
 | `Fast`         | ❌<br> 🐌          | ❌<br> 🐌             | ✅ <br>⚡ |
-| `Universal`     | ✅            | ✅                 | ✅ |
+| `Universal**`     | ❌            | ✅                 | ❌ |
 | `Reliable` **without** distinguishable standards | ❌ | ✅ | ✅ |
 | `Reliable` **with** distinguishable standards | ✅ | ✅ | ✅ |
 | `Free & Open`  | ✅             | ✅                | ✅ |
@@ -36,7 +37,8 @@ Also as of July, August 2019 it's still an alpha release.
 Chardet/cChardet have weaknesses where Charset Normalizer have not and vice versa. 
 You could combine the strength of both lib to reach near perfect detection. 💪
 
-<small>\* : When written, should not be gibberish.</small>
+<small>\* : When written, should not be gibberish.</small><br>
+<small>\*\* : They are clearly using specific code for a specific charset even if covering most of existing one</small><br>
 
 ## Your support
 

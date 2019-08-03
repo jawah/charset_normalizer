@@ -13,13 +13,13 @@ from setuptools import find_packages, setup, Command
 
 # Package meta-data.
 NAME = 'charset_normalizer'
-DESCRIPTION = 'Different approach of chardet, this library goal is to read human text from ' \
+DESCRIPTION = 'Different approach of chardet/cChardet, this library goal is to read human text from ' \
               'unknown encoding and transpose it to unicode the best we can.'
 URL = 'https://github.com/ousret/charset_normalizer'
 EMAIL = 'ahmed.tahri@cloudnursery.dev'
 AUTHOR = 'Ahmed TAHRI @Ousret'
 REQUIRES_PYTHON = '>=3.4.0'
-VERSION = '0.1-alpha'
+VERSION = '0.1.1-alpha'
 
 # What packages are required for this module to be executed?
 REQUIRED = [
@@ -116,14 +116,17 @@ setup(
     extras_require=EXTRAS,
     include_package_data=True,
     package_data={
-        'charset_normalizer': ['assets/frequencies.json', 'assets/letters_frequencies.html'],
+        'charset_normalizer': ['assets/frequencies.json'],
     },
     license='MIT',
     classifiers=[
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Python',
         'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: Implementation :: CPython',
         'Programming Language :: Python :: Implementation :: PyPy'
     ],
