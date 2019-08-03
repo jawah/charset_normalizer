@@ -15,15 +15,17 @@
 > Library that help you read human* written text from unknown charset encoding.<br /> Project motivated by `chardet`, I'm trying to resolve the issue by taking another approach.
 
 This project offer you a alternative to **Universal Charset Encoding Detector**, also known as **Chardet**.
-Also as of July, August 2019 it's still experimental. Use it with caution.
+Also as of July, August 2019 it's still an alpha release. 
 
-| Feature       | [Chardet](https://github.com/chardet/chardet)       | Charset Normalizer |
-| ------------- | :-------------: | :------------------: |
-| `Fast**`         | ✅ <br>⚡            | ❌<br> 🐌             |
-| `Universal`     | ✅            | ✅                 |
-| `Reliable` **without** distinguishable standards | ❌ | ✅ |
-| `Reliable` **with** distinguishable standards | ✅ | ✅ |
-| `Free & Open`  | ✅             | ✅                |
+| Feature       | [Chardet](https://github.com/chardet/chardet)       | Charset Normalizer | [cChardet](https://github.com/PyYoshi/cChardet) |
+| ------------- | :-------------: | :------------------: | :------------------: |
+| `Fast`         | ❌<br> 🐌          | ❌<br> 🐌             | ✅ <br>⚡ |
+| `Universal`     | ✅            | ✅                 | ✅ |
+| `Reliable` **without** distinguishable standards | ❌ | ✅ | ✅ |
+| `Reliable` **with** distinguishable standards | ✅ | ✅ | ✅ |
+| `Free & Open`  | ✅             | ✅                | ✅ |
+| `Native Python` | ✅ | ✅ | ❌ |
+| `Does not have specific code for specific charset` | ❌ | ✅ | ❌ |
 
 <p align="center">
 <img src="https://i.imgflip.com/373iay.gif" alt="Reading Normalized Text" width="226"/><img src="https://image.noelshack.com/fichiers/2019/31/5/1564761473-ezgif-5-cf1bd9dd66b0.gif" alt="Cat Reading Text" width="200"/>
@@ -31,10 +33,9 @@ Also as of July, August 2019 it's still experimental. Use it with caution.
 <small>Cats are going to enjoy newly decoded text</small>
 <p> 
 
-Chardet has weaknesses where Charset Normalizer has not and vice versa. 
+Chardet/cChardet have weaknesses where Charset Normalizer have not and vice versa. 
 You could combine the strength of both lib to reach near perfect detection. 💪
 
-<small>\*\*  : Fast when there is distinguishable standards.</small>
 <small>\* : When written, should not be gibberish.</small>
 
 ## Your support
