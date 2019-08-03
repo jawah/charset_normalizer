@@ -3,7 +3,10 @@ from charset_normalizer.unicode import UnicodeRangeIdentify
 from dragonmapper.hanzi import identify
 from dragonmapper.hanzi import MIXED, SIMPLIFIED, TRADITIONAL, BOTH
 
+from functools import lru_cache
 
+
+@lru_cache(maxsize=8192)
 class ProbeChaos:
 
     def __init__(self, string):

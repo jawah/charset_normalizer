@@ -27,9 +27,12 @@ class CharsetNormalizerMatch:
         self._string = str(self._raw, encoding=self._encoding).replace('\r', '')
 
         self.char_counter = collections.Counter(re.sub(r'[0-9\W\n\r\t]+', '', self._string.lower()))
-        self.w_counter = collections.Counter(re.sub(r'[0-9\W\n\r\t]+', ' ', self._string.lower()).split())
 
         self.ranges = ranges
+
+    @cached_property
+    def w_counter(self):
+        return collections.Counter(re.sub(r'[0-9\W\n\r\t]+', ' ', self._string.lower()).split())
 
     @cached_property
     def alphabets(self):

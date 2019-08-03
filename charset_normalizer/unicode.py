@@ -1,11 +1,11 @@
 from charset_normalizer.constant import UNICODE_RANGES_ZIP
+from functools import lru_cache
 
 
 class UnicodeRangeIdentify:
 
-    SEARCH_TYPE_CACHE = dict()
-
     @staticmethod
+    @lru_cache(maxsize=8192)
     def find_letter_type(letter: str):
         """
         This method is intended to associate a single character with a range name from the unicode table
@@ -16,18 +16,15 @@ class UnicodeRangeIdentify:
         if len(letter) != 1:
             raise IOError('Trying to associate multiple char <{}> to a single unicode range'.format(letter))
 
-        if ord(letter) in UnicodeRangeIdentify.SEARCH_TYPE_CACHE.keys():
-            return UnicodeRangeIdentify.SEARCH_TYPE_CACHE[ord(letter)]
-
         for u_name, u_range in UNICODE_RANGES_ZIP.items():
 
             if ord(letter) in u_range:
-                UnicodeRangeIdentify.SEARCH_TYPE_CACHE[ord(letter)] = u_name
                 return u_name
 
         return None
 
     @staticmethod
+    @lru_cache(maxsize=8192)
     def is_accentuated(letter: str):
         """
         Verify if a latin letter is accentuated, unicode point of view.
