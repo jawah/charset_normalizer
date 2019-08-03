@@ -12,7 +12,7 @@ class TestFileCharsetNormalizer(unittest.TestCase):
         'sample.1.gr.srt': 'iso8859_7',
         'sample.1.he.srt': 'cp1255',
         'sample.1.hi.srt': 'ascii',
-        'sample.1.ru.srt': ['cp1251', 'kz1048'],
+        'sample.1.ru.srt': ['cp1251', 'kz1048', 'ptcp154'], # Python 3.5 behave differently for some reasons
         'sample.1.tu.srt': 'cp1256',  # Not actually the good one. But kinda readable.
         'sample.2.ar.srt': 'cp1256',
         'sample.3.ar.srt': 'utf_8',
