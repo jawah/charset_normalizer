@@ -5,6 +5,10 @@
   <a href="https://github.com/ousret/charset_normalizer/blob/master/LICENSE">
     <img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-purple.svg" target="_blank" />
   </a>
+  <img alt="Code Quality Badge" src="https://api.codacy.com/project/badge/Grade/a0c85b7f56dd4f628dc022763f82762c"/>
+  <a href="https://codecov.io/gh/Ousret/charset_normalizer">
+      <img src="https://codecov.io/gh/Ousret/charset_normalizer/branch/master/graph/badge.svg" />
+  </a>
 </p>
 
 > Library that help you read human* written text from unknown charset encoding.<br /> Project motivated by `chardet`, I'm trying to resolve the issue by taking another approach.
