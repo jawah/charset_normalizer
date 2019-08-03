@@ -1,6 +1,7 @@
 <h1 align="center">Welcome to Charset for Human 👋</h1>
 
 <p align="center">
+  <img src="https://travis-ci.org/Ousret/charset_normalizer.svg?branch=master"/>
   <img src="https://img.shields.io/pypi/pyversions/charset_normalizer.svg?orange=blue" />
   <a href="https://github.com/ousret/charset_normalizer/blob/master/LICENSE">
     <img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-purple.svg" target="_blank" />
