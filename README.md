@@ -117,3 +117,52 @@ Copyright © 2019 [Ahmed TAHRI @Ousret](https://github.com/Ousret).<br />
 This project is [MIT](https://github.com/Ousret/charset_normalizer/blob/master/LICENSE) licensed.
 
 Letter appearances frequencies used in this project © 2012 [Denny Vrandečić](http://denny.vrandecic.de)
+
+## LoC
+
+It is **always possible** to **make a difference** in this world. I was told it is impossible to propose a real alternative of Chardet / uChardet in conception terms speaking.
+
+*using cloc tool on master branch of each project*
+
+**Chardet** *Python*
+```sh
+
+-------------------------------------------------------------------------------
+Language                     files          blank        comment           code
+-------------------------------------------------------------------------------
+Python                          42            491           1458          36112
+-------------------------------------------------------------------------------
+SUM:                            42            491           1458          36112
+-------------------------------------------------------------------------------
+
+```
+
+
+**uChardet** *C++*
+```sh
+
+-------------------------------------------------------------------------------
+Language                     files          blank        comment           code
+-------------------------------------------------------------------------------
+C++                             51            740           2958           6927
+C/C++ Header                    22            286           1039            876
+CMake                            4             30              8            234
+-------------------------------------------------------------------------------
+SUM:                            77           1056           4005           8037
+-------------------------------------------------------------------------------
+
+```
+
+**Charset Normalizer** *Python*
+
+```sh
+
+-------------------------------------------------------------------------------
+Language                     files          blank        comment           code
+-------------------------------------------------------------------------------
+Python                           6            170            155            977
+-------------------------------------------------------------------------------
+SUM:                             6            170            155            977
+-------------------------------------------------------------------------------
+
+```
