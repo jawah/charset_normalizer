@@ -27,7 +27,7 @@ class TestFileCharsetNormalizer(unittest.TestCase):
     }
 
     def test_file_input(self):
-        for path_name in glob('../data/*.srt') + glob('../data/*.txt'):
+        for path_name in glob('./data/*.srt') + glob('./data/*.txt'):
 
             matches = CnM.from_path(path_name)
 

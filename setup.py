@@ -116,7 +116,7 @@ setup(
     extras_require=EXTRAS,
     include_package_data=True,
     package_data={
-        'charset_normalizer': ['assets/frequencies.json'],
+        'charset_normalizer': ['assets/frequencies.json', ],
     },
     license='MIT',
     classifiers=[

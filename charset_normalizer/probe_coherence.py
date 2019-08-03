@@ -5,7 +5,7 @@ from hashlib import sha256
 from cached_property import cached_property
 
 import json
-from os.path import dirname, realpath
+from os.path import dirname, realpath, exists
 
 
 class ProbeCoherence:
@@ -22,7 +22,7 @@ class ProbeCoherence:
             raise TypeError('Cannot probe coherence from type <{}>, expected <collections.Counter>'.format(type(character_occurrences)))
 
         if ProbeCoherence.FREQUENCIES is None:
-            with open('{}/frequencies.json'.format(ProbeCoherence.ASSETS_PATH), 'r') as fp:
+            with open('{}/frequencies.json'.format(ProbeCoherence.ASSETS_PATH) if exists('{}/frequencies.json'.format(ProbeCoherence.ASSETS_PATH)) else './charset_normalizer/assets/frequencies.json', 'r') as fp:
                 ProbeCoherence.FREQUENCIES = json.load(fp)
 
         self._character_occurrences = character_occurrences
