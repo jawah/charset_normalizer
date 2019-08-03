@@ -12,7 +12,7 @@ class TestFileCharsetNormalizer(unittest.TestCase):
         'sample.1.gr.srt': 'iso8859_7',
         'sample.1.he.srt': 'cp1255',
         'sample.1.hi.srt': 'ascii',
-        'sample.1.ru.srt': 'cp1251',
+        'sample.1.ru.srt': ['cp1251', 'kz1048'],
         'sample.1.tu.srt': 'cp1256',  # Not actually the good one. But kinda readable.
         'sample.2.ar.srt': 'cp1256',
         'sample.3.ar.srt': 'utf_8',
@@ -42,10 +42,16 @@ class TestFileCharsetNormalizer(unittest.TestCase):
                 r_
             )
 
-            self.assertEqual(
-                r_.encoding,
-                TestFileCharsetNormalizer.SHOULD_BE[basename(path_name)]
-            )
+            if isinstance(TestFileCharsetNormalizer.SHOULD_BE[basename(path_name)], str):
+                self.assertEqual(
+                    r_.encoding,
+                    TestFileCharsetNormalizer.SHOULD_BE[basename(path_name)]
+                )
+            else:
+                self.assertIn(
+                    r_.encoding,
+                    TestFileCharsetNormalizer.SHOULD_BE[basename(path_name)]
+                )
 
 
 if __name__ == '__main__':
