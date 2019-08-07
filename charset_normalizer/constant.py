@@ -569,10 +569,12 @@ UNICODE_RANGES_NAMES = [
 UNICODE_RANGES_ZIP = dict(
     zip(
         UNICODE_RANGES_NAMES,
-        [range(int(el.split('−')[0], 16), int(el.split('−')[1], 16)+1) for el in UNICODE_RANGES]
+        [
+            range(
+                int(el.split('−')[0], 16),
+                int(el.split('−')[1], 16)+1
+            ) for el in UNICODE_RANGES
+        ]
     )
 )
 
-if __name__ == '__main__':
-
-    print(UNICODE_RANGES_ZIP)

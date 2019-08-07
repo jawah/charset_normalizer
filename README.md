@@ -20,7 +20,7 @@ Also as of July, August 2019 it's still an alpha release.
 
 | Feature       | [Chardet](https://github.com/chardet/chardet)       | Charset Normalizer | [cChardet](https://github.com/PyYoshi/cChardet) |
 | ------------- | :-------------: | :------------------: | :------------------: |
-| `Fast`         | ❌<br> 🐌          | ❌<br> 🐌             | ✅ <br>⚡ |
+| `Fast`         | ❌<br> 🐌🐌         | ❌<br> 🐌             | ✅ <br>⚡ |
 | `Universal**`     | ❌            | ✅                 | ❌ |
 | `Reliable` **without** distinguishable standards | ❌ | ✅ | ✅ |
 | `Reliable` **with** distinguishable standards | ✅ | ✅ | ✅ |
@@ -73,7 +73,6 @@ try:
 except IOError as e:
     print('Sadly, we are unable to perform charset normalization.', str(e))
 ```
-
 
 See wiki for advanced usages. *Todo, not yet available.*
 

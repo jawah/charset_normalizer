@@ -6,7 +6,7 @@ class UnicodeRangeIdentify:
 
     @staticmethod
     @lru_cache(maxsize=8192)
-    def find_letter_type(letter: str):
+    def find_letter_type(letter):
         """
         This method is intended to associate a single character with a range name from the unicode table
         :param str letter: Shall be a unique char
@@ -25,10 +25,10 @@ class UnicodeRangeIdentify:
 
     @staticmethod
     @lru_cache(maxsize=8192)
-    def is_accentuated(letter: str):
+    def is_accentuated(letter):
         """
         Verify if a latin letter is accentuated, unicode point of view.
-        :param letter: Letter to check
+        :param str letter: Letter to check
         :return: True if accentuated, else False
         :rtype: bool
         """

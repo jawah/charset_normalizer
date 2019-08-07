@@ -116,23 +116,3 @@ class ProbeCoherence:
             return 1., 0
 
         return (n_not_rightfully_ranked / n_tested) if n_tested >= 22 else 1., n_tested
-
-    @staticmethod
-    def generate_():
-
-        from requests_html import HTML
-
-        with open('{}/letters_frequencies.html'.format(ProbeCoherence.ASSETS_PATH), 'r') as fp:
-            dom = HTML(html=fp.read())
-
-        languages_frequencies = dict()
-
-        for row in dom.find('tr'):
-
-            col_name, col_letter_freq = tuple(row.find('td'))
-            ranks = col_letter_freq.find('span')
-
-            languages_frequencies[col_name.text[0:col_name.text.index('\n')]] = [el.text for el in ranks[0:32]]
-
-        with open('frequencies.json', 'w') as fp:
-            json.dump(languages_frequencies, fp)

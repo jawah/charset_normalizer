@@ -3,7 +3,6 @@ import statistics
 from encodings.aliases import aliases
 from os.path import basename, splitext
 import collections
-from pprint import pprint
 
 from cached_property import cached_property
 
@@ -212,13 +211,14 @@ class CharsetNormalizerMatches:
 
             try:
                 str(sequences, encoding=p)
-            except UnicodeDecodeError as e:
+            except UnicodeDecodeError:
                 continue
-            except LookupError as e:
+            except LookupError:
                 continue
 
             chaos_measures = list()
             ranges_encountered_t = dict()
+            decoded_len_t = 0
 
             for i in range(0, maximum_length, int(maximum_length / steps)):
 
@@ -226,10 +226,6 @@ class CharsetNormalizerMatches:
                 decoded = str(chunk, encoding=p, errors='ignore')
 
                 probe_chaos = ProbeChaos(decoded)
-
-                #print('probe chaos on', p, 'start', i, 'end', i + chunk_size)
-                #pprint(probe_chaos.__dict__())
-
                 chaos_measure, ranges_encountered = probe_chaos.ratio, probe_chaos.encountered_unicode_range_occurrences
 
                 for k, e in ranges_encountered.items():
@@ -238,8 +234,6 @@ class CharsetNormalizerMatches:
                     ranges_encountered_t[k] += e
 
                 if chaos_measure > threshold:
-                    # print('kick', p, 'because', chaos_measure, 'at', i,)
-                    # print(probe_chaos.__dict__())
                     if p in working.keys():
                         del working[p]
                     break
@@ -247,20 +241,17 @@ class CharsetNormalizerMatches:
                 chaos_measures.append(chaos_measure)
 
                 if p not in working.keys():
-                    working[p] = {
-                        'chaos': 0,
-                        'len': 0,
-                        'ratio': 0.
-                    }
-
-                working[p]['chaos'] += chaos_measure
-                working[p]['len'] += len(decoded)
-                working[p]['ranges'] = ranges_encountered_t
+                    working[p] = dict()
 
             if p in working.keys():
                 working[p]['ratio'] = statistics.mean(chaos_measures)
+                working[p]['ranges'] = ranges_encountered_t
+                working[p]['chaos'] = sum(chaos_measures)
+                working[p]['len'] = decoded_len_t
 
-        # pprint(working)
+            if p == 'ascii' and working[p]['ratio'] == 0.:
+                break
+
         return CharsetNormalizerMatches(
             [CharsetNormalizerMatch(sequences, enc, working[enc]['ratio'], working[enc]['ranges']) for enc in
              working.keys() if working[enc]['ratio'] <= threshold])

@@ -1,9 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Note: To use the 'upload' functionality of this file, you must:
-#   $ pip install twine
-
 import io
 import os
 import sys
@@ -18,18 +15,19 @@ DESCRIPTION = 'Different approach of chardet/cChardet, this library goal is to r
 URL = 'https://github.com/ousret/charset_normalizer'
 EMAIL = 'ahmed.tahri@cloudnursery.dev'
 AUTHOR = 'Ahmed TAHRI @Ousret'
-REQUIRES_PYTHON = '>=3.4.0'
-VERSION = '0.1.1-alpha'
+REQUIRES_PYTHON = '>=3.6.0'
+VERSION = '0.1.2-beta'
 
 # What packages are required for this module to be executed?
 REQUIRED = [
     'cached_property',
-    'dragonmapper'
+    'dragonmapper',
+    'zhon'
 ]
 
 # What packages are optional?
 EXTRAS = {
-    'permit to generate frequencies.json': ['requests_html'],
+    'permit to generate frequencies.json using html data': ['requests_html'],
 }
 
 # The rest you shouldn't have to touch too much :)
