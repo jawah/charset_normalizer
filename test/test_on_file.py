@@ -32,7 +32,7 @@ class TestFileCharsetNormalizer(unittest.TestCase):
     }
 
     def test_file_input(self):
-        for path_name in glob('../data/*.srt') + glob('../data/*.txt'):
+        for path_name in glob('./data/*.srt') + glob('./data/*.txt'):
 
             with self.subTest('test_file_input <{}>'.format(path_name)):
 
