@@ -1,5 +1,6 @@
 import unittest
 from glob import glob
+
 from charset_normalizer import CharsetNormalizerMatches as CnM
 from os.path import basename
 
@@ -20,38 +21,44 @@ class TestFileCharsetNormalizer(unittest.TestCase):
         'sample.5.ar.srt': 'utf_8',
         'sample-chinese.txt': 'big5',
         'sample-greek.txt': 'cp1253',
+        'sample-greek-2.txt': 'cp1253',
         'sample-hebrew.txt': 'utf_8',
+        'sample-hebrew-2.txt': 'cp1255',
         'sample-russian.txt': 'mac_cyrillic',
         'sample-russian-2.txt': 'utf_8',
         'sample-turkish.txt': 'cp1252',
+        # 'sample-japanese.txt': 'shift-jis',
+        'sample-korean.txt': 'cp949'
     }
 
     def test_file_input(self):
-        for path_name in glob('./data/*.srt') + glob('./data/*.txt'):
+        for path_name in glob('../data/*.srt') + glob('../data/*.txt'):
 
-            matches = CnM.from_path(path_name)
+            with self.subTest('test_file_input <{}>'.format(path_name)):
 
-            self.assertGreater(
-                len(matches),
-                0
-            )
+                matches = CnM.from_path(path_name)
 
-            r_ = matches.best().first()
-
-            self.assertIsNotNone(
-                r_
-            )
-
-            if isinstance(TestFileCharsetNormalizer.SHOULD_BE[basename(path_name)], str):
-                self.assertEqual(
-                    r_.encoding,
-                    TestFileCharsetNormalizer.SHOULD_BE[basename(path_name)]
+                self.assertGreater(
+                    len(matches),
+                    0
                 )
-            else:
-                self.assertIn(
-                    r_.encoding,
-                    TestFileCharsetNormalizer.SHOULD_BE[basename(path_name)]
+
+                r_ = matches.best().first()
+
+                self.assertIsNotNone(
+                    r_
                 )
+
+                if isinstance(TestFileCharsetNormalizer.SHOULD_BE[basename(path_name)], str):
+                    self.assertEqual(
+                        r_.encoding,
+                        TestFileCharsetNormalizer.SHOULD_BE[basename(path_name)]
+                    )
+                else:
+                    self.assertIn(
+                        r_.encoding,
+                        TestFileCharsetNormalizer.SHOULD_BE[basename(path_name)]
+                    )
 
 
 if __name__ == '__main__':
