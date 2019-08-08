@@ -1,3 +1,4 @@
+# coding: utf-8
 from charset_normalizer.constant import UNICODE_RANGES_ZIP
 from functools import lru_cache
 

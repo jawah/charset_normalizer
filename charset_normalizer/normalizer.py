@@ -1,3 +1,4 @@
+# coding: utf-8
 import re
 import statistics
 from encodings.aliases import aliases

@@ -1,3 +1,4 @@
+# coding: utf-8
 """
 This file contain, for each range a name associated with for Unicode.
 Scrapped from https://unicode-table.com/

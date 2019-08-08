@@ -1,3 +1,4 @@
+# coding: utf-8
 import statistics
 from collections import Counter
 from hashlib import sha256
