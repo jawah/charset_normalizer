@@ -7,7 +7,10 @@ from dragonmapper.hanzi import identify as s_identify
 from dragonmapper.hanzi import MIXED, BOTH, UNKNOWN
 from zhon.hanzi import sentence as cjc_sentence_re
 
-from functools import lru_cache
+try:
+    from functools import lru_cache
+except ImportError:
+    from functools32 import lru_cache
 
 
 @lru_cache(maxsize=8192)

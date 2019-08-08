@@ -15,7 +15,7 @@ URL = 'https://github.com/ousret/charset_normalizer'
 EMAIL = 'ahmed.tahri@cloudnursery.dev'
 AUTHOR = 'Ahmed TAHRI @Ousret'
 REQUIRES_PYTHON = '>=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*'
-VERSION = '0.1.4-beta'
+VERSION = '0.1.5-beta'
 
 # What packages are required for this module to be executed?
 REQUIRED = [
@@ -27,6 +27,9 @@ REQUIRED = [
 if int(python_version_tuple()[0]) < 3:
     REQUIRED.append(
         'statistics'
+    )
+    REQUIRED.append(
+        'functools32'
     )
 
 
