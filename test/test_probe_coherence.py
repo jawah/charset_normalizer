@@ -1,3 +1,4 @@
+# coding: utf-8
 import unittest
 from charset_normalizer.normalizer import CharsetNormalizerMatches
 from charset_normalizer.probe_coherence import ProbeCoherence

@@ -1,3 +1,4 @@
+# coding: utf-8
 import unittest
 from charset_normalizer.probe_chaos import ProbeChaos
 
