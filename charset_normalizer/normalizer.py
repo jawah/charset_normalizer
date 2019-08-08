@@ -10,6 +10,8 @@ from cached_property import cached_property
 from charset_normalizer.probe_coherence import ProbeCoherence
 from charset_normalizer.probe_chaos import ProbeChaos
 
+from platform import python_version_tuple
+
 
 class CharsetNormalizerMatch:
 
@@ -195,8 +197,9 @@ class CharsetNormalizerMatches:
         :return: List of potential matches
         :rtype: CharsetNormalizerMatches
         """
+        py_v = [int(el) for el in python_version_tuple()]
 
-        supported = sorted(aliases.items()) if (sys.version_info.major < 3 or (sys.version_info.major == 3 and sys.version_info.minor < 6)) else aliases.items()
+        supported = sorted(aliases.items()) if (py_v[0] < 3 or (py_v[0] == 3 and py_v[1] < 6)) else aliases.items()
         tested = set()
         working = dict()
 
@@ -256,7 +259,7 @@ class CharsetNormalizerMatches:
 
         return CharsetNormalizerMatches(
             [CharsetNormalizerMatch(sequences, enc, working[enc]['ratio'], working[enc]['ranges']) for enc in
-             (sorted(working.keys()) if sys.version_info.major < 3 or (sys.version_info.major == 3 and sys.version_info.minor < 6) else working.keys()) if working[enc]['ratio'] <= threshold])
+             (sorted(working.keys()) if (py_v[0] < 3 or (py_v[0] == 3 and py_v[1] < 6)) else working.keys()) if working[enc]['ratio'] <= threshold])
 
     @staticmethod
     def from_fp(fp, steps=10, chunk_size=512, threshold=0.09):
