@@ -1,5 +1,6 @@
 import re
 import statistics
+import sys
 from encodings.aliases import aliases
 from os.path import basename, splitext
 import collections
@@ -195,13 +196,14 @@ class CharsetNormalizerMatches:
         :rtype: CharsetNormalizerMatches
         """
 
-        supported = aliases.items()
+        supported = sorted(aliases.items()) if (sys.version_info.major < 3 or (sys.version_info.major == 3 and sys.version_info.minor < 6)) else aliases.items()
         tested = set()
         working = dict()
 
         maximum_length = len(sequences)
 
-        for support in supported:
+        for support in sorted(supported):
+
             k, p = support
 
             if p in tested:
@@ -254,7 +256,7 @@ class CharsetNormalizerMatches:
 
         return CharsetNormalizerMatches(
             [CharsetNormalizerMatch(sequences, enc, working[enc]['ratio'], working[enc]['ranges']) for enc in
-             working.keys() if working[enc]['ratio'] <= threshold])
+             (sorted(working.keys()) if sys.version_info.major < 3 or (sys.version_info.major == 3 and sys.version_info.minor < 6) else working.keys()) if working[enc]['ratio'] <= threshold])
 
     @staticmethod
     def from_fp(fp, steps=10, chunk_size=512, threshold=0.09):

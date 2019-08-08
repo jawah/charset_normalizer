@@ -2,12 +2,17 @@
 
 <p align="center">
   <sup>The Real First Universal Charset Detector</sup><br>
-  <img src="https://travis-ci.org/Ousret/charset_normalizer.svg?branch=master"/>
+  <a href="https://travis-ci.org/Ousret/charset_normalizer">
+    <img src="https://travis-ci.org/Ousret/charset_normalizer.svg?branch=master"/>
+  </a>
   <img src="https://img.shields.io/pypi/pyversions/charset_normalizer.svg?orange=blue" />
+  <img src="https://img.shields.io/pypi/dm/charset_normalizer.svg"/>
   <a href="https://github.com/ousret/charset_normalizer/blob/master/LICENSE">
     <img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-purple.svg" target="_blank" />
   </a>
-  <img alt="Code Quality Badge" src="https://api.codacy.com/project/badge/Grade/a0c85b7f56dd4f628dc022763f82762c"/>
+  <a href="https://app.codacy.com/project/Ousret/charset_normalizer/dashboard">
+    <img alt="Code Quality Badge" src="https://api.codacy.com/project/badge/Grade/a0c85b7f56dd4f628dc022763f82762c"/>
+  </a>
   <a href="https://codecov.io/gh/Ousret/charset_normalizer">
       <img src="https://codecov.io/gh/Ousret/charset_normalizer/branch/master/graph/badge.svg" />
   </a>
@@ -16,7 +21,7 @@
 > Library that help you read human* written text from unknown charset encoding.<br /> Project motivated by `chardet`, I'm trying to resolve the issue by taking another approach.
 
 This project offer you a alternative to **Universal Charset Encoding Detector**, also known as **Chardet**.
-Also as of July, August 2019 it's still an alpha release. 
+Also as of July, August 2019 it's still a beta release. 
 
 | Feature       | [Chardet](https://github.com/chardet/chardet)       | Charset Normalizer | [cChardet](https://github.com/PyYoshi/cChardet) |
 | ------------- | :-------------: | :------------------: | :------------------: |
@@ -32,10 +37,6 @@ Also as of July, August 2019 it's still an alpha release.
 <img src="https://i.imgflip.com/373iay.gif" alt="Reading Normalized Text" width="226"/><img src="https://image.noelshack.com/fichiers/2019/31/5/1564761473-ezgif-5-cf1bd9dd66b0.gif" alt="Cat Reading Text" width="200"/>
 
 <small>Cats are going to enjoy newly decoded text</small>
-<p> 
-
-Chardet/cChardet have weaknesses where Charset Normalizer have not and vice versa. 
-You could combine the strength of both lib to reach near perfect detection. 💪
 
 <small>\* : When written, should not be gibberish.</small><br>
 <small>\*\* : They are clearly using specific code for a specific charset even if covering most of existing one</small><br>
@@ -56,16 +57,10 @@ pip install charset_normalizer
 #### Just print out normalized text
 ```python
 from charset_normalizer import CharsetNormalizerMatches as CnM
-
-matches = CnM.from_path('./my_subtitle.srt')
-
-if len(matches) > 0:
-    print(
-        str(matches.best().first())
-    )
+print(CnM.from_path('./my_subtitle.srt').best().first())
 ```
 
-#### Convert any text file to UTF-8
+#### Normalize any text file
 ```python
 from charset_normalizer import CharsetNormalizerMatches as CnM
 try:

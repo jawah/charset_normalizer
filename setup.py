@@ -15,8 +15,8 @@ DESCRIPTION = 'Different approach of chardet/cChardet, this library goal is to r
 URL = 'https://github.com/ousret/charset_normalizer'
 EMAIL = 'ahmed.tahri@cloudnursery.dev'
 AUTHOR = 'Ahmed TAHRI @Ousret'
-REQUIRES_PYTHON = '>=3.6.0'
-VERSION = '0.1.2-beta'
+REQUIRES_PYTHON = '>=3.4.0'
+VERSION = '0.1.3-beta'
 
 # What packages are required for this module to be executed?
 REQUIRED = [
@@ -121,6 +121,8 @@ setup(
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Python',
         'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: Implementation :: CPython',
