@@ -7,7 +7,7 @@ import collections
 
 from cached_property import cached_property
 
-from charset_normalizer.probe_coherence import ProbeCoherence
+from charset_normalizer.probe_coherence import ProbeCoherence, HashableCounter
 from charset_normalizer.probe_chaos import ProbeChaos
 
 from platform import python_version_tuple
@@ -15,7 +15,7 @@ from platform import python_version_tuple
 
 class CharsetNormalizerMatch:
 
-    RE_PRINTABLE_LETTER = re.compile(r'[0-9\W\n\r\t]+')
+    RE_NOT_PRINTABLE_LETTER = re.compile(r'[0-9\W\n\r\t]+')
 
     def __init__(self, b_content, guessed_source_encoding, chaos_ratio, ranges):
         """
@@ -30,13 +30,14 @@ class CharsetNormalizerMatch:
 
         self._string = str(self._raw, encoding=self._encoding).replace('\r', '')
 
-        self.char_counter = collections.Counter(re.sub(CharsetNormalizerMatch.RE_PRINTABLE_LETTER, '', self._string.lower()))
+        self._string_printable_only = re.sub(CharsetNormalizerMatch.RE_NOT_PRINTABLE_LETTER, ' ', self._string.lower())
+        self.char_counter = HashableCounter(self._string_printable_only.replace(' ', ''))
 
         self.ranges = ranges
 
     @cached_property
     def w_counter(self):
-        return collections.Counter(re.sub(CharsetNormalizerMatch.RE_PRINTABLE_LETTER, ' ', self._string.lower()).split())
+        return collections.Counter(self._string_printable_only.split())
 
     @cached_property
     def alphabets(self):
@@ -73,6 +74,26 @@ class CharsetNormalizerMatch:
         :rtype: float
         """
         return ProbeCoherence(self.char_counter).ratio
+
+    @cached_property
+    def languages(self):
+        """
+        Return a list of probable language in text
+        :return: List of language
+        :rtype: list[str]
+        """
+        from pprint import pprint
+        pprint(ProbeCoherence(self.char_counter).index_of_rates)
+        return ProbeCoherence(self.char_counter).most_likely
+
+    @cached_property
+    def language(self):
+        """
+        Return the most probable language found in text
+        :return: Most used/probable language in text
+        :rtype: str
+        """
+        return ProbeCoherence(self.char_counter).most_likely[0]
 
     @cached_property
     def chaos(self):
