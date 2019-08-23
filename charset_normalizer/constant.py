@@ -572,9 +572,9 @@ UNICODE_RANGES_ZIP = dict(
         UNICODE_RANGES_NAMES,
         [
             range(
-                int(el.split('−')[0], 16),
-                int(el.split('−')[1], 16)+1
-            ) for el in UNICODE_RANGES
+                int(el[0], 16),
+                int(el[1], 16)+1
+            ) for el in map(lambda x: x.split('−'), UNICODE_RANGES)
         ]
     )
 )
