@@ -1,9 +1,7 @@
 # coding: utf-8
 from charset_normalizer.constant import UNICODE_RANGES_ZIP
-try:
-    from functools import lru_cache
-except ImportError:
-    from functools32 import lru_cache
+
+from functools import lru_cache
 
 
 class UnicodeRangeIdentify:
