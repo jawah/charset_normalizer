@@ -1,8 +1,7 @@
 # coding: utf-8
 import unittest
 from charset_normalizer.normalizer import CharsetNormalizerMatches
-from charset_normalizer.probe_coherence import ProbeCoherence
-from collections import Counter
+from charset_normalizer.probe_coherence import ProbeCoherence, HashableCounter
 
 
 class TestProbeCoherence(unittest.TestCase):
@@ -11,10 +10,10 @@ class TestProbeCoherence(unittest.TestCase):
         should_be_most_coherent = CharsetNormalizerMatches.from_path('./data/sample.1.ar.srt').best().first().coherence
 
         with open('./data/sample.1.ar.srt', 'r', encoding='mac_cyrillic') as fp:
-            r_ = ProbeCoherence(Counter(fp.read())).ratio
+            r_ = ProbeCoherence(HashableCounter(fp.read())).ratio
 
         with open('./data/sample.1.ar.srt', 'r', encoding='cp1251') as fp:
-            t_ = ProbeCoherence(Counter(fp.read())).ratio
+            t_ = ProbeCoherence(HashableCounter(fp.read())).ratio
 
         self.assertLess(
             should_be_most_coherent,
