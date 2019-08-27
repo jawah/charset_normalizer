@@ -8,19 +8,19 @@ from setuptools import find_packages, setup
 
 # Package meta-data.
 NAME = 'charset_normalizer'
-DESCRIPTION = 'Different approach of chardet/cChardet, this library goal is to read human text from ' \
-              'unknown encoding and transpose it to unicode the best we can.'
+DESCRIPTION = 'The Real First Universal Charset Detector. Offer a viable solution alternative to Chardet.'
 URL = 'https://github.com/ousret/charset_normalizer'
 EMAIL = 'ahmed.tahri@cloudnursery.dev'
 AUTHOR = 'Ahmed TAHRI @Ousret'
 REQUIRES_PYTHON = '>=3.4.0'
-VERSION = '0.1.6'
+VERSION = '0.1.7'
 
 # What packages are required for this module to be executed?
 REQUIRED = [
     'cached_property',
     'dragonmapper',
-    'zhon'
+    'zhon',
+    'prettytable'
 ]
 
 # What packages are optional?
@@ -43,20 +43,10 @@ try:
 except FileNotFoundError:
     long_description = DESCRIPTION
 
-# Load the package's __version__.py module as a dictionary.
-about = {}
-if not VERSION:
-    project_slug = NAME.lower().replace("-", "_").replace(" ", "_")
-    with open(os.path.join(here, project_slug, '__version__.py')) as f:
-        exec(f.read(), about)
-else:
-    about['__version__'] = VERSION
-
-
 # Where the magic happens:
 setup(
     name=NAME,
-    version=about['__version__'],
+    version=VERSION,
     description=DESCRIPTION,
     long_description=long_description,
     long_description_content_type='text/markdown',
@@ -64,6 +54,7 @@ setup(
     author_email=EMAIL,
     python_requires=REQUIRES_PYTHON,
     url=URL,
+    keywords=['encoding', 'i18n', 'txt', 'text', 'charset', 'charset-detector', 'normalization', 'unicode'],
     packages=find_packages(exclude=["tests", "*.tests", "*.tests.*", "tests.*"]),
     install_requires=REQUIRED,
     extras_require=EXTRAS,
@@ -72,15 +63,26 @@ setup(
         'charset_normalizer': ['assets/frequencies.json', ],
     },
     license='MIT',
+    entry_points={
+        'console_scripts':
+            [
+                'normalizer = charset_normalizer.cli.normalizer:cli_detect'
+            ]
+    },
     classifiers=[
         'License :: OSI Approved :: MIT License',
+        'Intended Audience :: Developers',
+        'Topic :: Software Development :: Libraries :: Python Modules',
+        'Operating System :: OS Independent',
         'Programming Language :: Python',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: Implementation :: CPython',
+        'Programming Language :: Python :: 3.8',
+        'Topic :: Text Processing :: Linguistic',
+        'Topic :: Utilities',
         'Programming Language :: Python :: Implementation :: PyPy'
     ],
 )
