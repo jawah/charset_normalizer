@@ -21,7 +21,7 @@
 > Library that help you read human* written text from unknown charset encoding.<br /> Project motivated by `chardet`, I'm trying to resolve the issue by taking another approach.
 
 This project offer you a alternative to **Universal Charset Encoding Detector**, also known as **Chardet**.
-Also as of July, August 2019 it's still a beta release. 
+**First RC available !**
 
 | Feature       | [Chardet](https://github.com/chardet/chardet)       | Charset Normalizer | [cChardet](https://github.com/PyYoshi/cChardet) |
 | ------------- | :-------------: | :------------------: | :------------------: |
@@ -31,12 +31,12 @@ Also as of July, August 2019 it's still a beta release.
 | `Reliable` **with** distinguishable standards | ✅ | ✅ | ✅ |
 | `Free & Open`  | ✅             | ✅                | ✅ |
 | `Native Python` | ✅ | ✅ | ❌ |
-| `Does not have specific code for specific charset` | ❌ | ✅ | ❌ |
+| `Detect spoken language` | ❌ | ✅ | N/A |
 
 <p align="center">
 <img src="https://i.imgflip.com/373iay.gif" alt="Reading Normalized Text" width="226"/><img src="https://image.noelshack.com/fichiers/2019/31/5/1564761473-ezgif-5-cf1bd9dd66b0.gif" alt="Cat Reading Text" width="200"/>
 
-<small>Cats are going to enjoy newly decoded text</small>
+<small>I need people to verify if this lib is covering most of cases at this stage.</small>
 
 <small>\* : When written, should not be gibberish.</small><br>
 <small>\*\* : They are clearly using specific code for a specific charset even if covering most of existing one</small><br>
@@ -54,13 +54,47 @@ pip install charset_normalizer
 
 ## 🚀 Basic Usage
 
-#### Just print out normalized text
+### CLI
+This package come with a CLI
+
+```bash
+usage: normalizer [-h] [--verbose] [--normalize] [--replace] [--force]
+                  file [file ...]
+
+positional arguments:
+  file         Filename
+
+optional arguments:
+  -h, --help   show this help message and exit
+  --verbose    Display complementary information about file if any.
+  --normalize  Permit to normalize input file. If not set, program does not
+               write anything.
+  --replace    Replace file when trying to normalize it instead of creating a
+               new one.
+  --force      Replace file without asking if you are sure, use this flag with
+               caution.
+```
+
+```bash
+normalizer ./data/sample.1.fr.srt
+```
+
+```
++----------------------+----------+----------+------------------------------------+-------+-----------+
+|       Filename       | Encoding | Language |             Alphabets              | Chaos | Coherence |
++----------------------+----------+----------+------------------------------------+-------+-----------+
+| data/sample.1.fr.srt |  cp1252  |  French  | Basic Latin and Latin-1 Supplement | 0.0 % |  84.924 % |
++----------------------+----------+----------+------------------------------------+-------+-----------+
+```
+
+### Python
+*Just print out normalized text*
 ```python
 from charset_normalizer import CharsetNormalizerMatches as CnM
 print(CnM.from_path('./my_subtitle.srt').best().first())
 ```
 
-#### Normalize any text file
+*Normalize any text file*
 ```python
 from charset_normalizer import CharsetNormalizerMatches as CnM
 try:
@@ -85,14 +119,14 @@ In a way, **I'm brute forcing text decoding.** How cool is that ? 😎
 
 ## 🍰 How
 
-- Discard all charset encoding table that could not fit the binary content.
-- Measure chaos, or the mess once opened with a corresponding charset encoding.
-- Extract matches with the lowest mess detected.
-- Finally, if there is too much match left, we measure coherence.
+  - Discard all charset encoding table that could not fit the binary content.
+  - Measure chaos, or the mess once opened with a corresponding charset encoding.
+  - Extract matches with the lowest mess detected.
+  - Finally, if there is too much match left, we measure coherence.
 
 **Wait a minute**, what is chaos/mess and coherence according to **YOU ?**
 
-*Chaos :* I opened hundred of text files, **written by humans**, with the wrong encoding table. Then **I observed**, then 
+*Chaos :* I opened hundred of text files, **written by humans**, with the wrong encoding table. **I observed**, then 
 **I established** some ground rules about **what is obvious** when **it's seems like** a mess.
  I know that my interpretation of what is chaotic is very subjective, feel free to contribute in order to 
  improve or rewrite it.
@@ -111,52 +145,3 @@ Copyright © 2019 [Ahmed TAHRI @Ousret](https://github.com/Ousret).<br />
 This project is [MIT](https://github.com/Ousret/charset_normalizer/blob/master/LICENSE) licensed.
 
 Letter appearances frequencies used in this project © 2012 [Denny Vrandečić](http://denny.vrandecic.de)
-
-## LoC
-
-It is **always possible** to **make a difference** in this world. I was told it is impossible to propose a real alternative of Chardet / uChardet in conception terms speaking.
-
-*using cloc tool on master branch of each project*
-
-**Chardet** *Python*
-```sh
-
--------------------------------------------------------------------------------
-Language                     files          blank        comment           code
--------------------------------------------------------------------------------
-Python                          42            491           1458          36112
--------------------------------------------------------------------------------
-SUM:                            42            491           1458          36112
--------------------------------------------------------------------------------
-
-```
-
-
-**uChardet** *C++*
-```sh
-
--------------------------------------------------------------------------------
-Language                     files          blank        comment           code
--------------------------------------------------------------------------------
-C++                             51            740           2958           6927
-C/C++ Header                    22            286           1039            876
-CMake                            4             30              8            234
--------------------------------------------------------------------------------
-SUM:                            77           1056           4005           8037
--------------------------------------------------------------------------------
-
-```
-
-**Charset Normalizer** *Python*
-
-```sh
-
--------------------------------------------------------------------------------
-Language                     files          blank        comment           code
--------------------------------------------------------------------------------
-Python                           6            170            155            977
--------------------------------------------------------------------------------
-SUM:                             6            170            155            977
--------------------------------------------------------------------------------
-
-```
