@@ -77,7 +77,8 @@ class ProbeCoherence:
             n_letter_not_available = 0
 
             for o_l in letters:
-
+                if not o_l.isalpha():
+                    continue
                 if o_l not in self._most_common_dict.keys():
                     n_letter_not_available += 1
                 elif self._most_common_dict[o_l] / self.nb_count_occurrence >= 0.003:
@@ -95,7 +96,7 @@ class ProbeCoherence:
                 most_common_cpy = sorted(most_common_cpy, key=lambda x: x[1], reverse=True)
                 not_respected_rank_coeff, n_tested_on = self._verify_order_on(letters, most_common_cpy)
 
-                if not_respected_rank_coeff < 0.6:
+                if not_respected_rank_coeff < 0.3:
 
                     if str(ratio_unavailable_letters) not in self.index_of_rates.keys():
                         self.index_of_rates[str(ratio_unavailable_letters)] = dict()

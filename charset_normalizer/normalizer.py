@@ -82,8 +82,6 @@ class CharsetNormalizerMatch:
         :return: List of language
         :rtype: list[str]
         """
-        from pprint import pprint
-        pprint(ProbeCoherence(self.char_counter).index_of_rates)
         return ProbeCoherence(self.char_counter).most_likely
 
     @cached_property
@@ -93,7 +91,8 @@ class CharsetNormalizerMatch:
         :return: Most used/probable language in text
         :rtype: str
         """
-        return ProbeCoherence(self.char_counter).most_likely[0]
+        languages = ProbeCoherence(self.char_counter).most_likely
+        return languages[0] if len(languages) > 0 else 'Unknown'
 
     @cached_property
     def chaos(self):
@@ -368,7 +367,7 @@ class CharsetNormalizerMatches:
 
             match_per_frequency_letter[secondary_ratio].append(match)
 
-            if len(match.alphabets) != 1 or match.alphabets[0] != 'Latin de base':
+            if len(match.alphabets) != 1 or match.alphabets[0] != 'Basic Latin':
                 all_latin_basic = False
 
         if all_latin_basic is True:
