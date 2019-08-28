@@ -13,7 +13,7 @@ URL = 'https://github.com/ousret/charset_normalizer'
 EMAIL = 'ahmed.tahri@cloudnursery.dev'
 AUTHOR = 'Ahmed TAHRI @Ousret'
 REQUIRES_PYTHON = '>=3.4.0'
-VERSION = '0.1.7'
+VERSION = '0.1.8'
 
 # What packages are required for this module to be executed?
 REQUIRED = [
