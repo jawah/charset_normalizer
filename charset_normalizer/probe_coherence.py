@@ -7,7 +7,7 @@ from cached_property import cached_property
 import json
 from os.path import dirname, realpath, exists
 
-from functools import lru_cache
+from charset_normalizer.unicode import lru_cache
 
 
 class HashableCounter(Counter):

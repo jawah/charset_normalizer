@@ -1,13 +1,17 @@
 # coding: utf-8
 import re
+import sys
 
 from dragonmapper.hanzi import MIXED, BOTH, UNKNOWN
 from dragonmapper.hanzi import identify as s_identify
 from zhon.hanzi import sentence as cjc_sentence_re
 
-from charset_normalizer.unicode import UnicodeRangeIdentify
+from charset_normalizer.unicode import UnicodeRangeIdentify, lru_cache, isprintable
 
-from functools import lru_cache
+import string
+
+if sys.version_info[0] == 2:
+    str = unicode
 
 
 @lru_cache(maxsize=8192)
@@ -19,7 +23,7 @@ class ProbeChaos:
         """
 
         if not isinstance(string, str):
-            raise TypeError('Cannot probe chaos from type <{}>, expected <str>'.format(type(string)))
+            raise TypeError('Cannot probe chaos from type <{}>, expected <{}>'.format(type(string), str))
 
         self._string = string
         self._threshold = giveup_threshold
@@ -71,7 +75,7 @@ class ProbeChaos:
 
             self.total_letter_encountered += 1
 
-            if not c.isprintable():
+            if not isprintable(c):
                 if c not in ['\n', '\t', '\r']:
                     if not UnicodeRangeIdentify.is_cjk(c) and not UnicodeRangeIdentify.is_punc(c):
                         self.unprintable += 2

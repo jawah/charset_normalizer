@@ -1,3 +1,4 @@
+from __future__ import print_function
 import unittest
 from charset_normalizer.cli.normalizer import cli_detect
 

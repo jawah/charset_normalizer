@@ -24,6 +24,7 @@ REQUIRED = [
 
 EXTRAS = {
     'permit to generate frequencies.json': ['requests_html', 'requests'],
+    ':python_version == "2.7"': ['statistics', 'backports.functools_lru_cache'],
 }
 
 

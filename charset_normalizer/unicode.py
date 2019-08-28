@@ -1,6 +1,33 @@
 # coding: utf-8
+import string
+import sys
+
+try:
+    from functools import lru_cache
+except ImportError:
+    from backports.functools_lru_cache import lru_cache
+
 from charset_normalizer.constant import UNICODE_RANGES_ZIP, UNICODE_RANGES_NAMES
-from functools import lru_cache
+
+
+def isprintable(s):
+    """Return if all characters in string are printable.
+
+    >>> isprintable('abc')
+    True
+    >>> isprintable(b'\01')
+    False
+
+    """
+    s = s.strip()
+    if len(s) < 1:
+        return True
+    if sys.version_info[0] == 3:
+        return s.isprintable()
+    else:
+        if s.isalnum():
+            return True
+        return all(c in string.printable for c in s)
 
 
 class UnicodeRangeIdentify:
