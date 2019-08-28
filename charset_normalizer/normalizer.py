@@ -275,7 +275,7 @@ class CharsetNormalizerMatches:
                 working[p]['chaos'] = sum(chaos_measures)
                 working[p]['len'] = decoded_len_t
 
-            if p == 'ascii' and working[p]['ratio'] == 0.:
+            if p == 'ascii' and p in working.keys() and working[p]['ratio'] == 0.:
                 break
 
         return CharsetNormalizerMatches(
