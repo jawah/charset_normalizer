@@ -1,5 +1,6 @@
 include LICENSE
 include charset_normalizer/assets/frequencies.json
+include README.md
 recursive-include bench *.md
 recursive-include bench *.py
 recursive-include data *.srt
