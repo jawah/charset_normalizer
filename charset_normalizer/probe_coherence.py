@@ -42,7 +42,7 @@ class ProbeCoherence:
         self.nb_count_occurrence = sum(character_occurrences.values())
 
         self.rank_per_lang = dict()
-        self.unavailable_letter_per_lang = dict()
+        self.available_letter_per_lang = dict()
 
         self.index_of_rates = dict()
 
@@ -52,6 +52,7 @@ class ProbeCoherence:
     def most_likely(self):
         p_ = [(float(el), float(sorted(self.index_of_rates[str(el)].keys())[0])) for el in
          sorted([float(el) for el in list(self.index_of_rates.keys())])[:10]]
+
         k_ = [self.index_of_rates[str(el[0])][str(el[1])] for el in sorted(p_, key=lambda tup: sum(tup))]
         return [item for sublist in k_ for item in sublist][:3]
 
@@ -67,10 +68,13 @@ class ProbeCoherence:
         p_ = [(float(el), float(sorted(self.index_of_rates[str(el)].keys())[0])) for el in
               sorted([float(el) for el in list(self.index_of_rates.keys())])]
 
-        return statistics.mean([sum(el) for el in p_]) if len(
+        return statistics.mean([sum(el) for el in p_[:2]]) if len(
             self.rank_per_lang.keys()) > 0 else 1.
 
     def _probe(self):
+
+        self.index_of_rates = dict()
+
         for language, letters in ProbeCoherence.FREQUENCIES.items():
 
             most_common_cpy = list()
@@ -86,7 +90,8 @@ class ProbeCoherence:
                         (o_l.lower(), self._most_common_dict[o_l])
                     )
 
-            if len(most_common_cpy) == 0:
+            # Todo: !! Create more constant in constant.py !!
+            if len(most_common_cpy) < 10:
                 continue
 
             ratio_unavailable_letters = n_letter_not_available / len(letters)
@@ -94,9 +99,14 @@ class ProbeCoherence:
             if ratio_unavailable_letters < 0.4:
 
                 most_common_cpy = sorted(most_common_cpy, key=lambda x: x[1], reverse=True)
-                not_respected_rank_coeff, n_tested_on = self._verify_order_on(letters, most_common_cpy)
 
-                if not_respected_rank_coeff < 0.3:
+                not_respected_rank_coeff, n_tested_on, n_tested_verified_on = self._verify_order_on(
+                    letters,
+                    most_common_cpy,
+                    distance_margin=3
+                )
+
+                if not_respected_rank_coeff < 0.5 and n_tested_verified_on >= 10:
 
                     if str(ratio_unavailable_letters) not in self.index_of_rates.keys():
                         self.index_of_rates[str(ratio_unavailable_letters)] = dict()
@@ -107,10 +117,10 @@ class ProbeCoherence:
                     self.index_of_rates[str(ratio_unavailable_letters)][str(not_respected_rank_coeff)].append(language)
 
                     self.rank_per_lang[language] = not_respected_rank_coeff
-                    self.unavailable_letter_per_lang[language] = ratio_unavailable_letters
+                    self.available_letter_per_lang[language] = n_tested_verified_on
 
     @staticmethod
-    def _verify_order_on(target_alphabet_ordered, character_occurrences):
+    def _verify_order_on(target_alphabet_ordered, character_occurrences, distance_margin=4):
         """
         Verify if a particular ordered set of character correspond more or less to our list of character occurrences
         :param list[str] target_alphabet_ordered:
@@ -133,7 +143,7 @@ class ProbeCoherence:
 
             r_index = target_alphabet_ordered.index(w_l)
 
-            r_min_s, r_max_s = w_index - 4, w_index + 4
+            r_min_s, r_max_s = w_index - distance_margin, w_index + distance_margin
 
             if r_min_s < 0:
                 r_min_s = 0
@@ -147,7 +157,7 @@ class ProbeCoherence:
 
             distance = r_index - w_index
 
-            if 0 < distance < 4:
+            if 0 < distance < distance_margin:
                 n_not_rightfully_ranked -= 1
             if distance == 0:
                 n_not_rightfully_ranked -= 2
@@ -158,6 +168,69 @@ class ProbeCoherence:
             n_tested_verified += 1
 
         if n_tested == 0 or n_tested_verified == 0:
-            return 1., 0
+            return 1., n_tested, n_tested_verified
 
-        return (n_not_rightfully_ranked / n_tested) if n_tested >= 22 else 1., n_tested
+        return (n_not_rightfully_ranked / n_tested) if n_tested >= 22 else 1., n_tested, n_tested_verified
+
+    @staticmethod
+    def frequencies_json(minimum_char_count=45000000, save_to_file=True, proxies=None):
+        """
+        This method refresh or create frequencies.json at will.
+        Don't abuse it as it perform HTTP GET query
+        Data scrapped from and (c) simia.net,
+
+        To invoke, use trickery: ProbeCoherence.frequencies_json.__func__()
+
+        :param int minimum_char_count:
+        :param bool save_to_file:
+        :param dict proxies: Proxies to use as used by requests if needed
+        :return:
+        """
+
+        try:
+            from requests import get
+            from requests_html import HTML
+        except ImportError:
+            raise ImportError('You need to install requests and requests_html in order to invoke frequencies_json static method.')
+
+        r = get(
+            'http://simia.net/letters/',
+            headers={'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:68.0) Gecko/20100101 Firefox/68.0'},
+            proxies=proxies
+        )
+
+        if r.ok is False:
+            raise IOError('Unable to perform HTTP GET on "http://simia.net/letters/". Got HTTP/{}.'.format(r.status_code))
+
+        d = HTML(html=r.content)
+        ProbeCoherence.FREQUENCIES = dict()
+
+        for _row in d.find('tr'):
+            td_language, td_letters = tuple(_row.find('td'))
+
+            language = td_language.find('a')[0].text
+            n_char = int(td_language.find('span')[0].text.replace('characters', '').replace(',', ''))
+
+            if n_char < minimum_char_count and 'Chinese' not in language:
+                continue
+
+            letters = list()
+
+            for span in td_letters.find('span'):
+                letter = span.text  # type: str
+
+                if letter.isalpha():
+                    letters.append(letter)
+
+                if len(letters) > 25:
+                    break
+
+            print(language, n_char, letters)
+
+            ProbeCoherence.FREQUENCIES[language] = letters
+
+        if save_to_file:
+            with open('{}/frequencies.json'.format(ProbeCoherence.ASSETS_PATH) if exists('{}/frequencies.json'.format(
+                    ProbeCoherence.ASSETS_PATH)) else './charset_normalizer/assets/frequencies.json', 'w', encoding='utf-8') as fp:
+                json.dump(ProbeCoherence.FREQUENCIES, fp)
+
