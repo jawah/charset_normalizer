@@ -131,21 +131,26 @@ class ProbeChaos:
                     self.successive_upper_lower += 1
 
                 if u_name != self.previous_encountered_unicode_range and self.previous_encountered_unicode_range is not None:
-                    k__ = self.previous_encountered_unicode_range
+                    k__ = self.previous_encountered_unicode_range.lower()
+
                     if 'latin' not in k__ and \
                             'halfwidth and fullwidth forms' not in k__ and \
                             'symbols and punctuation' not in k__ and \
                             'general punctuation' not in k__:
-                        self.successive_different_unicode_range += 1
+                        # Todo: create a proper method to inspect suspicious successive range in unicode
+                        if 'Katakana' not in self.encountered_unicode_range and 'Hiragana' not in self.encountered_unicode_range:
+                            self.successive_different_unicode_range += 1
 
             self.previous_encountered_unicode_range = u_name
             self.previous_printable_letter = c
 
     def _unravel_cjc_suspicious(self):
-        if 'CJK Unified Ideographs' in self.encountered_unicode_range:
-            if s_identify(self._string) in [MIXED, BOTH]:
+
+        if 'CJK Unified Ideographs' in self.encountered_unicode_range and ('Hiragana' not in self.encountered_unicode_range and 'Katakana' not in self.encountered_unicode_range):
+            i_ = s_identify(self._string)
+            if i_ in [MIXED, BOTH]:
                 return self.encountered_unicode_range_occurrences['CJK Unified Ideographs']
-            elif len(re.findall(cjc_sentence_re, self._string)) == 0:
+            elif i_ != UNKNOWN and len(re.findall(cjc_sentence_re, self._string)) == 0:
                 return self.encountered_unicode_range_occurrences['CJK Unified Ideographs']
 
         return UNKNOWN
