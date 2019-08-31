@@ -25,11 +25,13 @@ class TestFileCharsetNormalizer(unittest.TestCase):
         'sample-greek-2.txt': 'cp1253',
         'sample-hebrew.txt': 'utf_8',
         'sample-hebrew-2.txt': 'cp1255',
+        'sample-hebrew-3.txt': 'cp1255',
         'sample-russian.txt': 'mac_cyrillic',
         'sample-russian-2.txt': 'utf_8',
         'sample-turkish.txt': 'cp1252',
-        # 'sample-japanese.txt': 'shift-jis',
-        'sample-korean.txt': 'cp949'
+        'sample-korean.txt': 'cp949',
+        'sample-spanish.txt': 'utf_8',
+        'sample-bulgarian.txt': 'utf_8'
     }
 
     def test_file_input(self):
