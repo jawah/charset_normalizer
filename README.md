@@ -18,10 +18,9 @@
   </a>
 </p>
 
-> Library that help you read human* written text from unknown charset encoding.<br /> Project motivated by `chardet`, I'm trying to resolve the issue by taking another approach.
+> Library that help you read text from unknown charset encoding.<br /> Project motivated by `chardet`, I'm trying to resolve the issue by taking another approach.
 
 This project offer you a alternative to **Universal Charset Encoding Detector**, also known as **Chardet**.
-**First RC available !**
 
 | Feature       | [Chardet](https://github.com/chardet/chardet)       | Charset Normalizer | [cChardet](https://github.com/PyYoshi/cChardet) |
 | ------------- | :-------------: | :------------------: | :------------------: |
@@ -36,10 +35,7 @@ This project offer you a alternative to **Universal Charset Encoding Detector**,
 <p align="center">
 <img src="https://i.imgflip.com/373iay.gif" alt="Reading Normalized Text" width="226"/><img src="https://image.noelshack.com/fichiers/2019/31/5/1564761473-ezgif-5-cf1bd9dd66b0.gif" alt="Cat Reading Text" width="200"/>
 
-<small>I need people to verify if this lib is covering most of cases at this stage.</small>
-
-<small>\* : When written, should not be gibberish.</small><br>
-<small>\*\* : They are clearly using specific code for a specific charset even if covering most of existing one</small><br>
+*\*\* : They are clearly using specific code for a specific charset even if covering most of existing one*<br>
 
 ## Your support
 
@@ -57,7 +53,7 @@ pip install charset_normalizer
 ### CLI
 This package come with a CLI
 
-```bash
+```
 usage: normalizer [-h] [--verbose] [--normalize] [--replace] [--force]
                   file [file ...]
 
