@@ -13,9 +13,8 @@ URL = 'https://github.com/ousret/charset_normalizer'
 EMAIL = 'ahmed.tahri@cloudnursery.dev'
 AUTHOR = 'Ahmed TAHRI @Ousret'
 REQUIRES_PYTHON = '>=3.4.0'
-VERSION = '0.1.8'
+VERSION = '0.2.0'
 
-# What packages are required for this module to be executed?
 REQUIRED = [
     'cached_property',
     'dragonmapper',
@@ -23,27 +22,19 @@ REQUIRED = [
     'prettytable'
 ]
 
-# What packages are optional?
 EXTRAS = {
-    'permit to generate frequencies.json using html data': ['requests_html'],
+    'permit to generate frequencies.json': ['requests_html', 'requests'],
 }
 
-# The rest you shouldn't have to touch too much :)
-# ------------------------------------------------
-# Except, perhaps the License and Trove Classifiers!
-# If you do change the License, remember to change the Trove Classifier for that!
 
 here = os.path.abspath(os.path.dirname(__file__))
 
-# Import the README and use it as the long-description.
-# Note: this will only work if 'README.md' is present in your MANIFEST.in file!
 try:
     with io.open(os.path.join(here, 'README.md'), encoding='utf-8') as f:
         long_description = '\n' + f.read()
 except FileNotFoundError:
     long_description = DESCRIPTION
 
-# Where the magic happens:
 setup(
     name=NAME,
     version=VERSION,
@@ -54,7 +45,7 @@ setup(
     author_email=EMAIL,
     python_requires=REQUIRES_PYTHON,
     url=URL,
-    keywords=['encoding', 'i18n', 'txt', 'text', 'charset', 'charset-detector', 'normalization', 'unicode'],
+    keywords=['encoding', 'i18n', 'txt', 'text', 'charset', 'charset-detector', 'normalization', 'unicode', 'chardet'],
     packages=find_packages(exclude=["tests", "*.tests", "*.tests.*", "tests.*"]),
     install_requires=REQUIRED,
     extras_require=EXTRAS,
