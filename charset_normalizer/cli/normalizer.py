@@ -80,7 +80,8 @@ def cli_detect(argv=None):
 
         if len(matches) == 0:
             print('Unable to identify originating encoding for "{}".'.format(my_file.name), file=sys.stderr)
-            my_file.close()
+            if my_file.closed is False:
+                my_file.close()
             continue
 
         x_ = PrettyTable(['Filename', 'Encoding', 'Language', 'Alphabets', 'Chaos', 'Coherence'])
@@ -123,17 +124,21 @@ def cli_detect(argv=None):
 
             if p_.encoding.startswith('utf') is True:
                 print('"{}" file does not need to be normalized, as it already came from unicode.'.format(my_file.name))
-                my_file.close()
+                if my_file.closed is False:
+                    my_file.close()
                 continue
 
             o_ = my_file.name.split('.')  # type: list[str]
 
             if args.replace is False:
                 o_.insert(-1, p_.encoding)
+                if my_file.closed is False:
+                    my_file.close()
             else:
                 if args.force is False and query_yes_no(
                         'Are you sure to normalize "{}" by replacing it ?'.format(my_file.name), 'no') is False:
-                    my_file.close()
+                    if my_file.closed is False:
+                        my_file.close()
                     continue
 
             try:
@@ -143,10 +148,12 @@ def cli_detect(argv=None):
                     )
             except IOError as e:
                 print(str(e), file=sys.stderr)
-                my_file.close()
+                if my_file.closed is False:
+                    my_file.close()
                 return 2
 
-        my_file.close()
+        if my_file.closed is False:
+            my_file.close()
 
     return 0
 
