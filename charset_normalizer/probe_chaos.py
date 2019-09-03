@@ -13,7 +13,7 @@ from functools import lru_cache
 @lru_cache(maxsize=8192)
 class ProbeChaos:
 
-    def __init__(self, string):
+    def __init__(self, string, giveup_threshold=0.09):
         """
         :param str string:
         """
@@ -22,11 +22,13 @@ class ProbeChaos:
             raise TypeError('Cannot probe chaos from type <{}>, expected <str>'.format(type(string)))
 
         self._string = string
+        self._threshold = giveup_threshold
 
         self.successive_upper_lower = 0
         self.successive_accent = 0
         self.successive_different_unicode_range = 0
         self.encountered_unicode_range = set()
+        self.encountered_punc_sign = 0
         self.unprintable = 0
         self.encountered_white_space = 0
         self.not_encountered_white_space = 0
@@ -56,19 +58,22 @@ class ProbeChaos:
         c__ = False
 
         for c, i_ in zip(self._string, range(0, len(self._string))):
-            state_ = (i_ / len(self._string) >= 0.5)
-            if not c__ and state_ > 0.2 and self.ratio >= 0.3:
+
+            if not c__:
+                state_ = (i_ / len(self._string) >= 0.5)
+
+            # If we already have measured 10 % or more of chaos after reading 50 %, give up.
+            if not c__ and state_ and self.ratio >= self._threshold:
                 self.gave_up = True
                 break
-            elif c__ is False and state_ > 0.2:
+            elif c__ is False and state_:
                 c__ = True
 
             self.total_letter_encountered += 1
 
             if not c.isprintable():
                 if c not in ['\n', '\t', '\r']:
-                    u_name = UnicodeRangeIdentify.find_letter_type(c)
-                    if 'CJK' not in u_name and 'General Punctuation' not in u_name and ord(c) != 160:  # CJC have there own white spaces
+                    if not UnicodeRangeIdentify.is_cjk(c) and not UnicodeRangeIdentify.is_punc(c):
                         self.unprintable += 2
 
                 self.encountered_white_space += 1
@@ -92,11 +97,11 @@ class ProbeChaos:
 
             is_accent = UnicodeRangeIdentify.is_accentuated(c)
             u_name = UnicodeRangeIdentify.find_letter_type(c)
-            u_name_lower = u_name.lower() if u_name is not None else None
 
             is_upper = c.isupper()
             is_lower = c.islower() if not is_upper else False
             is_alpha = c.isalpha()
+            is_latin = UnicodeRangeIdentify.is_latin(c)
 
             if u_name is not None and u_name not in self.encountered_unicode_range:
                 self.encountered_unicode_range_occurrences[u_name] = 0
@@ -118,25 +123,28 @@ class ProbeChaos:
             if u_name is not None:
                 self.encountered_unicode_range_occurrences[u_name] += 1
 
-                if 'symbols and punctuation' in u_name_lower or 'general punctuation' in u_name_lower or 'halfwidth and fullwidth forms' in u_name_lower:
+                is_punc = UnicodeRangeIdentify.is_punc(c)
+
+                if is_punc is True:
+                    self.encountered_punc_sign += 1
+
+                if is_latin or is_punc:
                     self.encountered_white_space += 1
                     self.not_encountered_white_space = 0
                     self.not_encountered_white_space_reset += 1
-
-                if 'latin' in u_name_lower or 'halfwidth and fullwidth forms' in u_name_lower or 'symbols and punctuation' in u_name_lower or 'general punctuation' in u_name_lower:
-                    self.previous_printable_letter = c
+                    if is_latin:
+                        self.previous_encountered_unicode_range = u_name
+                        self.previous_printable_letter = c
                     continue
-                elif (self.previous_printable_letter.isupper() and c.islower()) or (
-                        self.previous_printable_letter.islower() and c.isupper()):
+
+                if (is_lower and self.previous_printable_letter.isupper()) or (is_upper and self.previous_printable_letter.islower()):
                     self.successive_upper_lower += 1
 
-                if u_name != self.previous_encountered_unicode_range and self.previous_encountered_unicode_range is not None:
-                    k__ = self.previous_encountered_unicode_range.lower()
+                if self.previous_encountered_unicode_range is not None and u_name != self.previous_encountered_unicode_range:
 
-                    if 'latin' not in k__ and \
-                            'halfwidth and fullwidth forms' not in k__ and \
-                            'symbols and punctuation' not in k__ and \
-                            'general punctuation' not in k__:
+                    if not UnicodeRangeIdentify.is_latin(self.previous_printable_letter) and \
+                            not UnicodeRangeIdentify.is_punc(self.previous_printable_letter):
+
                         # Todo: create a proper method to inspect suspicious successive range in unicode
                         if 'Katakana' not in self.encountered_unicode_range and 'Hiragana' not in self.encountered_unicode_range:
                             self.successive_different_unicode_range += 1
@@ -144,14 +152,17 @@ class ProbeChaos:
             self.previous_encountered_unicode_range = u_name
             self.previous_printable_letter = c
 
-    def _unravel_cjc_suspicious(self):
+    @staticmethod
+    def _unravel_cjk_suspicious_chinese(string, encountered_unicode_range_occurrences):
 
-        if 'CJK Unified Ideographs' in self.encountered_unicode_range and ('Hiragana' not in self.encountered_unicode_range and 'Katakana' not in self.encountered_unicode_range):
-            i_ = s_identify(self._string)
+        encountered_unicode_range = encountered_unicode_range_occurrences.keys()
+
+        if 'CJK Unified Ideographs' in encountered_unicode_range and ('Hiragana' not in encountered_unicode_range and 'Katakana' not in encountered_unicode_range):
+            i_ = s_identify(string)
             if i_ in [MIXED, BOTH]:
-                return self.encountered_unicode_range_occurrences['CJK Unified Ideographs']
-            elif i_ != UNKNOWN and len(re.findall(cjc_sentence_re, self._string)) == 0:
-                return self.encountered_unicode_range_occurrences['CJK Unified Ideographs']
+                return encountered_unicode_range_occurrences['CJK Unified Ideographs']
+            elif i_ != UNKNOWN and len(re.findall(cjc_sentence_re, string)) == 0:
+                return encountered_unicode_range_occurrences['CJK Unified Ideographs']
 
         return UNKNOWN
 
@@ -166,4 +177,5 @@ class ProbeChaos:
         """
         r_ = self.total_upper_accent_encountered if self.total_letter_encountered > 0 and self.total_unaccented_letter_encountered / self.total_letter_encountered < 0.5 else 0
         z_ = UnicodeRangeIdentify.unravel_suspicious_ranges(len(self._string), self.encountered_unicode_range_occurrences)
-        return (r_ + self.successive_upper_lower + self.successive_accent + self.successive_different_unicode_range + self.not_encountered_white_space + self.unprintable + z_ + self._unravel_cjc_suspicious()) / len(self._string)  # + len(self.encountered_unicode_range)-1
+        p_ = self.encountered_punc_sign if self.encountered_punc_sign / len(self._string) > 0.2 else 0
+        return (r_ + p_ + self.successive_upper_lower + self.successive_accent + self.successive_different_unicode_range + self.not_encountered_white_space + self.unprintable + z_ + ProbeChaos._unravel_cjk_suspicious_chinese.__func__(self._string, self.encountered_unicode_range_occurrences)) / len(self._string)  # + len(self.encountered_unicode_range)-1

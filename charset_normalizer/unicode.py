@@ -45,6 +45,34 @@ class UnicodeRangeIdentify:
         return UNICODE_RANGES_NAMES.index(range_name)
 
     @staticmethod
+    @lru_cache(maxsize=8192)
+    def is_latin(letter):
+        """
+        Verify if a letter is Latin based
+        :param str letter:
+        :return:
+        """
+        return 'Latin' in UnicodeRangeIdentify.find_letter_type(letter)
+
+    @staticmethod
+    @lru_cache(maxsize=8192)
+    def is_punc(letter):
+        if letter.isspace():
+            return True
+        r_name = UnicodeRangeIdentify.find_letter_type(letter)
+        return "Punctuation" in r_name or 'Forms' in r_name
+
+    @staticmethod
+    @lru_cache(maxsize=8192)
+    def is_cjk(letter):
+        """
+        Verify if a letter is part of a CJK unicode range
+        :param str letter:
+        :return:
+        """
+        return 'CJK' in UnicodeRangeIdentify.find_letter_type(letter)
+
+    @staticmethod
     def unravel_suspicious_ranges(str_len, encountered_unicode_range_occurrences):
         """
         :param dict encountered_unicode_range_occurrences:
