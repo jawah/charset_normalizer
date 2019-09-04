@@ -152,6 +152,9 @@ class ProbeChaos:
             self.previous_encountered_unicode_range = u_name
             self.previous_printable_letter = c
 
+        if len(self._string) < 50:
+            self.not_encountered_white_space = 0
+
     @staticmethod
     def _unravel_cjk_suspicious_chinese(string, encountered_unicode_range_occurrences):
 

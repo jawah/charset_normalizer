@@ -57,10 +57,17 @@ class UnicodeRangeIdentify:
     @staticmethod
     @lru_cache(maxsize=8192)
     def is_punc(letter):
+        """
+        Verify if a letter is a sort of punctuation sign
+        :param str letter:
+        :return:
+        """
         if letter.isspace():
             return True
         r_name = UnicodeRangeIdentify.find_letter_type(letter)
-        return "Punctuation" in r_name or 'Forms' in r_name
+        return "Punctuation" in r_name or \
+               'Forms' in r_name or \
+               letter in 'º¯—–‒‐⁃«‹?!;.:^$*»£¹¿~ª؟©±¡{}[]|¼½¾⅕⅙⅛™℠‼⁇❝❞¶⁋√↑↓�'
 
     @staticmethod
     @lru_cache(maxsize=8192)
