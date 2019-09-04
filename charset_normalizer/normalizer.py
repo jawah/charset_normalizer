@@ -9,6 +9,7 @@ from cached_property import cached_property
 
 from charset_normalizer.probe_coherence import ProbeCoherence, HashableCounter
 from charset_normalizer.probe_chaos import ProbeChaos
+from charset_normalizer.constant import BYTE_ORDER_MARK
 
 from platform import python_version_tuple
 
@@ -17,7 +18,7 @@ class CharsetNormalizerMatch:
 
     RE_NOT_PRINTABLE_LETTER = re.compile(r'[0-9\W\n\r\t]+')
 
-    def __init__(self, b_content, guessed_source_encoding, chaos_ratio, ranges):
+    def __init__(self, b_content, guessed_source_encoding, chaos_ratio, ranges, has_bom=False):
         """
         :param bytes b_content: Raw binary content
         :param str guessed_source_encoding: Guessed source encoding accessible by Python
@@ -28,6 +29,7 @@ class CharsetNormalizerMatch:
         self._encoding = guessed_source_encoding
         self._chaos_ratio = chaos_ratio
 
+        self._bom = has_bom
         self._string = str(self._raw, encoding=self._encoding).replace('\r', '')
 
         self._string_printable_only = re.sub(CharsetNormalizerMatch.RE_NOT_PRINTABLE_LETTER, ' ', self._string.lower())
@@ -92,7 +94,7 @@ class CharsetNormalizerMatch:
         :rtype: str
         """
         languages = ProbeCoherence(self.char_counter).most_likely
-        return languages[0] if len(languages) > 0 else 'Unknown'
+        return languages[0] if len(languages) > 0 else ('English' if len(self.alphabets) == 1 and self.alphabets[0] == 'Basic Latin' else 'Unknown')
 
     @cached_property
     def chaos(self):
@@ -120,6 +122,19 @@ class CharsetNormalizerMatch:
         :rtype: str
         """
         return self._encoding
+
+    @property
+    def bom(self):
+        """
+        Precise if file has a valid bom associated with discovered encoding
+        :return: True if a byte order mark was discovered
+        :rtype: bool
+        """
+        return self._bom
+
+    @property
+    def byte_order_mark(self):
+        return self.bom
 
     @property
     def raw(self):
@@ -210,7 +225,8 @@ class CharsetNormalizerMatches:
         """
         Take a sequence of bytes that could potentially be decoded to str and discard all obvious non supported
         charset encoding.
-        :param bytearray sequences: Actual sequence of bytes to analyse
+        Will test input like this (with steps=4 & chunk_size=4) --> [####     ####     ####     ####]
+        :param bytes sequences: Actual sequence of bytes to analyse
         :param float threshold: Maximum amount of chaos allowed on first pass
         :param int chunk_size: Size to extract and analyse in each step
         :param int steps: Number of steps
@@ -221,10 +237,15 @@ class CharsetNormalizerMatches:
         py_need_sort = py_v[0] < 3 or (py_v[0] == 3 and py_v[1] < 6)
 
         supported = sorted(aliases.items()) if py_need_sort else aliases.items()
+
         tested = set()
         working = dict()
 
         maximum_length = len(sequences)
+
+        if maximum_length <= chunk_size:
+            chunk_size = maximum_length
+            steps = 1
 
         for support in supported:
 
@@ -235,8 +256,26 @@ class CharsetNormalizerMatches:
 
             tested.add(p)
 
+            bom_available = False
+            bom_len = None
+
             try:
-                str(sequences, encoding=p)
+                if p in BYTE_ORDER_MARK.keys():
+
+                    if isinstance(BYTE_ORDER_MARK[p], bytes) and sequences.startswith(BYTE_ORDER_MARK[p]):
+                        bom_available = True
+                        bom_len = len(BYTE_ORDER_MARK[p])
+                    elif isinstance(BYTE_ORDER_MARK[p], list):
+                        bom_c_list = [sequences.startswith(el) for el in BYTE_ORDER_MARK[p]]
+                        if any(bom_c_list) is True:
+                            bom_available = True
+                            bom_len = len(BYTE_ORDER_MARK[p][bom_c_list.index(True)])
+
+                str(
+                    sequences if bom_available is False else sequences[bom_len:],
+                    encoding=p
+                )
+
             except UnicodeDecodeError:
                 continue
             except LookupError:
@@ -246,12 +285,20 @@ class CharsetNormalizerMatches:
             ranges_encountered_t = dict()
             decoded_len_t = 0
 
-            for i in range(0, maximum_length, int(maximum_length / steps)):
+            successive_chaos_zero = 0
+            r_ = range(
+                0 if bom_available is False else bom_len,
+                maximum_length,
+                int(maximum_length / steps)
+            )
+            p_ = len(r_)
+
+            for i in r_:
 
                 chunk = sequences[i:i + chunk_size]
                 decoded = str(chunk, encoding=p, errors='ignore')
 
-                probe_chaos = ProbeChaos(decoded)
+                probe_chaos = ProbeChaos(decoded, giveup_threshold=threshold)
                 chaos_measure, ranges_encountered = probe_chaos.ratio, probe_chaos.encountered_unicode_range_occurrences
 
                 for k, e in ranges_encountered.items():
@@ -259,10 +306,22 @@ class CharsetNormalizerMatches:
                         ranges_encountered_t[k] = 0
                     ranges_encountered_t[k] += e
 
+                if bom_available is True:
+                    if chaos_measure > 0.:
+                        chaos_measure /= 2
+                    else:
+                        chaos_measure = -1.
+
                 if chaos_measure > threshold:
                     if p in working.keys():
                         del working[p]
                     break
+                elif chaos_measure == 0.:
+                    successive_chaos_zero += 1
+                    if steps > 2 and successive_chaos_zero > p_ / 2:
+                        break
+                elif chaos_measure > 0. and successive_chaos_zero > 0:
+                    successive_chaos_zero = 0
 
                 chaos_measures.append(chaos_measure)
 
@@ -274,12 +333,14 @@ class CharsetNormalizerMatches:
                 working[p]['ranges'] = ranges_encountered_t
                 working[p]['chaos'] = sum(chaos_measures)
                 working[p]['len'] = decoded_len_t
+                working[p]['bom'] = bom_available
+                working[p]['bom_len'] = bom_len
 
             if p == 'ascii' and p in working.keys() and working[p]['ratio'] == 0.:
                 break
 
         return CharsetNormalizerMatches(
-            [CharsetNormalizerMatch(sequences, enc, working[enc]['ratio'], working[enc]['ranges']) for enc in
+            [CharsetNormalizerMatch(sequences if working[enc]['bom'] is False else sequences[working[enc]['bom_len']:], enc, working[enc]['ratio'], working[enc]['ranges'], working[enc]['bom']) for enc in
              (sorted(working.keys()) if py_need_sort else working.keys()) if working[enc]['ratio'] <= threshold])
 
     @staticmethod

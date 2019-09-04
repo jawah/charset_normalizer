@@ -3,6 +3,8 @@
 This file contain, for each range a name associated with for Unicode.
 Scrapped from https://unicode-table.com/
 """
+from codecs import BOM_UTF8, BOM_UTF16_BE, BOM_UTF16_LE, BOM_UTF32_BE, BOM_UTF32_LE
+
 UNICODE_RANGES = [
     "0000−001F",
     "0020−007F",
@@ -567,6 +569,22 @@ UNICODE_RANGES_NAMES = [
   "Variation Selectors Supplement"
 ]
 
+BYTE_ORDER_MARK = {
+    'utf_8': BOM_UTF8,
+    'utf_7': [
+        b'\x2b\x2f\x76\x38',
+        b'\x2b\x2f\x76\x39',
+        b'\x2b\x2f\x76\x2b',
+        b'\x2b\x2f\x76\x2f',
+        b'\x2b\x2f\x76\x38\x2d'
+    ],
+    'gb18030': b'\x84\x31\x95\x33',
+    'utf_32_be': BOM_UTF32_BE,
+    'utf_32_le': BOM_UTF32_LE,
+    'utf_16_be': BOM_UTF16_BE,
+    'utf_16_le': BOM_UTF16_LE
+}
+
 UNICODE_RANGES_ZIP = dict(
     zip(
         UNICODE_RANGES_NAMES,
@@ -578,4 +596,3 @@ UNICODE_RANGES_ZIP = dict(
         ]
     )
 )
-
