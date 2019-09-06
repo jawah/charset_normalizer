@@ -127,33 +127,30 @@ class ProbeChaos:
 
                 if is_punc is True:
                     self.encountered_punc_sign += 1
-
-                if is_latin or is_punc:
                     self.encountered_white_space += 1
                     self.not_encountered_white_space = 0
                     self.not_encountered_white_space_reset += 1
-                    if is_latin:
-                        self.previous_encountered_unicode_range = u_name
-                        self.previous_printable_letter = c
                     continue
 
                 if (is_lower and self.previous_printable_letter.isupper()) or (is_upper and self.previous_printable_letter.islower()):
                     self.successive_upper_lower += 1
 
-                if self.previous_encountered_unicode_range is not None and u_name != self.previous_encountered_unicode_range:
+                if is_latin:
+                    self.previous_encountered_unicode_range = u_name
+                    self.previous_printable_letter = c
 
-                    if not UnicodeRangeIdentify.is_latin(self.previous_printable_letter) and \
-                            not UnicodeRangeIdentify.is_punc(self.previous_printable_letter):
+                if self.previous_encountered_unicode_range is not None and UnicodeRangeIdentify.is_suspiciously_successive_range(u_name, self.previous_encountered_unicode_range) is True:
 
-                        # Todo: create a proper method to inspect suspicious successive range in unicode
-                        if 'Katakana' not in self.encountered_unicode_range and 'Hiragana' not in self.encountered_unicode_range:
-                            self.successive_different_unicode_range += 1
+                    if not UnicodeRangeIdentify.is_punc(self.previous_printable_letter):
+                        self.successive_different_unicode_range += 1
 
             self.previous_encountered_unicode_range = u_name
             self.previous_printable_letter = c
 
         if len(self._string) < 50:
             self.not_encountered_white_space = 0
+        if self.successive_upper_lower < 3:
+            self.successive_upper_lower = 0
 
     @staticmethod
     def _unravel_cjk_suspicious_chinese(string, encountered_unicode_range_occurrences):

@@ -92,11 +92,41 @@ class UnicodeRangeIdentify:
         for k, v in items:
             k_ = k.lower()
             if (
-                    'latin' not in k_ and 'general punctuation' not in k_ and 'halfwidth and fullwidth forms' not in k_ and 'symbols and punctuation' not in k_ and 'cjk' not in k_) or 'latin extended' in k_ or 'latin-1 supplement' in k_:
+                    'latin' not in k_ and 'general punctuation' not in k_ and 'symbols and punctuation' not in k_ and 'cjk' not in k_) or 'latin extended' in k_ or 'latin-1 supplement' in k_:
                 if v / str_len < 0.09:
                     if len(encountered_unicode_range_occurrences.keys()) <= 2 and 'latin-1 supplement' in k_:
                         continue
-                    # print('Suspicous ranges added', k, v)
+                    if 'halfwidth and fullwidth forms' in k_ and any(['CJK' in el for el in encountered_unicode_range_occurrences.keys()]):
+                        continue
                     s_ += v if 'geometric shapes' not in k_ else v * 10
 
         return s_
+
+    @staticmethod
+    @lru_cache(maxsize=8192)
+    def is_suspiciously_successive_range(range_name_a, range_name_b):
+        """
+        :param str range_name_a:
+        :param str range_name_b:
+        :return:
+        """
+
+        dec_range_name_a, dec_range_name_b = range_name_a.split(), range_name_b.split()
+
+        if range_name_a == range_name_b:
+            return False
+
+        if 'Latin' in range_name_a or 'Latin' in range_name_b:
+            return False
+
+        for el in dec_range_name_a:
+            if el in dec_range_name_b:
+                return False
+
+        if range_name_a in ['Katakana', 'Hiragana'] and 'CJK' in range_name_b:
+            return False
+
+        if 'CJK' in range_name_a and range_name_b in ['Katakana', 'Hiragana']:
+            return False
+
+        return True
