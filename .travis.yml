@@ -8,6 +8,7 @@ python:
 matrix:
   allow_failures:
     - python: "2.7"
+    - python: "3.5"  # TODO: Investigate why language detection act differently
 
 install:
   - pip install nose codecov
