@@ -1,4 +1,4 @@
-<h1 align="center">Welcome to Charset for Human 👋</h1>
+<h1 align="center">Welcome to Charset Detection for Human 👋</h1>
 
 <p align="center">
   <sup>The Real First Universal Charset Detector</sup><br>
@@ -24,7 +24,7 @@ This project offer you a alternative to **Universal Charset Encoding Detector**,
 
 | Feature       | [Chardet](https://github.com/chardet/chardet)       | Charset Normalizer | [cChardet](https://github.com/PyYoshi/cChardet) |
 | ------------- | :-------------: | :------------------: | :------------------: |
-| `Fast`         | ❌<br> 🐌🐌         | ❌<br> 🐌             | ✅ <br>⚡ |
+| `Fast`         | ❌<br> 🐌🐌         | ✅<br>             | ✅ <br>⚡ |
 | `Universal**`     | ❌            | ✅                 | ❌ |
 | `Reliable` **without** distinguishable standards | ❌ | ✅ | ✅ |
 | `Reliable` **with** distinguishable standards | ✅ | ✅ | ✅ |
@@ -56,19 +56,6 @@ This package come with a CLI
 ```
 usage: normalizer [-h] [--verbose] [--normalize] [--replace] [--force]
                   file [file ...]
-
-positional arguments:
-  file         Filename
-
-optional arguments:
-  -h, --help   show this help message and exit
-  --verbose    Display complementary information about file if any.
-  --normalize  Permit to normalize input file. If not set, program does not
-               write anything.
-  --replace    Replace file when trying to normalize it instead of creating a
-               new one.
-  --force      Replace file without asking if you are sure, use this flag with
-               caution.
 ```
 
 ```bash
@@ -99,6 +86,11 @@ except IOError as e:
     print('Sadly, we are unable to perform charset normalization.', str(e))
 ```
 
+*Upgrade your code without effort*
+```python
+from charset_normalizer import detect
+```
+
 See wiki for advanced usages. *Todo, not yet available.*
 
 ## 😇 Why
@@ -123,7 +115,7 @@ In a way, **I'm brute forcing text decoding.** How cool is that ? 😎
 **Wait a minute**, what is chaos/mess and coherence according to **YOU ?**
 
 *Chaos :* I opened hundred of text files, **written by humans**, with the wrong encoding table. **I observed**, then 
-**I established** some ground rules about **what is obvious** when **it's seems like** a mess.
+**I established** some ground rules about **what is obvious** when **it seems like** a mess.
  I know that my interpretation of what is chaotic is very subjective, feel free to contribute in order to 
  improve or rewrite it.
  
