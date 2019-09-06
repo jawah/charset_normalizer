@@ -134,6 +134,11 @@ class CharsetNormalizerMatch:
 
     @property
     def byte_order_mark(self):
+        """
+        Precise if file has a valid bom associated with discovered encoding
+        :return: True if a byte order mark was discovered
+        :rtype: bool
+        """
         return self.bom
 
     @property
