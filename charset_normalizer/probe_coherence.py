@@ -1,13 +1,10 @@
 # coding: utf-8
-import statistics
-from collections import Counter
-
-from cached_property import cached_property
-
 import json
+from collections import Counter
+from functools import lru_cache
 from os.path import dirname, realpath, exists
 
-from functools import lru_cache
+from cached_property import cached_property
 
 
 class HashableCounter(Counter):
@@ -56,6 +53,15 @@ class ProbeCoherence:
         k_ = [self.index_of_rates[str(el[0])][str(el[1])] for el in sorted(p_, key=lambda tup: sum(tup))]
         return [item for sublist in k_ for item in sublist][:3]
 
+    def ratio_of(self, language):
+        """
+        :param str language:
+        :return:
+        """
+        if language.capitalize() not in self.rank_per_lang:
+            return 1.
+        return self.rank_per_lang[language.capitalize()]
+
     @cached_property
     def ratio(self):
         """
@@ -65,11 +71,16 @@ class ProbeCoherence:
         :return: Ratio as floating number
         :rtype: float
         """
-        p_ = [(float(el), float(sorted(self.index_of_rates[str(el)].keys())[0])) for el in
-              sorted([float(el) for el in list(self.index_of_rates.keys())])]
-
-        return statistics.mean([sum(el) for el in p_[:2]]) if len(
-            self.rank_per_lang.keys()) > 0 else 1.
+        # p_ = [(float(el), float(sorted(self.index_of_rates[str(el)].keys())[0])) for el in
+        #       sorted([float(el) for el in list(self.index_of_rates.keys())])]
+        #
+        # return statistics.mean([sum(el) for el in p_[:2]]) if len(
+        #     self.rank_per_lang.keys()) > 0 else 1.
+        languages = self.most_likely
+        if len(languages) == 0:
+            return 1.
+        ratios = [self.rank_per_lang[lg] for lg in languages]
+        return sum(ratios)
 
     def _probe(self):
 
