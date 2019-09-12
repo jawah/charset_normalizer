@@ -1,8 +1,9 @@
 import argparse
 import sys
 
-from charset_normalizer import CharsetNormalizerMatches
 from prettytable import PrettyTable
+
+from charset_normalizer import CharsetNormalizerMatches
 
 
 def query_yes_no(question, default="yes"):
@@ -56,6 +57,8 @@ def cli_detect(argv=None):
                         help='Replace file when trying to normalize it instead of creating a new one.')
     parser.add_argument('--force', action="store_true", default=False, dest='force',
                         help='Replace file without asking if you are sure, use this flag with caution.')
+    parser.add_argument('--threshold', action="store", default=0.2, type=float, dest='threshold',
+                        help="Define a custom maximum amount of chaos allowed in decoded content. 0. <= chaos <= 1.")
 
     args = parser.parse_args(argv)
 
@@ -72,10 +75,15 @@ def cli_detect(argv=None):
         print('Use --force in addition of --replace only.', file=sys.stderr)
         return 1
 
+    if args.threshold < 0. or args.threshold > 1.:
+        print('--threshold VALUE should be between 0. AND 1.')
+        return 1
+
     for my_file in args.file:
 
         matches = CharsetNormalizerMatches.from_fp(
-            my_file
+            my_file,
+            threshold=args.threshold
         )
 
         if len(matches) == 0:
