@@ -8,12 +8,12 @@ from setuptools import find_packages, setup
 
 # Package meta-data.
 NAME = 'charset_normalizer'
-DESCRIPTION = 'The Real First Universal Charset Detector. Offer a viable solution alternative to Chardet.'
+DESCRIPTION = 'The Real First Universal Charset Detector. No Cpp Bindings, Using Voodoo and Magical Artifacts.'
 URL = 'https://github.com/ousret/charset_normalizer'
 EMAIL = 'ahmed.tahri@cloudnursery.dev'
 AUTHOR = 'Ahmed TAHRI @Ousret'
-REQUIRES_PYTHON = '>=3.4.0'
-VERSION = '0.2.3'
+REQUIRES_PYTHON = '>=3.5.0'
+VERSION = '0.3.0'
 
 REQUIRED = [
     'cached_property',
@@ -67,7 +67,6 @@ setup(
         'Operating System :: OS Independent',
         'Programming Language :: Python',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
