@@ -24,7 +24,7 @@ This project offer you a alternative to **Universal Charset Encoding Detector**,
 
 | Feature       | [Chardet](https://github.com/chardet/chardet)       | Charset Normalizer | [cChardet](https://github.com/PyYoshi/cChardet) |
 | ------------- | :-------------: | :------------------: | :------------------: |
-| `Fast`         | ❌<br> 🐌🐌         | ✅<br>             | ✅ <br>⚡ |
+| `Fast`         | ❌<br>          | ❌<br>             | ✅ <br>⚡ |
 | `Universal**`     | ❌            | ✅                 | ❌ |
 | `Reliable` **without** distinguishable standards | ❌ | ✅ | ✅ |
 | `Reliable` **with** distinguishable standards | ✅ | ✅ | ✅ |
