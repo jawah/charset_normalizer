@@ -1,13 +1,14 @@
 # coding: utf-8
 import re
+from functools import lru_cache
 
 from dragonmapper.hanzi import MIXED, BOTH, UNKNOWN
 from dragonmapper.hanzi import identify as s_identify
 from zhon.hanzi import sentence as cjc_sentence_re
 
+from charset_normalizer.probe_coherence import HashableCounter
+from charset_normalizer.probe_words import ProbeWords
 from charset_normalizer.unicode import UnicodeRangeIdentify
-
-from functools import lru_cache
 
 
 @lru_cache(maxsize=8192)
@@ -48,14 +49,62 @@ class ProbeChaos:
         self.total_upper_accent_encountered_inner = 0
         self.total_unaccented_letter_encountered = 0
 
+        self._probe_word = ProbeWords(HashableCounter(self._string.split()))
+
         self.gave_up = False
 
         if len(self._string) >= 10:
             self._probe()
 
+    def __add__(self, other):
+        """
+        :param ProbeChaos other:
+        :return:
+        """
+        k_ = ProbeChaos('', self._threshold)
+
+        k_.successive_upper_lower = self.successive_upper_lower + other.successive_upper_lower
+        k_.successive_accent = self.successive_accent + other.successive_accent
+        k_.successive_different_unicode_range = self.successive_different_unicode_range + other.successive_different_unicode_range
+
+        for el in self.encountered_unicode_range:
+            k_.encountered_unicode_range.add(el)
+
+        for el in other.encountered_unicode_range:
+            k_.encountered_unicode_range.add(el)
+
+        k_.encountered_punc_sign = self.encountered_punc_sign + other.encountered_punc_sign
+        k_.unprintable = self.unprintable + other.unprintable
+        k_.encountered_white_space = self.encountered_white_space + other.encountered_white_space
+        k_.not_encountered_white_space = self.not_encountered_white_space + other.not_encountered_white_space
+
+        for u_name, u_occ in self.encountered_unicode_range_occurrences.items():
+            if u_name not in k_.encountered_unicode_range_occurrences.keys():
+                k_.encountered_unicode_range_occurrences[u_name] = 0
+            k_.encountered_unicode_range_occurrences[u_name] += u_occ
+
+        for u_name, u_occ in other.encountered_unicode_range_occurrences.items():
+            if u_name not in k_.encountered_unicode_range_occurrences.keys():
+                k_.encountered_unicode_range_occurrences[u_name] = 0
+            k_.encountered_unicode_range_occurrences[u_name] += u_occ
+
+        k_.not_encountered_white_space_reset = self.not_encountered_white_space_reset + other.not_encountered_white_space_reset
+        k_.total_letter_encountered = self.total_letter_encountered + other.total_letter_encountered
+        k_.total_lower_letter_encountered = self.total_lower_letter_encountered + other.total_lower_letter_encountered
+        k_.total_upper_accent_encountered = self.total_upper_accent_encountered + other.total_upper_accent_encountered
+        k_.total_upper_accent_encountered_inner = self.total_upper_accent_encountered_inner + other.total_upper_accent_encountered_inner
+        k_.total_unaccented_letter_encountered = self.total_unaccented_letter_encountered + other.total_unaccented_letter_encountered
+
+        k_._probe_word = self._probe_word + other._probe_word
+
+        k_._string = self._string + other._string
+
+        return k_
+
     def _probe(self):
 
         c__ = False
+        upper_lower_m = False
 
         for c, i_ in zip(self._string, range(0, len(self._string))):
 
@@ -133,7 +182,13 @@ class ProbeChaos:
                     continue
 
                 if (is_lower and self.previous_printable_letter.isupper()) or (is_upper and self.previous_printable_letter.islower()):
-                    self.successive_upper_lower += 1
+                    if not upper_lower_m:
+                        upper_lower_m = True
+                    else:
+                        self.successive_upper_lower += 1
+                        upper_lower_m = False
+                else:
+                    upper_lower_m = False
 
                 if is_latin:
                     self.previous_encountered_unicode_range = u_name
@@ -154,6 +209,8 @@ class ProbeChaos:
 
     @staticmethod
     def _unravel_cjk_suspicious_chinese(string, encountered_unicode_range_occurrences):
+        if len(string) <= 10:
+            return UNKNOWN
 
         encountered_unicode_range = encountered_unicode_range_occurrences.keys()
 
@@ -161,8 +218,10 @@ class ProbeChaos:
             i_ = s_identify(string)
             if i_ in [MIXED, BOTH]:
                 return encountered_unicode_range_occurrences['CJK Unified Ideographs']
-            elif i_ != UNKNOWN and len(re.findall(cjc_sentence_re, string)) == 0:
-                return encountered_unicode_range_occurrences['CJK Unified Ideographs']
+            elif i_ != UNKNOWN and len(re.findall(cjc_sentence_re, string)) > 0:
+                return -encountered_unicode_range_occurrences['CJK Unified Ideographs']
+            elif i_ != UNKNOWN:
+                return int(encountered_unicode_range_occurrences['CJK Unified Ideographs']*0.3)
 
         return UNKNOWN
 
@@ -178,4 +237,4 @@ class ProbeChaos:
         r_ = self.total_upper_accent_encountered if self.total_letter_encountered > 0 and self.total_unaccented_letter_encountered / self.total_letter_encountered < 0.5 else 0
         z_ = UnicodeRangeIdentify.unravel_suspicious_ranges(len(self._string), self.encountered_unicode_range_occurrences)
         p_ = self.encountered_punc_sign if self.encountered_punc_sign / len(self._string) > 0.2 else 0
-        return (r_ + p_ + self.successive_upper_lower + self.successive_accent + self.successive_different_unicode_range + self.not_encountered_white_space + self.unprintable + z_ + ProbeChaos._unravel_cjk_suspicious_chinese.__func__(self._string, self.encountered_unicode_range_occurrences)) / len(self._string)  # + len(self.encountered_unicode_range)-1
+        return ((r_ + p_ + self.successive_upper_lower + self.successive_accent + self.successive_different_unicode_range + self.not_encountered_white_space + self.unprintable + z_ + ProbeChaos._unravel_cjk_suspicious_chinese.__func__(self._string, self.encountered_unicode_range_occurrences)) / len(self._string)) + self._probe_word.ratio  # + len(self.encountered_unicode_range)-1

@@ -11,11 +11,11 @@ class TestFileCharsetNormalizer(unittest.TestCase):
     SHOULD_BE = {
         'sample.1.ar.srt': 'cp1256',
         'sample.1.fr.srt': 'cp1252',
-        'sample.1.gr.srt': 'iso8859_7',
+        'sample.1.gr.srt': 'cp1253',
         'sample.1.he.srt': 'cp1255',
         'sample.1.hi.srt': 'ascii',
         'sample.1.ru.srt': 'cp1251',
-        'sample.1.tu.srt': 'cp1256',  # Not actually the good one. But kinda readable.
+        'sample.1.tu.srt': 'cp1252',  # Not actually the good one. But kinda readable.
         'sample.2.ar.srt': 'cp1256',
         'sample.3.ar.srt': 'utf_8',
         'sample.4.ar.srt': 'cp1256',

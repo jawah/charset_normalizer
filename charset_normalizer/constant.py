@@ -569,6 +569,24 @@ UNICODE_RANGES_NAMES = [
   "Variation Selectors Supplement"
 ]
 
+UNICODE_SECONDARY_RANGE_KEYWORD = [
+    'Supplement',
+    'Extended',
+    'Extensions',
+    'Modifier',
+    'Marks',
+    'Punctuation',
+    'Symbols',
+    'Forms',
+    'Operators',
+    'Miscellaneous',
+    'Drawing',
+    'Block',
+    'Shapes',
+    'Supplemental',
+    'Tags'
+]
+
 BYTE_ORDER_MARK = {
     'utf_8': BOM_UTF8,
     'utf_7': [
