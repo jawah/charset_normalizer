@@ -569,6 +569,7 @@ UNICODE_RANGES_NAMES = [
   "Variation Selectors Supplement"
 ]
 
+# List of keyword that indicate a secondary unicode range
 UNICODE_SECONDARY_RANGE_KEYWORD = [
     'Supplement',
     'Extended',
@@ -587,6 +588,7 @@ UNICODE_SECONDARY_RANGE_KEYWORD = [
     'Tags'
 ]
 
+# Contain for each eligible encoding a list of/item bytes SIG/BOM
 BYTE_ORDER_MARK = {
     'utf_8': BOM_UTF8,
     'utf_7': [
@@ -603,6 +605,14 @@ BYTE_ORDER_MARK = {
     'utf_16_le': BOM_UTF16_LE
 }
 
+COHERENCE_ALPHABET_COVERED_IF = 0.8
+COHERENCE_PICKING_LETTER_MIN_APPEARANCE = 0.003
+COHERENCE_MIN_LETTER_NEEDED = 10
+COHERENCE_MAXIMUM_UNAVAILABLE_LETTER = 0.4
+COHERENCE_MAXIMUM_NOT_RESPECTED_RANK = 0.5
+COHERENCE_ACCEPTED_MARGIN_LETTER_RANK = 3
+
+# Construct for each unicode range (Name; Range) from UNICODE_RANGES_NAMES and UNICODE_RANGES
 UNICODE_RANGES_ZIP = dict(
     zip(
         UNICODE_RANGES_NAMES,
