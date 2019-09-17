@@ -128,10 +128,25 @@ class CharsetNormalizerMatch:
         return self._encoding
 
     @property
+    def encoding_aliases(self):
+        """
+        Encoding name are known by many name, using this could help when searching for IBM855 when it's listed as CP855.
+        :return: List of encoding aliases
+        :rtype: list[str]
+        """
+        also_known_as = list()
+        for u, p in aliases.items():
+            if self.encoding == u:
+                also_known_as.append(p)
+            elif self.encoding == p:
+                also_known_as.append(u)
+        return also_known_as
+
+    @property
     def bom(self):
         """
-        Precise if file has a valid bom associated with discovered encoding
-        :return: True if a byte order mark was discovered
+        Precise if file has a valid bom or sig associated with discovered encoding
+        :return: True if a byte order mark or sig was discovered
         :rtype: bool
         """
         return self._bom
