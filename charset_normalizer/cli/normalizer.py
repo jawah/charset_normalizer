@@ -42,6 +42,11 @@ def query_yes_no(question, default="yes"):
 
 
 def cli_detect(argv=None):
+    """
+    CLI assistant using ARGV and ArgumentParser
+    :param argv:
+    :return: 0 if everything is fine, anything else equal trouble
+    """
     parser = argparse.ArgumentParser(
         description="The Real First Universal Charset Detector. "
                     "Discover originating encoding used on text file. "
@@ -87,7 +92,7 @@ def cli_detect(argv=None):
         )
 
         if len(matches) == 0:
-            print('Unable to identify originating encoding for "{}".'.format(my_file.name), file=sys.stderr)
+            print('Unable to identify originating encoding for "{}". {}'.format(my_file.name, 'Maybe try increasing maximum amount of chaos.' if args.threshold < 1. else ''), file=sys.stderr)
             if my_file.closed is False:
                 my_file.close()
             continue
@@ -125,8 +130,14 @@ def cli_detect(argv=None):
         print(x_)
 
         if args.verbose is True:
-            print('"{}" could be also originating from {}.'.format(my_file.name, ','.join(r_.could_be_from_charset)))
-            print('"{}" could be also be written in {}.'.format(my_file.name, ' or '.join(p_.languages)))
+            if len(r_.could_be_from_charset) > 1:
+                print('"{}" could be also originating from {}.'.format(my_file.name, ','.join(r_.could_be_from_charset)))
+            if len(p_.could_be_from_charset) > 1:
+                print('"{}" produce the EXACT same output with those encoding : {}.'.format(my_file.name, ' OR '.join(p_.could_be_from_charset)))
+            if len(p_.languages) > 1:
+                print('"{}" could be also be written in {}.'.format(my_file.name, ' or '.join(p_.languages)))
+            if p_.byte_order_mark is True:
+                print('"{}" has a signature or byte order mark (BOM) in it.'.format(my_file.name))
 
         if args.normalize is True:
 
@@ -154,6 +165,7 @@ def cli_detect(argv=None):
                     fp.write(
                         str(p_)
                     )
+                print('"{}" has been successfully written to disk.'.format('.'.join(o_)))
             except IOError as e:
                 print(str(e), file=sys.stderr)
                 if my_file.closed is False:
