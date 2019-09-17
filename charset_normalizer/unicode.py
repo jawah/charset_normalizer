@@ -248,3 +248,31 @@ class UnicodeRangeIdentify:
         :return:
         """
         return [u_occ_cont == 1 for u_name, u_occ_cont in UnicodeRangeIdentify.word_to_range_continue(word)].count(True) / len(word)
+
+    @staticmethod
+    def list_by_range(letters):
+        """
+        Sort letters by unicode range in a dict
+        :param list[str] letters:
+        :return: Letters by unicode range
+        :rtype: dict
+        """
+        by_ranges = dict()
+
+        for l in letters:
+            u_range = UnicodeRangeIdentify.find_letter_type(l)
+
+            s_ = False
+
+            for range_name, letters in by_ranges.items():
+                if UnicodeRangeIdentify.is_suspiciously_successive_range(range_name, u_range) is False:
+                    by_ranges[range_name].append(l)
+                    s_ = True
+                    break
+
+            if s_ is False:
+                if u_range not in by_ranges.keys():
+                    by_ranges[u_range] = list()
+                by_ranges[u_range].append(l)
+
+        return by_ranges
