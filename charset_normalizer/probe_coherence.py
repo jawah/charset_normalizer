@@ -4,6 +4,9 @@ from collections import Counter
 from functools import lru_cache
 from os.path import dirname, realpath, exists
 
+from charset_normalizer.unicode import UnicodeRangeIdentify
+from charset_normalizer.constant import COHERENCE_ACCEPTED_MARGIN_LETTER_RANK, COHERENCE_ALPHABET_COVERED_IF, COHERENCE_PICKING_LETTER_MIN_APPEARANCE, COHERENCE_MIN_LETTER_NEEDED, COHERENCE_MAXIMUM_UNAVAILABLE_LETTER, COHERENCE_MAXIMUM_NOT_RESPECTED_RANK
+
 from cached_property import cached_property
 
 
@@ -37,6 +40,10 @@ class ProbeCoherence:
         self.most_common = character_occurrences.most_common()
         self._most_common_dict = dict(self.most_common)
         self.nb_count_occurrence = sum(character_occurrences.values())
+        self.letters = list(character_occurrences.keys())
+        self.covered_letters = set()
+
+        self.nb_used_occurrence = 0
 
         self.rank_per_lang = dict()
         self.available_letter_per_lang = dict()
@@ -71,16 +78,43 @@ class ProbeCoherence:
         :return: Ratio as floating number
         :rtype: float
         """
-        # p_ = [(float(el), float(sorted(self.index_of_rates[str(el)].keys())[0])) for el in
-        #       sorted([float(el) for el in list(self.index_of_rates.keys())])]
-        #
-        # return statistics.mean([sum(el) for el in p_[:2]]) if len(
-        #     self.rank_per_lang.keys()) > 0 else 1.
         languages = self.most_likely
+
         if len(languages) == 0:
             return 1.
+
         ratios = [self.rank_per_lang[lg] for lg in languages]
-        return sum(ratios)
+
+        return sum(ratios) / 2 if self.non_latin_covered_any is True else sum(ratios)
+
+    @property
+    def coverage(self):
+        return self.nb_used_occurrence / self.nb_count_occurrence
+
+    @cached_property
+    def alphabet_coverage(self):
+        list_by_range = UnicodeRangeIdentify.list_by_range(self.letters)
+        coverages = dict()
+
+        for u_range, letters in list_by_range.items():
+            n_covered = 0
+            for l in letters:
+                if l in self.covered_letters:
+                    n_covered += 1
+
+            coverages[u_range] = n_covered / len(letters) >= COHERENCE_ALPHABET_COVERED_IF
+
+        return coverages
+
+    @property
+    def non_latin_covered_any(self):
+        """
+        :return:
+        """
+        for alphabet, covered in self.alphabet_coverage.items():
+            if 'Latin' not in alphabet and covered is True:
+                return True
+        return False
 
     def _probe(self):
 
@@ -91,33 +125,35 @@ class ProbeCoherence:
             most_common_cpy = list()
             n_letter_not_available = 0
 
+            used_occ = 0
+
             for o_l in letters:
                 if not o_l.isalpha():
                     continue
                 if o_l not in self._most_common_dict.keys():
                     n_letter_not_available += 1
-                elif self._most_common_dict[o_l] / self.nb_count_occurrence >= 0.003:
+                elif self._most_common_dict[o_l] / self.nb_count_occurrence >= COHERENCE_PICKING_LETTER_MIN_APPEARANCE:
                     most_common_cpy.append(
                         (o_l.lower(), self._most_common_dict[o_l])
                     )
+                    used_occ += self._most_common_dict[o_l]
 
-            # Todo: !! Create more constant in constant.py !!
-            if len(most_common_cpy) < 10:
+            if len(most_common_cpy) < COHERENCE_MIN_LETTER_NEEDED:
                 continue
 
             ratio_unavailable_letters = n_letter_not_available / len(letters)
 
-            if ratio_unavailable_letters < 0.4:
+            if ratio_unavailable_letters < COHERENCE_MAXIMUM_UNAVAILABLE_LETTER:
 
                 most_common_cpy = sorted(most_common_cpy, key=lambda x: x[1], reverse=True)
 
                 not_respected_rank_coeff, n_tested_on, n_tested_verified_on = self._verify_order_on(
                     letters,
                     most_common_cpy,
-                    distance_margin=3
+                    distance_margin=COHERENCE_ACCEPTED_MARGIN_LETTER_RANK
                 )
 
-                if not_respected_rank_coeff < 0.5 and n_tested_verified_on >= 10:
+                if not_respected_rank_coeff < COHERENCE_MAXIMUM_NOT_RESPECTED_RANK and n_tested_verified_on >= COHERENCE_MIN_LETTER_NEEDED:
 
                     if str(ratio_unavailable_letters) not in self.index_of_rates.keys():
                         self.index_of_rates[str(ratio_unavailable_letters)] = dict()
@@ -129,6 +165,11 @@ class ProbeCoherence:
 
                     self.rank_per_lang[language] = not_respected_rank_coeff
                     self.available_letter_per_lang[language] = n_tested_verified_on
+
+                    self.nb_used_occurrence += used_occ
+
+                    for l, o in most_common_cpy:
+                        self.covered_letters.add(l)
 
     @staticmethod
     def _verify_order_on(target_alphabet_ordered, character_occurrences, distance_margin=4):
@@ -181,7 +222,13 @@ class ProbeCoherence:
         if n_tested == 0 or n_tested_verified == 0:
             return 1., n_tested, n_tested_verified
 
-        return (n_not_rightfully_ranked / n_tested) if n_tested >= 22 else 1., n_tested, n_tested_verified
+        if n_tested < 15:
+            return 1., n_tested, n_tested_verified
+        elif 15 <= n_tested < 22:
+            if n_tested_verified/n_tested < COHERENCE_MAXIMUM_NOT_RESPECTED_RANK:
+                return 1., n_tested, n_tested_verified
+
+        return n_not_rightfully_ranked / n_tested, n_tested, n_tested_verified
 
     @staticmethod
     def frequencies_json(minimum_char_count=45000000, save_to_file=True, proxies=None):
@@ -236,7 +283,7 @@ class ProbeCoherence:
                 if len(letters) > 25:
                     break
 
-            print(language, n_char, letters)
+            print('ADDED', language, '|Computed WITH|', n_char, '|WITH Letters|', letters)
 
             ProbeCoherence.FREQUENCIES[language] = letters
 

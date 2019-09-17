@@ -13,15 +13,19 @@ from charset_normalizer.probe_chaos import ProbeChaos
 from charset_normalizer.probe_coherence import ProbeCoherence, HashableCounter
 
 
+from hashlib import sha256
+
+
 class CharsetNormalizerMatch:
 
     RE_NOT_PRINTABLE_LETTER = re.compile(r'[0-9\W\n\r\t]+')
 
-    def __init__(self, b_content, guessed_source_encoding, chaos_ratio, ranges, has_bom=False):
+    def __init__(self, b_content, guessed_source_encoding, chaos_ratio, ranges, has_bom=False, submatch=None):
         """
         :param bytes b_content: Raw binary content
         :param str guessed_source_encoding: Guessed source encoding accessible by Python
         :param float chaos_ratio: Coefficient of previously detected mess in decoded content
+        :param list[CharsetNormalizerMatch] submatch: list of submatch that produce the EXACT same output as this one
         """
 
         self._raw = b_content
@@ -36,9 +40,26 @@ class CharsetNormalizerMatch:
 
         self.ranges = ranges
 
+        self._submatch = submatch or list()  # type: list[CharsetNormalizerMatch]
+
     @cached_property
     def w_counter(self):
+        """
+        By 'word' we consider output of split() method *with no args*
+        :return: For each 'word' in string, associated occurrence as provided by collection.Counter
+        :rtype: collections.Counter
+        """
         return collections.Counter(self._string_printable_only.split())
+
+    @property
+    def submatch(self):
+        """
+        Return a list of submatch that produce the EXACT same output as this one.
+        This return a list of CharsetNormalizerMatch and NOT a CharsetNormalizerMatches
+        :return: list of submatch
+        :rtype: list[CharsetNormalizerMatch]
+        """
+        return self._submatch
 
     @cached_property
     def alphabets(self):
@@ -56,14 +77,14 @@ class CharsetNormalizerMatch:
         :return: list of encoding
         :rtype: list[str]
         """
-        return [self.encoding]
+        return [self.encoding] + [el.encoding for el in self._submatch]
 
     def __eq__(self, other):
         """
         :param CharsetNormalizerMatch other:
         :return:
         """
-        return self.chaos == other.chaos and len(self.raw) == len(other.raw) and self.encoding == other.encoding
+        return self.fingerprint == other.fingerprint and self.encoding == other.encoding
 
     @cached_property
     def coherence(self):
@@ -75,6 +96,10 @@ class CharsetNormalizerMatch:
         :rtype: float
         """
         return ProbeCoherence(self.char_counter).ratio
+
+    @cached_property
+    def coherence_non_latin(self):
+        return ProbeCoherence(self.char_counter).non_latin_covered_any
 
     @cached_property
     def languages(self):
@@ -115,9 +140,10 @@ class CharsetNormalizerMatch:
     def chaos_secondary_pass(self):
         """
         Check once again chaos in decoded text, except this time, with full content.
-        :return:
+        :return: Same as chaos property expect it's about all content
+        :rtype: float
         """
-        return ProbeChaos(str(self))
+        return ProbeChaos(str(self)).ratio
 
     @property
     def encoding(self):
@@ -128,10 +154,25 @@ class CharsetNormalizerMatch:
         return self._encoding
 
     @property
+    def encoding_aliases(self):
+        """
+        Encoding name are known by many name, using this could help when searching for IBM855 when it's listed as CP855.
+        :return: List of encoding aliases
+        :rtype: list[str]
+        """
+        also_known_as = list()
+        for u, p in aliases.items():
+            if self.encoding == u:
+                also_known_as.append(p)
+            elif self.encoding == p:
+                also_known_as.append(u)
+        return also_known_as
+
+    @property
     def bom(self):
         """
-        Precise if file has a valid bom associated with discovered encoding
-        :return: True if a byte order mark was discovered
+        Precise if file has a valid bom or sig associated with discovered encoding
+        :return: True if a byte order mark or sig was discovered
         :rtype: bool
         """
         return self._bom
@@ -147,6 +188,11 @@ class CharsetNormalizerMatch:
 
     @property
     def raw(self):
+        """
+        Get untouched bytes content
+        :return: Original bytes sequence
+        :rtype: bytes
+        """
         return self._raw
 
     def first(self):
@@ -167,6 +213,14 @@ class CharsetNormalizerMatch:
 
     def __str__(self):
         return self._string
+
+    @cached_property
+    def fingerprint(self):
+        """
+        Generate sha256 checksum of encoded unicode self
+        :return:
+        """
+        return sha256(self.output()).hexdigest()
 
     def output(self, encoding='utf-8'):
         """
@@ -302,8 +356,8 @@ class CharsetNormalizerMatches:
 
             chaos_means = statistics.mean(ratios)
             chaos_median = statistics.median(ratios)
-            chaos_min = min(ratios)
-            chaos_max = max(ratios)
+            # chaos_min = min(ratios)
+            # chaos_max = max(ratios)
 
             if (len(r_) >= 4 and nb_gave_up > len(r_) / 4) or chaos_median > threshold:
                 # print(p, 'is too much chaos for decoded input !')
@@ -319,17 +373,30 @@ class CharsetNormalizerMatches:
 
             # print(p, 'U RANGES', encountered_unicode_range_occurrences)
 
-            matches.append(
-                CharsetNormalizerMatch(
-                    sequences if not bom_available else sequences[bom_len:],
-                    p,
-                    chaos_means,
-                    encountered_unicode_range_occurrences,
-                    bom_available
-                )
+            cnm = CharsetNormalizerMatch(
+                sequences if not bom_available else sequences[bom_len:],
+                p,
+                chaos_means,
+                encountered_unicode_range_occurrences,
+                bom_available
             )
 
-            # print(p, nb_gave_up, chaos_means, chaos_median, chaos_min, chaos_max, matches[-1].coherence, matches[-1].language)
+            fingerprint_tests = [el.fingerprint == cnm.fingerprint for el in matches]
+
+            if any(fingerprint_tests) is True:
+                matches[fingerprint_tests.index(True)].submatch.append(cnm)
+            else:
+                matches.append(
+                    CharsetNormalizerMatch(
+                        sequences if not bom_available else sequences[bom_len:],
+                        p,
+                        chaos_means,
+                        encountered_unicode_range_occurrences,
+                        bom_available
+                    )
+                )
+
+            # print(p, nb_gave_up, chaos_means, chaos_median, chaos_min, chaos_max, matches[-1].coherence, matches[-1].languages,)
 
             if (p == 'ascii' and chaos_median == 0.) or bom_available is True:
                 return CharsetNormalizerMatches([matches[-1]])

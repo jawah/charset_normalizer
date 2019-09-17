@@ -84,6 +84,7 @@ class UnicodeRangeIdentify:
     @staticmethod
     def unravel_suspicious_ranges(str_len, encountered_unicode_range_occurrences):
         """
+        :param int str_len:
         :param dict encountered_unicode_range_occurrences:
         :return:
         """
@@ -108,9 +109,11 @@ class UnicodeRangeIdentify:
     @lru_cache(maxsize=8192)
     def is_suspiciously_successive_range(range_name_a, range_name_b):
         """
-        :param str range_name_a:
-        :param str range_name_b:
-        :return:
+        Verify if range B encountered just after range A is considered suspicious
+        :param str range_name_a: Unicode range A
+        :param str range_name_b: Unicode range B
+        :return: True if suspicious else False
+        :rtype: bool
         """
         if range_name_a is None or range_name_b is None:
             return True
@@ -159,8 +162,10 @@ class UnicodeRangeIdentify:
     @lru_cache(maxsize=512)
     def is_range_secondary(u_range):
         """
-        :param str u_range:
-        :return:
+        Determine if a unicode range name is not a primary range by search specific keyword in range name
+        :param str u_range: Unicode range name
+        :return: True if secondary else False
+        :rtype: bool
         """
         try:
             UnicodeRangeIdentify.get_range_id(u_range)
@@ -178,7 +183,8 @@ class UnicodeRangeIdentify:
         """
         Determine how much of the word is composed of punc sign
         :param str word:
-        :return:
+        :return: Ratio special letter VS len of the word
+        :rtype: float
         """
         return [UnicodeRangeIdentify.is_punc(el) for el in word].count(True) / len(word)
 
@@ -187,25 +193,26 @@ class UnicodeRangeIdentify:
         """
         Determine how much of the word is composed of accentuated letter
         :param word:
-        :return:
+        :return: Ratio accentuated letter VS len of the word
+        :rtype: float
         """
         return [UnicodeRangeIdentify.is_accentuated(el) for el in word].count(True) / len(word)
 
     @staticmethod
     def word_to_range_list(word):
         """
-
         :param str word:
-        :return:
+        :return: Produce a list containing for each letter in word it's unicode range name
+        :rtype: list[str]
         """
         return [UnicodeRangeIdentify.find_letter_type(el) for el in word]
 
     @staticmethod
     def word_to_range_continue(word):
         """
-
         :param str word:
-        :return:
+        :return: List of tuple (unicode range with occ) continuously encountered in a word
+        :rtype: list[tuple[str, int]]
         """
         l_ = list()
 
@@ -241,3 +248,31 @@ class UnicodeRangeIdentify:
         :return:
         """
         return [u_occ_cont == 1 for u_name, u_occ_cont in UnicodeRangeIdentify.word_to_range_continue(word)].count(True) / len(word)
+
+    @staticmethod
+    def list_by_range(letters):
+        """
+        Sort letters by unicode range in a dict
+        :param list[str] letters:
+        :return: Letters by unicode range
+        :rtype: dict
+        """
+        by_ranges = dict()
+
+        for l in letters:
+            u_range = UnicodeRangeIdentify.find_letter_type(l)
+
+            s_ = False
+
+            for range_name, letters in by_ranges.items():
+                if UnicodeRangeIdentify.is_suspiciously_successive_range(range_name, u_range) is False:
+                    by_ranges[range_name].append(l)
+                    s_ = True
+                    break
+
+            if s_ is False:
+                if u_range not in by_ranges.keys():
+                    by_ranges[u_range] = list()
+                by_ranges[u_range].append(l)
+
+        return by_ranges
