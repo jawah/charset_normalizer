@@ -136,9 +136,10 @@ class CharsetNormalizerMatch:
     def chaos_secondary_pass(self):
         """
         Check once again chaos in decoded text, except this time, with full content.
-        :return:
+        :return: Same as chaos property expect it's about all content
+        :rtype: float
         """
-        return ProbeChaos(str(self))
+        return ProbeChaos(str(self)).ratio
 
     @property
     def encoding(self):
@@ -183,6 +184,11 @@ class CharsetNormalizerMatch:
 
     @property
     def raw(self):
+        """
+        Get untouched bytes content
+        :return: Original bytes sequence
+        :rtype: bytes
+        """
         return self._raw
 
     def first(self):
@@ -346,8 +352,8 @@ class CharsetNormalizerMatches:
 
             chaos_means = statistics.mean(ratios)
             chaos_median = statistics.median(ratios)
-            chaos_min = min(ratios)
-            chaos_max = max(ratios)
+            # chaos_min = min(ratios)
+            # chaos_max = max(ratios)
 
             if (len(r_) >= 4 and nb_gave_up > len(r_) / 4) or chaos_median > threshold:
                 # print(p, 'is too much chaos for decoded input !')
