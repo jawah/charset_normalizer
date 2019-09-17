@@ -35,7 +35,7 @@ class TestLanguageDetection(unittest.TestCase):
     def test_language_detection(self):
 
         for path_name in glob('./data/*.srt') + glob('./data/*.txt'):
-            with self.subTest(path_name):
+            with self.subTest(path_name+' WRITTEN IN '+TestLanguageDetection.SHOULD_BE[basename(path_name)]):
                 r_ = CnM.from_path(path_name).best().first()
 
                 self.assertEqual(

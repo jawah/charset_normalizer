@@ -4,6 +4,15 @@ from charset_normalizer.unicode import UnicodeRangeIdentify
 
 
 class TestUnicodeHelper(unittest.TestCase):
+
+    def test_list_by_range(self):
+
+        self.assertEqual(
+            {'Basic Latin': ['a', 'b', 'c', 'd', 'e', 'é', 'ù'], 'Hangul Syllables': ['역', '사'],
+             'Greek and Coptic': ['π', 'ο', 'υ']},
+            UnicodeRangeIdentify.list_by_range(['a', 'b', 'c', 'd', 'e', 'é', 'ù', '역', '사', 'π', 'ο', 'υ'])
+        )
+
     def test_should_be_accented(self):
 
         self.assertTrue(
