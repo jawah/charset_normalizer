@@ -98,6 +98,10 @@ class CharsetNormalizerMatch:
         return ProbeCoherence(self.char_counter).ratio
 
     @cached_property
+    def coherence_non_latin(self):
+        return ProbeCoherence(self.char_counter).non_latin_covered_any
+
+    @cached_property
     def languages(self):
         """
         Return a list of probable language in text
