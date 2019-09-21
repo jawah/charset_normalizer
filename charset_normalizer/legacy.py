@@ -20,7 +20,7 @@ def detect(byte_str):
     r = CnM.from_bytes(byte_str).best().first()
 
     return {
-        'encoding': r.encoding,
-        'language': r.language if r.language != 'Unknown' else '',
-        'confidence': 1. - r.chaos
-    } if r is not None else None
+        'encoding': r.encoding if r is not None else None,
+        'language': r.language if r is not None and r.language != 'Unknown' else '',
+        'confidence': 1. - r.chaos if r is not None else None
+    }

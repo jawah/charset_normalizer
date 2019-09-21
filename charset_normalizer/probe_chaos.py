@@ -54,8 +54,10 @@ class ProbeChaos:
 
         self.gave_up = False
 
-        if len(self._string) >= 10:
-            self._probe()
+        if 32 > len(self._string) > 0:
+            self._string *= int(32 / len(self._string)) + 1
+
+        self._probe()
 
     def __add__(self, other):
         """

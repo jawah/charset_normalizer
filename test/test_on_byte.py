@@ -36,6 +36,14 @@ class TestBytes(unittest.TestCase):
 
     def test_encode_decode(self):
 
+        with self.subTest('Encode & Detect UTF-8 WITHOUT SIG SMALL CONTENT'):
+            self.assertEqual(
+                CnM.from_bytes(
+                    'h\xe9llo world!\n'.encode('utf_8')
+                ).best().first().encoding,
+                'utf_8'
+            )
+
         with self.subTest('Encode & Detect GB18030 WITHOUT SIG'):
             self.assertEqual(
                 CnM.from_bytes(
