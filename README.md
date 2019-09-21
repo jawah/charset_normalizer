@@ -23,7 +23,7 @@
 > All IANA character set names for which the Python core library provides codecs are supported.
 
 <p align="center">
-  >>>>> <a href="https://charsetnormalizerweb.ousret.now.sh" target="_blank">🐱 Try Me Online NOW ! Then Adopt Me ❤️ </a> <<<<<
+  >>>>> <a href="https://charsetnormalizerweb.ousret.now.sh" target="_blank">❤️ Try Me Online NOW ! Then Adopt Me ❤️ </a> <<<<<
 </p>
 
 This project offer you a alternative to **Universal Charset Encoding Detector**, also known as **Chardet**.
