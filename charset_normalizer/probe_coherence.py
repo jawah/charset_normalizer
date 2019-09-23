@@ -231,7 +231,7 @@ class ProbeCoherence:
         return n_not_rightfully_ranked / n_tested, n_tested, n_tested_verified
 
     @staticmethod
-    def frequencies_json(minimum_char_count=45000000, save_to_file=True, proxies=None):
+    def frequencies_json(minimum_char_count=45000000, save_to_file=True, proxies=None):  # pragma: no cover
         """
         This method refresh or create frequencies.json at will.
         Don't abuse it as it perform HTTP GET query
@@ -291,4 +291,3 @@ class ProbeCoherence:
             with open('{}/frequencies.json'.format(ProbeCoherence.ASSETS_PATH) if exists('{}/frequencies.json'.format(
                     ProbeCoherence.ASSETS_PATH)) else './charset_normalizer/assets/frequencies.json', 'w', encoding='utf-8') as fp:
                 json.dump(ProbeCoherence.FREQUENCIES, fp)
-

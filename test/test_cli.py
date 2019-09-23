@@ -1,8 +1,21 @@
 import unittest
-from charset_normalizer.cli.normalizer import cli_detect
+from charset_normalizer.cli.normalizer import cli_detect, query_yes_no
+from unittest.mock import patch
 
 
 class TestCommandLineInterface(unittest.TestCase):
+
+    @patch('builtins.input', lambda *args: 'y')
+    def test_simple_yes_input(self):
+        self.assertTrue(
+            query_yes_no('Are u willing to chill a little bit ?')
+        )
+
+    @patch('builtins.input', lambda *args: 'N')
+    def test_simple_no_input(self):
+        self.assertFalse(
+            query_yes_no('Are u willing to chill a little bit ?')
+        )
 
     def test_single_file(self):
 
@@ -10,6 +23,14 @@ class TestCommandLineInterface(unittest.TestCase):
             0,
             cli_detect(
                 ['./data/sample.1.ar.srt']
+            )
+        )
+
+    def test_single_verbose_file(self):
+        self.assertEqual(
+            0,
+            cli_detect(
+                ['./data/sample.1.ar.srt', '--verbose']
             )
         )
 
