@@ -22,7 +22,7 @@ class TestCommandLineInterface(unittest.TestCase):
         self.assertEqual(
             0,
             cli_detect(
-                ['../data/sample.1.ar.srt']
+                ['./data/sample.1.ar.srt']
             )
         )
 
@@ -30,7 +30,7 @@ class TestCommandLineInterface(unittest.TestCase):
         self.assertEqual(
             0,
             cli_detect(
-                ['../data/sample.1.ar.srt', '--verbose']
+                ['./data/sample.1.ar.srt', '--verbose']
             )
         )
 
@@ -39,9 +39,9 @@ class TestCommandLineInterface(unittest.TestCase):
             0,
             cli_detect(
                 [
-                    '../data/sample.1.ar.srt',
-                    '../data/sample.1.he.srt',
-                    '../data/sample-chinese.txt'
+                    './data/sample.1.ar.srt',
+                    './data/sample.1.he.srt',
+                    './data/sample-chinese.txt'
                 ]
             )
         )
@@ -50,7 +50,7 @@ class TestCommandLineInterface(unittest.TestCase):
 
         with self.assertRaises(SystemExit) as cm:
             cli_detect(
-                ['../data/not_found_data.txt']
+                ['./data/not_found_data.txt']
             )
 
         self.assertEqual(cm.exception.code, 2)
