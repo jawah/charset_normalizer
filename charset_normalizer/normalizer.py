@@ -5,6 +5,7 @@ import statistics
 from encodings.aliases import aliases
 from os.path import basename, splitext
 from platform import python_version_tuple
+from warnings import warn
 
 from cached_property import cached_property
 
@@ -254,6 +255,7 @@ class CharsetNormalizerMatches:
     @staticmethod
     def normalize(path, steps=10, chunk_size=512, threshold=0.20):
         """
+
         :param str path:
         :param int steps:
         :param int chunk_size:
@@ -296,19 +298,31 @@ class CharsetNormalizerMatches:
         :return: List of potential matches
         :rtype: CharsetNormalizerMatches
         """
-        py_v = [int(el) for el in python_version_tuple()]
-        py_need_sort = py_v[0] < 3 or (py_v[0] == 3 and py_v[1] < 6)
 
-        supported = sorted(aliases.items()) if py_need_sort else aliases.items()
+        too_small_sequence = len(sequences) < 24
 
-        tested = set()
-        matches = list()
+        if too_small_sequence is True:
+            warn('Trying to detect encoding from a tiny portion of ({}) bytes.'.format(len(sequences)))
 
         maximum_length = len(sequences)
 
+        # Adjust steps and chunk_size when content is just too small for it
+        if maximum_length <= (chunk_size * steps):
+            steps = 1
+
         if maximum_length <= chunk_size:
             chunk_size = maximum_length
-            steps = 1
+        elif steps > 1 and maximum_length / steps < chunk_size:
+            chunk_size = int(maximum_length / steps)
+
+        # Bellow Python 3.6, Expect dict to not behave the same.
+        py_v = [int(el) for el in python_version_tuple()]
+        py_need_sort = py_v[0] < 3 or (py_v[0] == 3 and py_v[1] < 6)
+
+        supported = collections.OrderedDict(aliases).items() if py_need_sort else aliases.items()
+
+        tested = set()
+        matches = list()
 
         for support in supported:
 
@@ -360,7 +374,7 @@ class CharsetNormalizerMatches:
             # chaos_max = max(ratios)
 
             if (len(r_) >= 4 and nb_gave_up > len(r_) / 4) or chaos_median > threshold:
-                # print(p, 'is too much chaos for decoded input !')
+                # print(p, 'is too much chaos for decoded input !', nb_gave_up, chaos_median)
                 continue
 
             encountered_unicode_range_occurrences = dict()
@@ -396,7 +410,7 @@ class CharsetNormalizerMatches:
                     )
                 )
 
-            # print(p, nb_gave_up, chaos_means, chaos_median, chaos_min, chaos_max, matches[-1].coherence, matches[-1].languages,)
+            # print(p, nb_gave_up, chaos_means, chaos_median, matches[-1].coherence, matches[-1].languages,)
 
             if (p == 'ascii' and chaos_median == 0.) or bom_available is True:
                 return CharsetNormalizerMatches([matches[-1]])
