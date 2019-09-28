@@ -13,13 +13,14 @@ URL = 'https://github.com/ousret/charset_normalizer'
 EMAIL = 'ahmed.tahri@cloudnursery.dev'
 AUTHOR = 'Ahmed TAHRI @Ousret'
 REQUIRES_PYTHON = '>=3.5.0'
-VERSION = '1.1.1'
+VERSION = '1.2.0'
 
 REQUIRED = [
     'cached_property',
     'dragonmapper',
     'zhon',
-    'prettytable'
+    'prettytable',
+    'loguru'
 ]
 
 EXTRAS = {
