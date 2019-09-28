@@ -1,5 +1,6 @@
 # coding: utf-8
 import json
+import statistics
 from collections import Counter
 from functools import lru_cache
 from os.path import dirname, realpath, exists
@@ -85,7 +86,7 @@ class ProbeCoherence:
 
         ratios = [self.rank_per_lang[lg] for lg in languages]
 
-        return sum(ratios) / 2 if self.non_latin_covered_any is True else sum(ratios)
+        return statistics.mean(ratios) / 2 if self.non_latin_covered_any is True else statistics.mean(ratios)
 
     @property
     def coverage(self):
