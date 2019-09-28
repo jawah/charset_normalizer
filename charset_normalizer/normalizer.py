@@ -13,6 +13,9 @@ from charset_normalizer.constant import BYTE_ORDER_MARK
 from charset_normalizer.probe_chaos import ProbeChaos
 from charset_normalizer.probe_coherence import ProbeCoherence, HashableCounter
 
+from charset_normalizer.encoding import is_multi_byte_encoding
+
+from loguru import logger
 
 from hashlib import sha256
 
