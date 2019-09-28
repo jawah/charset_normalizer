@@ -14,10 +14,12 @@ from charset_normalizer.unicode import UnicodeRangeIdentify
 @lru_cache(maxsize=8192)
 class ProbeChaos:
 
-    def __init__(self, string, giveup_threshold=0.09):
+    def __init__(self, string, giveup_threshold=0.09, bonus_bom_sig=False, bonus_multi_byte=False):
         """
         :param str string:
         :param float giveup_threshold: When to give up even if _probe has not finished yet
+        :param bool bonus_bom_sig: Decide if ratio should take in consideration a bonus because of BOM/SIG
+        :param bool bonus_multi_byte: Decide if ratio should take in consideration a bonus because of multi byte scheme decoder
         """
 
         if not isinstance(string, str):
@@ -25,6 +27,9 @@ class ProbeChaos:
 
         self._string = string
         self._threshold = giveup_threshold
+
+        self._bonus_bom_sig = bonus_bom_sig
+        self._bonus_multi_byte = bonus_multi_byte
 
         self.successive_upper_lower = 0
         self.successive_accent = 0
@@ -46,14 +51,18 @@ class ProbeChaos:
         self.total_letter_encountered = 0
 
         self.total_lower_letter_encountered = 0
+        self.total_upper_letter_encountered = 0
+
         self.total_upper_accent_encountered = 0
         self.total_upper_accent_encountered_inner = 0
+
         self.total_unaccented_letter_encountered = 0
 
         self._probe_word = ProbeWords(HashableCounter(self._string.split()))
 
         self.gave_up = False
 
+        # Artificially increase string size to get more significant result.
         if 32 > len(self._string) > 0:
             self._string *= int(32 / len(self._string)) + 1
 
@@ -165,6 +174,9 @@ class ProbeChaos:
             if is_lower:
                 self.total_lower_letter_encountered += 1
 
+            if is_upper:
+                self.total_upper_letter_encountered += 1
+
             if is_upper and is_accent:
                 self.total_upper_accent_encountered += 1
                 if self.previous_printable_letter.isalpha():
@@ -237,7 +249,14 @@ class ProbeChaos:
         :return: Ratio as floating number
         :rtype: float
         """
-        r_ = self.total_upper_accent_encountered if self.total_letter_encountered > 0 and self.total_unaccented_letter_encountered / self.total_letter_encountered < 0.5 else 0
+
+        r_ = self.total_upper_accent_encountered if self.total_unaccented_letter_encountered / self.total_letter_encountered < 0.5 else 0
+        q_ = self.total_upper_letter_encountered / 3 if self.total_upper_letter_encountered > self.total_lower_letter_encountered * 0.4 else 0
         z_ = UnicodeRangeIdentify.unravel_suspicious_ranges(len(self._string), self.encountered_unicode_range_occurrences)
         p_ = self.encountered_punc_sign if self.encountered_punc_sign / len(self._string) > 0.2 else 0
-        return ((r_ + p_ + self.successive_upper_lower + self.successive_accent + self.successive_different_unicode_range + self.not_encountered_white_space + self.unprintable + z_ + ProbeChaos._unravel_cjk_suspicious_chinese.__func__(self._string, self.encountered_unicode_range_occurrences)) / len(self._string)) + self._probe_word.ratio  # + len(self.encountered_unicode_range)-1
+
+        bonus_sig_bom = -int(len(self._string)*0.5) if self._bonus_bom_sig is True else 0
+
+        initial_ratio = ((r_ + p_ + q_ + self.successive_upper_lower + self.successive_accent + self.successive_different_unicode_range + self.not_encountered_white_space + self.unprintable + z_ + bonus_sig_bom + ProbeChaos._unravel_cjk_suspicious_chinese.__func__(self._string, self.encountered_unicode_range_occurrences)) / len(self._string)) + self._probe_word.ratio  # + len(self.encountered_unicode_range)-1
+
+        return initial_ratio / 1.3 if self._bonus_multi_byte is True and initial_ratio > 0. else initial_ratio

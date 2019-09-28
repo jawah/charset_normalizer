@@ -319,7 +319,7 @@ class CharsetNormalizerMatches:
         return b_
 
     @staticmethod
-    def from_bytes(sequences, steps=10, chunk_size=512, threshold=0.20):
+    def from_bytes(sequences, steps=10, chunk_size=512, threshold=0.20, cp_isolation=None, cp_exclusion=None, explain=False):
         """
         Take a sequence of bytes that could potentially be decoded to str and discard all obvious non supported
         charset encoding.
@@ -328,9 +328,14 @@ class CharsetNormalizerMatches:
         :param float threshold: Maximum amount of chaos allowed on first pass
         :param int chunk_size: Size to extract and analyse in each step
         :param int steps: Number of steps
+        :param bool explain: Print on screen what is happening when searching for a match
+        :param list[str] cp_isolation: Finite list of encoding to use when searching for a match
+        :param list[str] cp_exclusion: Finite list of encoding to avoid when searching for a match
         :return: List of potential matches
         :rtype: CharsetNormalizerMatches
         """
+        if not explain:
+            logger.disable('charset_normalizer')
 
         too_small_sequence = len(sequences) < 24
 
@@ -341,12 +346,31 @@ class CharsetNormalizerMatches:
 
         # Adjust steps and chunk_size when content is just too small for it
         if maximum_length <= (chunk_size * steps):
+            logger.warning(
+                'override steps and chunk_size as content does not fit parameters.',
+                chunk_size=chunk_size, steps=steps, seq_len=maximum_length)
             steps = 1
-
-        if maximum_length <= chunk_size:
             chunk_size = maximum_length
-        elif steps > 1 and maximum_length / steps < chunk_size:
+
+        if steps > 1 and maximum_length / steps < chunk_size:
             chunk_size = int(maximum_length / steps)
+
+        if cp_isolation is not None and isinstance(cp_isolation, list) is False:
+            raise TypeError('cp_isolation must be None or list')
+
+        if cp_exclusion is not None and isinstance(cp_exclusion, list) is False:
+            raise TypeError('cp_exclusion must be None or list')
+
+        if cp_isolation is not None:
+            logger.warning('cp_isolation is set. use this flag for debugging purpose. '
+                           'limited list of encoding allowed : {allowed_list}.',
+                           allowed_list=', '.join(cp_isolation))
+
+        if cp_exclusion is not None:
+            logger.warning(
+                'cp_exclusion is set. use this flag for debugging purpose. '
+                'limited list of encoding excluded : {excluded_list}.',
+                excluded_list=', '.join(cp_exclusion))
 
         # Bellow Python 3.6, Expect dict to not behave the same.
         py_v = [int(el) for el in python_version_tuple()]
@@ -360,6 +384,12 @@ class CharsetNormalizerMatches:
         for support in supported:
 
             k, p = support
+
+            if cp_isolation is not None and p not in cp_isolation:
+                continue
+
+            if cp_exclusion is not None and p in cp_exclusion:
+                continue
 
             if p in tested:
                 continue
@@ -380,16 +410,28 @@ class CharsetNormalizerMatches:
                         if any(bom_c_list) is True:
                             bom_available = True
                             bom_len = len(BYTE_ORDER_MARK[p][bom_c_list.index(True)])
+                    if bom_available is True:
+                        logger.info('{encoding} has a SIG or BOM mark on first {n_byte} byte(s).  Adding chaos bonus.', encoding=p, n_byte=bom_len)
 
                 str(
                     sequences if bom_available is False else sequences[bom_len:],
                     encoding=p
                 )
 
-            except UnicodeDecodeError:
+            except UnicodeDecodeError as e:
+                logger.debug('{encoding} does not fit given bytes sequence at ALL. {explanation}', encoding=p, explanation=str(e))
                 continue
             except LookupError:
                 continue
+
+            is_multi_byte_enc = is_multi_byte_encoding(p)
+
+            if is_multi_byte_enc is True:
+                logger.info('{encoding} is a multi byte encoding table. '
+                            'Should not be a coincidence. Adding chaos bonus.',
+                            encoding=p)
+            else:
+                logger.debug('{encoding} is a single byte encoding table.', encoding=p)
 
             r_ = range(
                 0 if bom_available is False else bom_len,
@@ -397,7 +439,7 @@ class CharsetNormalizerMatches:
                 int(maximum_length / steps)
             )
 
-            measures = [ProbeChaos(str(sequences[i:i + chunk_size], encoding=p, errors='ignore'), giveup_threshold=threshold) for i in r_]
+            measures = [ProbeChaos(str(sequences[i:i + chunk_size], encoding=p, errors='ignore'), giveup_threshold=threshold, bonus_bom_sig=bom_available, bonus_multi_byte=is_multi_byte_enc) for i in r_]
             ratios = [el.ratio for el in measures]
             nb_gave_up = [el.gave_up is True or el.ratio >= threshold for el in measures].count(True)
 
@@ -406,8 +448,13 @@ class CharsetNormalizerMatches:
             # chaos_min = min(ratios)
             # chaos_max = max(ratios)
 
-            if (len(r_) >= 4 and nb_gave_up > len(r_) / 4) or chaos_median > threshold:
-                # print(p, 'is too much chaos for decoded input !', nb_gave_up, chaos_median)
+            if (len(r_) >= 4 and nb_gave_up > len(r_) / 4) or chaos_means > threshold:
+                logger.warning('{encoding} was excluded because of initial chaos probing. '
+                                      'Gave up {nb_gave_up} time(s). '
+                                      'Computed median chaos is {chaos_median} %.',
+                                      encoding=p,
+                                      nb_gave_up=nb_gave_up,
+                                      chaos_median=round(chaos_means*100, ndigits=3))
                 continue
 
             encountered_unicode_range_occurrences = dict()
@@ -418,8 +465,6 @@ class CharsetNormalizerMatches:
                         encountered_unicode_range_occurrences[u_name] = 0
                     encountered_unicode_range_occurrences[u_name] += u_occ
 
-            # print(p, 'U RANGES', encountered_unicode_range_occurrences)
-
             cnm = CharsetNormalizerMatch(
                 sequences if not bom_available else sequences[bom_len:],
                 p,
@@ -428,55 +473,73 @@ class CharsetNormalizerMatches:
                 bom_available
             )
 
+            logger.info(
+                '{encoding} passed initial chaos probing. '
+                'Measured chaos is {chaos_means} % and coherence is {coherence} %. '
+                'It seems to be written in {language}.',
+                encoding=p,
+                chaos_means=round(chaos_means*100, ndigits=3),
+                coherence=cnm.percent_coherence,
+                language=cnm.languages
+            )
+
             fingerprint_tests = [el.fingerprint == cnm.fingerprint for el in matches]
 
             if any(fingerprint_tests) is True:
                 matches[fingerprint_tests.index(True)].submatch.append(cnm)
+                logger.debug('{encoding} is marked as a submatch of {primary_encoding}.', encoding=cnm.encoding, primary_encoding=matches[fingerprint_tests.index(True)].encoding)
             else:
                 matches.append(
-                    CharsetNormalizerMatch(
-                        sequences if not bom_available else sequences[bom_len:],
-                        p,
-                        chaos_means,
-                        encountered_unicode_range_occurrences,
-                        bom_available
-                    )
+                    cnm
                 )
 
-            # print(p, nb_gave_up, chaos_means, chaos_median, matches[-1].coherence, matches[-1].languages,)
-
             if (p == 'ascii' and chaos_median == 0.) or bom_available is True:
+                logger.info('{encoding} is the most likely the one. {bom_available}',
+                                   encoding=p,
+                                   bom_available='BOM/SIG available' if bom_available else '')
+
                 return CharsetNormalizerMatches([matches[-1]])
 
         return CharsetNormalizerMatches(matches)
 
     @staticmethod
-    def from_fp(fp, steps=10, chunk_size=512, threshold=0.20):
+    def from_fp(fp, steps=10, chunk_size=512, threshold=0.20, cp_isolation=None, cp_exclusion=None, explain=False):
         """
         :param io.BinaryIO fp:
         :param int steps:
         :param int chunk_size:
         :param float threshold:
-        :return:
+        :param bool explain: Print on screen what is happening when searching for a match
+        :param list[str] cp_isolation: Finite list of encoding to use when searching for a match
+        :param list[str] cp_exclusion: Finite list of encoding to avoid when searching for a match
+        :return: List of potential matches
+        :rtype: CharsetNormalizerMatches
         """
         return CharsetNormalizerMatches.from_bytes(
             bytearray(fp.read()),
             steps,
             chunk_size,
-            threshold
+            threshold,
+            cp_isolation,
+            cp_exclusion,
+            explain
         )
 
     @staticmethod
-    def from_path(path, steps=10, chunk_size=512, threshold=0.20):
+    def from_path(path, steps=10, chunk_size=512, threshold=0.20, cp_isolation=None, cp_exclusion=None, explain=False):
         """
         :param str path:
         :param int steps:
         :param int chunk_size:
         :param float threshold:
-        :return:
+        :param bool explain: Print on screen what is happening when searching for a match
+        :param list[str] cp_isolation: Finite list of encoding to use when searching for a match
+        :param list[str] cp_exclusion: Finite list of encoding to avoid when searching for a match
+        :return: List of potential matches
+        :rtype: CharsetNormalizerMatches
         """
         with open(path, 'rb') as fp:
-            return CharsetNormalizerMatches.from_fp(fp, steps, chunk_size, threshold)
+            return CharsetNormalizerMatches.from_fp(fp, steps, chunk_size, threshold, cp_isolation, cp_exclusion, explain)
 
     @cached_property
     def could_be_from_charset(self):
