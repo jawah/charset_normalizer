@@ -4,6 +4,9 @@ This file contain, for each range a name associated with for Unicode.
 Scrapped from https://unicode-table.com/
 """
 from codecs import BOM_UTF8, BOM_UTF16_BE, BOM_UTF16_LE, BOM_UTF32_BE, BOM_UTF32_LE
+from _multibytecodec import MultibyteIncrementalDecoder
+
+MULTI_BYTE_DECODER = MultibyteIncrementalDecoder
 
 UNICODE_RANGES = [
     "0000−001F",

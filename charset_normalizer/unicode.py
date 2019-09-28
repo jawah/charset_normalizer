@@ -92,6 +92,8 @@ class UnicodeRangeIdentify:
         items = encountered_unicode_range_occurrences.items()
         s_ = 0
 
+        # print(encountered_unicode_range_occurrences)
+
         for k, v in items:
             k_ = k.lower()
             if (
@@ -101,7 +103,10 @@ class UnicodeRangeIdentify:
                         continue
                     if 'halfwidth and fullwidth forms' in k_ and any(['CJK' in el for el in encountered_unicode_range_occurrences.keys()]):
                         continue
-                    s_ += v if 'geometric shapes' not in k_ else v * 10
+                    if 'hiragana' in k_ or 'katakana' in k_:
+                        continue
+                    # print('suspicious', k_, 'with', v)
+                    s_ += v
 
         return s_
 

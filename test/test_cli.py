@@ -1,6 +1,8 @@
 import unittest
 from charset_normalizer.cli.normalizer import cli_detect, query_yes_no
 from unittest.mock import patch
+from os.path import exists
+from os import remove
 
 
 class TestCommandLineInterface(unittest.TestCase):
@@ -25,6 +27,23 @@ class TestCommandLineInterface(unittest.TestCase):
                 ['./data/sample.1.ar.srt']
             )
         )
+
+    def test_single_file_normalize(self):
+        self.assertEqual(
+            0,
+            cli_detect(
+                ['./data/sample.1.ar.srt', '--normalize']
+            )
+        )
+
+        self.assertTrue(
+            exists('./data/sample.1.ar.cp1256.srt')
+        )
+
+        try:
+            remove('./data/sample.1.ar.cp1256.srt')
+        except:
+            pass
 
     def test_single_verbose_file(self):
         self.assertEqual(
