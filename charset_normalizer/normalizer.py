@@ -148,6 +148,25 @@ class CharsetNormalizerMatch:
         """
         return self._chaos_ratio
 
+    @property
+    def percent_chaos(self):
+        """
+        Convert chaos ratio to readable percentage with ndigits=3
+        from 0.000 % to 100.000 %
+        :return: float
+        """
+        return round(self._chaos_ratio * 100, ndigits=3)
+
+    @property
+    def percent_coherence(self):
+        """
+        Convert coherence ratio to readable percentage with ndigits=3
+        from 0.000 % to 100.000 %
+        :return: float
+        :rtype: float
+        """
+        return round((1 - self.coherence) * 100, ndigits=3)
+
     @cached_property
     def chaos_secondary_pass(self):
         """
