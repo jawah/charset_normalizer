@@ -503,42 +503,33 @@ class CharsetNormalizerMatches:
         :rtype: CharsetNormalizerMatches | CharsetNormalizerMatch
         """
 
-        lowest_ratio = None
-        lowest_ratio_frequency = None
+        if len(self) == 0:
+            logger.error('Trying to call best() on empty CharsetNormalizerMatches, that is sad.')
+            return CharsetNormalizerMatches(self._matches)
+        elif len(self) == 1:
+            logger.debug('best() is not required because there is only one match in it.')
+            return CharsetNormalizerMatches(self._matches)
 
-        match_per_ratio = dict()
-        match_per_frequency_letter = dict()
+        logger.info('We need to choose between {nb_suitable_match} match. Order By Chaos Then Coherence.', nb_suitable_match=len(self))
 
-        for match in self._matches:
+        sorted_matches = sorted(self._matches, key=lambda x: x.chaos)
 
-            if match.chaos not in match_per_ratio.keys():
-                match_per_ratio[match.chaos] = list()
+        nb_lowest_ratio = [el.chaos <= sorted_matches[0].chaos * 1.2 for el in sorted_matches[1:]].count(True)
 
-            match_per_ratio[match.chaos].append(match)
+        logger.info('Lowest Chaos found is {lowest_chaos} %. Reduced list to {nb_suitable_match} match.', lowest_chaos=sorted_matches[0].percent_chaos, nb_suitable_match=nb_lowest_ratio+1)
 
-            if lowest_ratio is None or lowest_ratio > match.chaos:
-                lowest_ratio = match.chaos
+        if nb_lowest_ratio+1 > 1:
+            logger.info('Order By Chaos is not enough, {nb_suitable_match} remaining. Next, ordering by Coherence.', nb_suitable_match=nb_lowest_ratio+1)
 
-        if lowest_ratio is None:
-            return CharsetNormalizerMatches([])
+            sorted_matches_second_pass = sorted(sorted_matches[:nb_lowest_ratio+1], key=lambda x: x.coherence)
+            nb_lowest_ratio = [el.coherence == sorted_matches_second_pass[0].coherence for el in sorted_matches_second_pass[1:]].count(True)
 
-        all_latin_basic = True
+            logger.info('Highest Coherence found is {lowest_chaos} %. Reduced list to {nb_suitable_match} match.', lowest_chaos=sorted_matches_second_pass[0].percent_coherence, nb_suitable_match=nb_lowest_ratio+1)
 
-        for match in match_per_ratio[lowest_ratio]:  # type: CharsetNormalizerMatch
-            secondary_ratio = match.coherence
+            return CharsetNormalizerMatches(
+                sorted_matches_second_pass[:nb_lowest_ratio+1]
+            )
 
-            if lowest_ratio_frequency is None or lowest_ratio_frequency > secondary_ratio:
-                lowest_ratio_frequency = secondary_ratio
-
-            if secondary_ratio not in match_per_frequency_letter.keys():
-                match_per_frequency_letter[secondary_ratio] = list()
-
-            match_per_frequency_letter[secondary_ratio].append(match)
-
-            if len(match.alphabets) != 1 or match.alphabets[0] != 'Basic Latin':
-                all_latin_basic = False
-
-        if all_latin_basic is True:
-            return CharsetNormalizerMatches(match_per_frequency_letter[lowest_ratio_frequency]).first()
-
-        return CharsetNormalizerMatches(match_per_frequency_letter[lowest_ratio_frequency]) if len(match_per_frequency_letter[lowest_ratio_frequency]) > 1 else CharsetNormalizerMatches(match_per_frequency_letter[lowest_ratio_frequency]).first()
+        return CharsetNormalizerMatches(
+            sorted_matches[:nb_lowest_ratio+1]
+        )
