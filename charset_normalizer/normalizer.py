@@ -94,6 +94,8 @@ class CharsetNormalizerMatch:
         :param CharsetNormalizerMatch other:
         :return:
         """
+        if not isinstance(other, CharsetNormalizerMatch):
+            raise TypeError('__eq__ cannot be invoked on {} and {}.'.format(str(other.__class__), str(self.__class__)))
         return self.fingerprint == other.fingerprint and self.encoding == other.encoding
 
     @cached_property
