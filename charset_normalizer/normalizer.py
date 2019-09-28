@@ -62,6 +62,15 @@ class CharsetNormalizerMatch:
         """
         return self._submatch
 
+    @property
+    def has_submatch(self):
+        """
+        Determine if current match has any other match linked to it.
+        :return: True if any sub match available
+        :rtype: bool
+        """
+        return len(self._submatch) > 0
+
     @cached_property
     def alphabets(self):
         """
