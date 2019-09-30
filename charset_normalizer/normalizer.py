@@ -596,3 +596,9 @@ class CharsetNormalizerMatches:
         return CharsetNormalizerMatches(
             sorted_matches[:nb_lowest_ratio+1]
         )
+
+
+# Some aliases to CharsetNormalizerMatches, because it is too long for a class name.
+CharsetDetector = CharsetNormalizerMatches
+EncodingDetector = CharsetNormalizerMatches
+CharsetDoctor = CharsetNormalizerMatches
