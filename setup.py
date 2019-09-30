@@ -24,7 +24,8 @@ REQUIRED = [
 ]
 
 EXTRAS = {
-    'permit to generate frequencies.json': ['requests_html', 'requests'],
+    'LetterFrequency': ['requests_html', 'requests'],
+    'UnicodeDataBackport': ['unicodedata2']
 }
 
 

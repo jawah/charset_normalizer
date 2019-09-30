@@ -12,3 +12,9 @@ def charset_normalizer_hook(exctype, value, traceback):
 
 
 sys.excepthook = charset_normalizer_hook
+
+try:
+    import unicodedata2
+    sys.modules['unicodedata'] = unicodedata2
+except ImportError:
+    pass
