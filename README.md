@@ -6,7 +6,7 @@
     <img src="https://travis-ci.org/Ousret/charset_normalizer.svg?branch=master"/>
   </a>
   <img src="https://img.shields.io/pypi/pyversions/charset_normalizer.svg?orange=blue" />
-  <img src="https://img.shields.io/pypi/dm/charset_normalizer.svg"/>
+  <img src="https://pepy.tech/badge/charset-normalizer/month"/>
   <a href="https://github.com/ousret/charset_normalizer/blob/master/LICENSE">
     <img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-purple.svg" target="_blank" />
   </a>
@@ -16,6 +16,8 @@
   <a href="https://codecov.io/gh/Ousret/charset_normalizer">
       <img src="https://codecov.io/gh/Ousret/charset_normalizer/branch/master/graph/badge.svg" />
   </a>
+  <br>
+  <img src="https://pepy.tech/badge/charset-normalizer" />
 </p>
 
 > Library that help you read text from unknown charset encoding.<br /> Project motivated by `chardet`, 
