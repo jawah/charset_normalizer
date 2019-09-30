@@ -15,6 +15,8 @@ from charset_normalizer.probe_coherence import ProbeCoherence, HashableCounter
 
 from charset_normalizer.encoding import is_multi_byte_encoding
 
+from charset_normalizer.probe_inherent_sign import any_specified_encoding
+
 from loguru import logger
 
 from hashlib import sha256
@@ -319,7 +321,7 @@ class CharsetNormalizerMatches:
         return b_
 
     @staticmethod
-    def from_bytes(sequences, steps=10, chunk_size=512, threshold=0.20, cp_isolation=None, cp_exclusion=None, explain=False):
+    def from_bytes(sequences, steps=10, chunk_size=512, threshold=0.20, cp_isolation=None, cp_exclusion=None, preemptive_behaviour=True, explain=False):
         """
         Take a sequence of bytes that could potentially be decoded to str and discard all obvious non supported
         charset encoding.
@@ -327,7 +329,8 @@ class CharsetNormalizerMatches:
         :param bytes sequences: Actual sequence of bytes to analyse
         :param float threshold: Maximum amount of chaos allowed on first pass
         :param int chunk_size: Size to extract and analyse in each step
-        :param int steps: Number of steps
+        :param int steps: Number of steps/block to extract from sequence
+        :param bool preemptive_behaviour: Determine if we should look into sequence (ASCII-Mode) for pre-defined encoding
         :param bool explain: Print on screen what is happening when searching for a match
         :param list[str] cp_isolation: Finite list of encoding to use when searching for a match
         :param list[str] cp_exclusion: Finite list of encoding to avoid when searching for a match
@@ -380,6 +383,13 @@ class CharsetNormalizerMatches:
 
         tested = set()
         matches = list()
+
+        specified_encoding = any_specified_encoding(sequences) if preemptive_behaviour is True else None
+
+        if specified_encoding is not None:
+            warn(
+                'Trying to detect encoding on a sequence that seems to declare a encoding ({}).'.format(specified_encoding)
+            )
 
         for support in supported:
 
@@ -493,8 +503,16 @@ class CharsetNormalizerMatches:
                     cnm
                 )
 
+            if specified_encoding is not None and p == specified_encoding:
+                logger.info('{encoding} is most likely the one. '
+                            'Because it is specified in analysed byte sequence and '
+                            'initial test passed successfully. '
+                            'Disable this behaviour by setting preemptive_behaviour '
+                            'to False', encoding=specified_encoding)
+                return CharsetNormalizerMatches([cnm]) if any(fingerprint_tests) is False else CharsetNormalizerMatches([matches[fingerprint_tests.index(True)]])
+
             if (p == 'ascii' and chaos_median == 0.) or bom_available is True:
-                logger.info('{encoding} is the most likely the one. {bom_available}',
+                logger.info('{encoding} is most likely the one. {bom_available}',
                                    encoding=p,
                                    bom_available='BOM/SIG available' if bom_available else '')
 
@@ -503,13 +521,14 @@ class CharsetNormalizerMatches:
         return CharsetNormalizerMatches(matches)
 
     @staticmethod
-    def from_fp(fp, steps=10, chunk_size=512, threshold=0.20, cp_isolation=None, cp_exclusion=None, explain=False):
+    def from_fp(fp, steps=10, chunk_size=512, threshold=0.20, cp_isolation=None, cp_exclusion=None, preemptive_behaviour=True, explain=False):
         """
         :param io.BinaryIO fp:
         :param int steps:
         :param int chunk_size:
         :param float threshold:
         :param bool explain: Print on screen what is happening when searching for a match
+        :param bool preemptive_behaviour: Determine if we should look into sequence (ASCII-Mode) for pre-defined encoding
         :param list[str] cp_isolation: Finite list of encoding to use when searching for a match
         :param list[str] cp_exclusion: Finite list of encoding to avoid when searching for a match
         :return: List of potential matches
@@ -522,16 +541,18 @@ class CharsetNormalizerMatches:
             threshold,
             cp_isolation,
             cp_exclusion,
+            preemptive_behaviour,
             explain
         )
 
     @staticmethod
-    def from_path(path, steps=10, chunk_size=512, threshold=0.20, cp_isolation=None, cp_exclusion=None, explain=False):
+    def from_path(path, steps=10, chunk_size=512, threshold=0.20, cp_isolation=None, cp_exclusion=None, preemptive_behaviour=True, explain=False):
         """
         :param str path:
         :param int steps:
         :param int chunk_size:
         :param float threshold:
+        :param bool preemptive_behaviour: Determine if we should look into sequence (ASCII-Mode) for pre-defined encoding
         :param bool explain: Print on screen what is happening when searching for a match
         :param list[str] cp_isolation: Finite list of encoding to use when searching for a match
         :param list[str] cp_exclusion: Finite list of encoding to avoid when searching for a match
@@ -539,7 +560,7 @@ class CharsetNormalizerMatches:
         :rtype: CharsetNormalizerMatches
         """
         with open(path, 'rb') as fp:
-            return CharsetNormalizerMatches.from_fp(fp, steps, chunk_size, threshold, cp_isolation, cp_exclusion, explain)
+            return CharsetNormalizerMatches.from_fp(fp, steps, chunk_size, threshold, cp_isolation, cp_exclusion, preemptive_behaviour, explain)
 
     @cached_property
     def could_be_from_charset(self):
