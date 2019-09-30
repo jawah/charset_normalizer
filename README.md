@@ -106,9 +106,8 @@ See wiki for advanced usages. *Todo, not yet available.*
 
 ## 😇 Why
 
-When I started using Chardet, I noticed that this library was wrong most of the time 
-when it's not about Unicode, Gb or Big5. That because some charset are easily identifiable 
-because of there standards and Chardet does a really good job at identifying them.
+When I started using Chardet, I noticed that this library was unreliable nowadays and also  
+it's unmaintained, and most likely will never be.
 
 I **don't care** about the **originating charset** encoding, that because **two different table** can 
 produce **two identical file.**

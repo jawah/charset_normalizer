@@ -13,7 +13,7 @@ URL = 'https://github.com/ousret/charset_normalizer'
 EMAIL = 'ahmed.tahri@cloudnursery.dev'
 AUTHOR = 'Ahmed TAHRI @Ousret'
 REQUIRES_PYTHON = '>=3.5.0'
-VERSION = '1.2.0'
+VERSION = '1.3.0'
 
 REQUIRED = [
     'cached_property',
@@ -24,7 +24,8 @@ REQUIRED = [
 ]
 
 EXTRAS = {
-    'permit to generate frequencies.json': ['requests_html', 'requests'],
+    'LetterFrequency': ['requests_html', 'requests'],
+    'UnicodeDataBackport': ['unicodedata2']
 }
 
 
