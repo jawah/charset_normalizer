@@ -7,3 +7,4 @@ from charset_normalizer.probe_coherence import ProbeCoherence
 from charset_normalizer.probe_words import ProbeWords
 from charset_normalizer.legacy import detect
 from charset_normalizer.hook import charset_normalizer_hook
+from charset_normalizer.version import __version__, VERSION
