@@ -5,7 +5,13 @@ import io
 import os
 
 from setuptools import find_packages, setup
-from charset_normalizer.version import __version__
+from re import search
+
+
+def get_version():
+    with open('charset_normalizer/version.py') as version_file:
+        return search(r"""__version__\s+=\s+(['"])(?P<version>.+?)\1""",
+                      version_file.read()).group('version')
 
 # Package meta-data.
 NAME = 'charset_normalizer'
@@ -14,7 +20,7 @@ URL = 'https://github.com/ousret/charset_normalizer'
 EMAIL = 'ahmed.tahri@cloudnursery.dev'
 AUTHOR = 'Ahmed TAHRI @Ousret'
 REQUIRES_PYTHON = '>=3.5.0'
-VERSION = __version__
+VERSION = get_version()
 
 REQUIRED = [
     'cached_property',
