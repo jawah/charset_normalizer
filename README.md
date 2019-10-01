@@ -40,6 +40,7 @@ This project offer you a alternative to **Universal Charset Encoding Detector**,
 | `Free & Open`  | ✅             | ✅                | ✅ |
 | `Native Python` | ✅ | ✅ | ❌ |
 | `Detect spoken language` | ❌ | ✅ | N/A |
+| `Supported Encoding` | 30 | :tada: [90](https://charset-normalizer.readthedocs.io/en/latest/support.html)  | 40
 
 <p align="center">
 <img src="https://i.imgflip.com/373iay.gif" alt="Reading Normalized Text" width="226"/><img src="https://image.noelshack.com/fichiers/2019/31/5/1564761473-ezgif-5-cf1bd9dd66b0.gif" alt="Cat Reading Text" width="200"/>
