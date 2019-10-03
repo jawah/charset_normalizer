@@ -14,16 +14,23 @@ When initiating search upon a buffer, bytes or file you can assign the return va
     ).best().first()
 
 
-Exploit result
+Using CharsetNormalizerMatch
 ---------------
 
 Here, ``result`` is a ``CharsetNormalizerMatch`` object or ``None``.
 
 .. class:: CharsetNormalizerMatch
+    .. method:: output()
+
+        :param str encoding: Target encoding
+        :return: Newly encoded content
+        :rtype: bytes
+
+        Encode raw content to a new encoding, default to utf_8
 
     .. attribute:: submatch
-        :getter: Return a list of submatch that produce the EXACT same output as this one. This return a list of CharsetNormalizerMatch and NOT a CharsetNormalizerMatches.
-        :type: list[CharsetNormalizerMatch]
+        :getter: Return a list of submatch that produce the EXACT same output as this one. This return a list of CharsetNormalizerMatch and NOT a CharsetNormalizerMatches
+        :type: list of CharsetNormalizerMatch
 
     .. attribute:: has_submatch
         :getter: Determine if current match has any other match linked to it.
@@ -31,11 +38,11 @@ Here, ``result`` is a ``CharsetNormalizerMatch`` object or ``None``.
 
     .. attribute:: alphabets
         :getter: Discover list of alphabet in decoded content
-        :type: list[str]
+        :type: list of str
 
     .. attribute:: could_be_from_charset
         :getter: Return list of possible originating charset that is giving the exact same output
-        :type: list[str]
+        :type: list of str
 
     .. attribute:: coherence
         :getter: Return a value between 0. and 1. Closest to 0. means that the initial string is considered coherent, Closest to 1. means that the initial string SEEMS NOT coherent.
@@ -43,7 +50,7 @@ Here, ``result`` is a ``CharsetNormalizerMatch`` object or ``None``.
 
     .. attribute:: languages
         :getter: Return a list of probable language in text. Maximum three.
-        :type: list[str]
+        :type: list of str
 
     .. attribute:: language
         :getter: Return the most probable language found in text. May return 'Unknown' if unavailable.
@@ -71,7 +78,7 @@ Here, ``result`` is a ``CharsetNormalizerMatch`` object or ``None``.
 
     .. attribute:: encoding_aliases
         :getter: Encoding name are known by many name, using this could help when searching for IBM855 when it's listed as CP855.
-        :type: list[str]
+        :type: list of str
 
     .. attribute:: bom
         :getter: Precise if file has a valid bom or sig associated with discovered encoding.
@@ -84,14 +91,6 @@ Here, ``result`` is a ``CharsetNormalizerMatch`` object or ``None``.
     .. attribute:: fingerprint
         :getter: Generate sha256 checksum of encoded unicode self
         :type: str
-
-    .. method:: output()
-
-        :param str encoding: Target encoding
-        :return: Newly encoded content
-        :rtype: bytes
-
-        Encode raw content to a new encoding, default to utf_8
 
 Miscellaneous
 --------------
