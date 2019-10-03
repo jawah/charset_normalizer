@@ -55,7 +55,6 @@ Contents:
 .. toctree::
     :maxdepth: 2
 
-    index
     support
     getstarted
     advanced_search
