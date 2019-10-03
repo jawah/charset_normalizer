@@ -2,14 +2,14 @@
  Support
 =================
 
-!! Warning !! Work in Progress Documentation !!
+Here are a list of supported encoding and supported language with latest update. Also this list
+may change depending of your python version.
 
--------
+-------------------
 Supported Encodings
--------
+-------------------
 
 Charset Normalizer is able to detect any of those encoding.
-
 
 ===============  ===============================================================================================================================
 IANA Code Page   Aliases
@@ -110,59 +110,60 @@ utf_7            u7, utf7, unicode_1_1_utf_7
 utf_8            u8, utf, utf8, utf8_ucs2, utf8_ucs4
 ===============  ===============================================================================================================================
 
--------
+-------------------
 Supported Languages
--------
+-------------------
 
 Those language can be detected inside your content. All of these are specified in ./charset_normalizer/assets/frequencies.json .
 
-['English',
- 'German',
- 'French',
- 'Dutch',
- 'Italian',
- 'Polish',
- 'Spanish',
- 'Russian',
- 'Japanese',
- 'Portuguese',
- 'Swedish',
- 'Chinese',
- 'Catalan',
- 'Ukrainian',
- 'Norwegian',
- 'Finnish',
- 'Vietnamese',
- 'Czech',
- 'Hungarian',
- 'Korean',
- 'Indonesian',
- 'Turkish',
- 'Romanian',
- 'Farsi',
- 'Arabic',
- 'Danish',
- 'Esperanto',
- 'Serbian',
- 'Lithuanian',
- 'Slovene',
- 'Slovak',
- 'Malay',
- 'Hebrew',
- 'Bulgarian',
- 'Kazakh',
- 'Baque',
- 'Volapük',
- 'Croatian',
- 'Hindi',
- 'Estonian',
- 'Azeri',
- 'Galician',
- 'Simple English',
- 'Nynorsk',
- 'Thai',
- 'Greek',
- 'Macedonian',
- 'Serbocroatian',
- 'Tamil',
- 'Classical Chinese']
+
+English,
+German,
+French,
+Dutch,
+Italian,
+Polish,
+Spanish,
+Russian,
+Japanese,
+Portuguese,
+Swedish,
+Chinese,
+Catalan,
+Ukrainian,
+Norwegian,
+Finnish,
+Vietnamese,
+Czech,
+Hungarian,
+Korean,
+Indonesian,
+Turkish,
+Romanian,
+Farsi,
+Arabic,
+Danish,
+Esperanto,
+Serbian,
+Lithuanian,
+Slovene,
+Slovak,
+Malay,
+Hebrew,
+Bulgarian,
+Kazakh,
+Baque,
+Volapük,
+Croatian,
+Hindi,
+Estonian,
+Azeri,
+Galician,
+Simple English,
+Nynorsk,
+Thai,
+Greek,
+Macedonian,
+Serbocroatian,
+Tamil,
+Classical Chinese.

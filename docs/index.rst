@@ -21,7 +21,27 @@ details. Be aware that no warranty of any kind is provided with this package.
 
 Copyright (C) 2019 Ahmed TAHRI @Ousret <ahmed(dot)tahri(at)cloudnursery.dev>
 
-!! Warning !! Work in Progress Documentation !!
+Introduction
+============
+
+This library aim to assist you in finding what encoding suit the best to content.
+It **DOES NOT** try to uncover the originating encoding, in fact this program does not care about it.
+
+By originating we means the one that was precisely used to encode a text file.
+
+Precisely ::
+
+    my_byte_str = 'Bonjour, je suis à la recherche d\'une aide sur les étoiles'.encode('cp1252')
+
+
+We **ARE NOT** looking for cp1252 **BUT FOR** ``Bonjour, je suis à la recherche d'une aide sur les étoiles``.
+Because of this ::
+
+    my_byte_str.decode('cp1252') == my_byte_str.decode('cp1256') == my_byte_str.decode('cp1258') == my_byte_str.decode('iso8859_14')
+    # Print True !
+
+There is no wrong answer to decode ``my_byte_str`` to get the exact same result.
+This is where this library differ from others. There's not specific probe per encoding table.
 
 Features
 ========
@@ -35,6 +55,7 @@ Contents:
 .. toctree::
     :maxdepth: 2
 
+    index
     support
     getstarted
     advanced_search
