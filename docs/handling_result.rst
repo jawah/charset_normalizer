@@ -22,10 +22,10 @@ Here, ``result`` is a ``CharsetNormalizerMatch`` object or ``None``.
 .. class:: CharsetNormalizerMatch
 
     .. attribute:: submatch
-        :getter: Return a list of submatch that produce the EXACT same output as this one. This return a list of CharsetNormalizerMatch and NOT a CharsetNormalizerMatches
+        :getter: Return a list of submatch that produce the EXACT same output as this one. This return a list of CharsetNormalizerMatch and NOT a CharsetNormalizerMatches.
         :type: list[CharsetNormalizerMatch]
 
-    .. attribute:: submatch
+    .. attribute:: has_submatch
         :getter: Determine if current match has any other match linked to it.
         :type: bool
 
