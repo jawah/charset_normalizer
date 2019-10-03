@@ -20,6 +20,7 @@ Using CharsetNormalizerMatch
 Here, ``result`` is a ``CharsetNormalizerMatch`` object or ``None``.
 
 .. class:: CharsetNormalizerMatch
+
     .. method:: output()
 
         :param str encoding: Target encoding
