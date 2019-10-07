@@ -18,6 +18,9 @@
   <a href="https://codecov.io/gh/Ousret/charset_normalizer">
       <img src="https://codecov.io/gh/Ousret/charset_normalizer/branch/master/graph/badge.svg" />
   </a>
+  <a href='https://charset-normalizer.readthedocs.io/en/latest/?badge=latest'>
+    <img src='https://readthedocs.org/projects/charset-normalizer/badge/?version=latest' alt='Documentation Status' />
+  </a>
   <img alt="Download Count Total" src="https://pepy.tech/badge/charset-normalizer" />
 </p>
 
