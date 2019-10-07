@@ -46,7 +46,7 @@ This is where this library differ from others. There's not specific probe per en
 Features
 ========
 
-- Encoding detection on a buffer, bytes or file.
+- Encoding detection on a stream, bytes or file.
 - Transpose any encoded content to Unicode the best we can.
 - Detect spoken language in text.
 
@@ -59,6 +59,7 @@ Contents:
     getstarted
     advanced_search
     handling_result
+    miscellaneous
 
 Indices and tables
 ==================
