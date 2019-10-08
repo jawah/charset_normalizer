@@ -32,7 +32,7 @@
   >>>>> <a href="https://charsetnormalizerweb.ousret.now.sh" target="_blank">❤️ Try Me Online NOW ! Then Adopt Me ❤️ </a> <<<<<
 </p>
 
-This project offer you a alternative to **Universal Charset Encoding Detector**, also known as **Chardet**.
+This project offer you an alternative to **Universal Charset Encoding Detector**, also known as **Chardet**.
 
 | Feature       | [Chardet](https://github.com/chardet/chardet)       | Charset Normalizer | [cChardet](https://github.com/PyYoshi/cChardet) |
 | ------------- | :-------------: | :------------------: | :------------------: |
@@ -106,15 +106,15 @@ from charset_normalizer import detect
 
 Above code will behave the same as **chardet**.
 
-See wiki for advanced usages. *Todo, not yet available.*
+See docs for advanced usage : [readthedocs.io](https://charset-normalizer.readthedocs.io/en/latest/)
 
 ## 😇 Why
 
 When I started using Chardet, I noticed that this library was unreliable nowadays and also  
 it's unmaintained, and most likely will never be.
 
-I **don't care** about the **originating charset** encoding, that because **two different table** can 
-produce **two identical file.**
+I **don't care** about the **originating charset** encoding, that because **two different tables** can 
+produce **two identical files.**
 What I want is to get readable text, the best I can.
 
 In a way, **I'm brute forcing text decoding.** How cool is that ? 😎
@@ -139,9 +139,8 @@ In a way, **I'm brute forcing text decoding.** How cool is that ? 😎
 ## ⚡ Known limitations
 
   - Not intended to work on non (human) speakable language text content. eg. crypted text.
-  - When provided trust encoding in headers first. (XML, HTML, HTTP, etc..)
   - Language detection is unreliable when text contain more than 1 language that are sharing identical letters.
-  - Not well tested with tiny content
+  - Not well tested with tiny content.
 
 ## 👤 Contributing
 
