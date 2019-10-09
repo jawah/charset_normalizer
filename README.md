@@ -115,7 +115,7 @@ it's unmaintained, and most likely will never be.
 
 I **don't care** about the **originating charset** encoding, because **two different tables** can
 produce **two identical files.**
-What I want is to get readable text, the best I can. <--- Explain how that's different from http://ftfy.rtfd.io
+What I want is to get readable text, the best I can. 
 
 In a way, **I'm brute forcing text decoding.** How cool is that ? 😎
 
