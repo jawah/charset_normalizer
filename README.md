@@ -48,7 +48,7 @@ This project offers you an alternative to **Universal Charset Encoding Detector*
 <p align="center">
 <img src="https://i.imgflip.com/373iay.gif" alt="Reading Normalized Text" width="226"/><img src="https://image.noelshack.com/fichiers/2019/31/5/1564761473-ezgif-5-cf1bd9dd66b0.gif" alt="Cat Reading Text" width="200"/>
 
-*\*\* : They are clearly using specific code for a specific charset even if covering most of existing one*<br>  <---I don't understand
+*\*\* : They are clearly using specific code for a specific encoding even if covering most of used one*<br> 
 
 ## Your support
 
