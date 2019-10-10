@@ -250,7 +250,7 @@ class ProbeChaos:
         :rtype: float
         """
 
-        r_ = self.total_upper_accent_encountered if self.total_unaccented_letter_encountered / self.total_letter_encountered < 0.5 else 0
+        r_ = self.total_upper_accent_encountered if self.total_letter_encountered > 0 and self.total_unaccented_letter_encountered / self.total_letter_encountered < 0.5 else 0
         q_ = self.total_upper_letter_encountered / 3 if self.total_upper_letter_encountered > self.total_lower_letter_encountered * 0.4 else 0
         z_ = UnicodeRangeIdentify.unravel_suspicious_ranges(len(self._string), self.encountered_unicode_range_occurrences)
         p_ = self.encountered_punc_sign if self.encountered_punc_sign / len(self._string) > 0.2 else 0
