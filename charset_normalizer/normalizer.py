@@ -453,6 +453,11 @@ class CharsetNormalizerMatches:
             ratios = [el.ratio for el in measures]
             nb_gave_up = [el.gave_up is True or el.ratio >= threshold for el in measures].count(True)
 
+            if len(ratios) == 0:
+                logger.warning('{encoding} was excluded because no measure can be done on sequence. ',
+                               encoding=p)
+                continue
+
             chaos_means = statistics.mean(ratios)
             chaos_median = statistics.median(ratios)
             # chaos_min = min(ratios)

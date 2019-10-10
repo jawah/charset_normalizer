@@ -6,7 +6,7 @@ from charset_normalizer import CharsetNormalizerMatches as CnM
 class TestBytes(unittest.TestCase):
 
     def test_too_short_none(self):
-        self.assertIsNone(
+        self.assertIsNotNone(
             CnM.from_bytes(b'\xfe\xff').best().first()
         )
         
