@@ -36,13 +36,13 @@ This project offers you an alternative to **Universal Charset Encoding Detector*
 
 | Feature       | [Chardet](https://github.com/chardet/chardet)       | Charset Normalizer | [cChardet](https://github.com/PyYoshi/cChardet) |
 | ------------- | :-------------: | :------------------: | :------------------: |
-| `Fast`         | ❌<br>          | ❌<br>             | ✅ <br> |
-| `Universal**`     | ❌            | ✅                 | ❌ |
-| `Reliable` **without** distinguishable standards | ❌ | ✅ | ✅ |
-| `Reliable` **with** distinguishable standards | ✅ | ✅ | ✅ |
-| `Free & Open`  | ✅             | ✅                | ✅ |
-| `Native Python` | ✅ | ✅ | ❌ |
-| `Detect spoken language` | ❌ | ✅ | N/A |
+| `Fast`         | ❌<br>          | ❌<br>             | :heavy_check_mark: <br> |
+| `Universal**`     | ❌            | :heavy_check_mark:                 | ❌ |
+| `Reliable` **without** distinguishable standards | ❌ | :heavy_check_mark: | :heavy_check_mark: |
+| `Reliable` **with** distinguishable standards | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
+| `Free & Open`  | :heavy_check_mark:             | :heavy_check_mark:                | :heavy_check_mark: |
+| `Native Python` | :heavy_check_mark: | :heavy_check_mark: | ❌ |
+| `Detect spoken language` | ❌ | :heavy_check_mark: | N/A |
 | `Supported Encoding` | 30 | :tada: [90](https://charset-normalizer.readthedocs.io/en/latest/support.html)  | 40
 
 | Package       | Accuracy       | Mean per file (ns) | File per sec (est) |
