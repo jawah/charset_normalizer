@@ -24,6 +24,15 @@ how it is computed
 *if it matter* : Means if a package guessed cp1252 instead of cp1254, decode bytes using both and compare output string. 
 If equal, then it does not matter.
 
+run it yourself
+---------------
+
+```sh
+git clone https://github.com/ousret/charset_normalizer.git
+cd ./charset_normalizer/paper/
+python features.py
+```
+
 ## Global results
 
 | Package       | Accuracy       | Mean per file (ns) | File per sec (est) |
