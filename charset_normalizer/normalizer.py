@@ -275,6 +275,14 @@ class CharsetNormalizerMatches:
         """
         self._matches = matches
 
+        if len(self) > 1 and 'utf_8' in self.could_be_from_charset:
+
+            u8_index = self.could_be_from_charset.index('utf_8')
+
+            # Put UTF_8 at the beginning if not already the case
+            if u8_index > 0:
+                self._matches.insert(1, self._matches.pop(u8_index))
+
     def __iter__(self):
         for elem in self._matches:
             yield elem
