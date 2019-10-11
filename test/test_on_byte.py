@@ -9,7 +9,7 @@ class TestBytes(unittest.TestCase):
         self.assertIsNotNone(
             CnM.from_bytes(b'\xfe\xff').best().first()
         )
-        
+
     def test_bom_detection(self):
         with self.subTest('GB18030 UNAVAILABLE SIG'):
             self.assertFalse(
