@@ -125,6 +125,8 @@ What I want is to get readable text, the best I can.
 
 In a way, **I'm brute forcing text decoding.** How cool is that ? 😎
 
+Don't confuse package **ftfy** with charset-normalizer or chardet. ftfy goal is to repair unicode string whereas charset-normalizer to convert raw file in unknown encoding to unicode.
+
 ## 🍰 How
 
   - Discard all charset encoding table that could not fit the binary content.
