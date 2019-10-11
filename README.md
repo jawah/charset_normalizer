@@ -36,7 +36,7 @@ This project offers you an alternative to **Universal Charset Encoding Detector*
 
 | Feature       | [Chardet](https://github.com/chardet/chardet)       | Charset Normalizer | [cChardet](https://github.com/PyYoshi/cChardet) |
 | ------------- | :-------------: | :------------------: | :------------------: |
-| `Fast`         | ❌<br>          | ✅<br>             | ✅ <br>⚡ |
+| `Fast`         | ❌<br>          | ❌<br>             | ✅ <br> |
 | `Universal**`     | ❌            | ✅                 | ❌ |
 | `Reliable` **without** distinguishable standards | ❌ | ✅ | ✅ |
 | `Reliable` **with** distinguishable standards | ✅ | ✅ | ✅ |
@@ -44,6 +44,12 @@ This project offers you an alternative to **Universal Charset Encoding Detector*
 | `Native Python` | ✅ | ✅ | ❌ |
 | `Detect spoken language` | ❌ | ✅ | N/A |
 | `Supported Encoding` | 30 | :tada: [90](https://charset-normalizer.readthedocs.io/en/latest/support.html)  | 40
+
+| Package       | Accuracy       | Mean per file (ns) | File per sec (est) |
+| ------------- | :-------------: | :------------------: | :------------------: |
+|      [chardet](https://github.com/chardet/chardet)       |     93.5 %     |     126 081 168 ns      |       7.931 file/sec        |
+|      [cchardet](https://github.com/PyYoshi/cChardet)      |     97.0 %     |      1 668 145 ns       |      **599.468 file/sec**      |
+| charset-normalizer |    **97.25 %**     |     209 503 253 ns      |       4.773 file/sec    |
 
 <p align="center">
 <img src="https://i.imgflip.com/373iay.gif" alt="Reading Normalized Text" width="226"/><img src="https://image.noelshack.com/fichiers/2019/31/5/1564761473-ezgif-5-cf1bd9dd66b0.gif" alt="Cat Reading Text" width="200"/>
@@ -118,6 +124,8 @@ produce **two identical files.**
 What I want is to get readable text, the best I can. 
 
 In a way, **I'm brute forcing text decoding.** How cool is that ? 😎
+
+Don't confuse package **ftfy** with charset-normalizer or chardet. ftfy goal is to repair unicode string whereas charset-normalizer to convert raw file in unknown encoding to unicode.
 
 ## 🍰 How
 
