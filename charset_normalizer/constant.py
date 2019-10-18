@@ -588,7 +588,10 @@ UNICODE_SECONDARY_RANGE_KEYWORD = [
     'Block',
     'Shapes',
     'Supplemental',
-    'Tags'
+    'Tags',
+    'Private',
+    'Subscripts',
+    'Control character'
 ]
 
 # Contain for each eligible encoding a list of/item bytes SIG/BOM
@@ -608,7 +611,7 @@ BYTE_ORDER_MARK = {
     'utf_16_le': BOM_UTF16_LE
 }
 
-COHERENCE_ALPHABET_COVERED_IF = 0.8
+COHERENCE_ALPHABET_COVERED_IF = 0.7
 COHERENCE_PICKING_LETTER_MIN_APPEARANCE = 0.003
 COHERENCE_MIN_LETTER_NEEDED = 10
 COHERENCE_MAXIMUM_UNAVAILABLE_LETTER = 0.4

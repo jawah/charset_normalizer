@@ -16,12 +16,15 @@ from os.path import basename
 from glob import glob
 from statistics import mean
 
+from difflib import SequenceMatcher
+
 report = {
 
     'chardet': {
         'success': 0,
         'failure': 0,
         'performances': list(),
+        'similarities_in_failures': list(),
         'encodings': dict()
     },
 
@@ -29,6 +32,7 @@ report = {
         'success': 0,
         'failure': 0,
         'performances': list(),
+        'similarities_in_failures': list(),
         'encodings': dict()
     },
 
@@ -36,6 +40,7 @@ report = {
         'success': 0,
         'failure': 0,
         'performances': list(),
+        'similarities_in_failures': list(),
         'encodings': dict()
     },
 
@@ -62,10 +67,31 @@ def does_it_matter(raw_bytes, detected_encoding, should_be_encoding):
     """
     if detected_encoding == should_be_encoding:
         return False
+    if detected_encoding == 'UHC' and should_be_encoding == 'cp949':
+        return False
     try:
         return raw_bytes.decode(detected_encoding) != raw_bytes.decode(should_be_encoding)
     except UnicodeDecodeError:
         return True
+
+
+def how_far_for_expected_result(raw_bytes, detected_encoding, should_be_encoding):
+    if detected_encoding == should_be_encoding:
+        return 0.
+
+    t_original = raw_bytes.decode(should_be_encoding)
+
+    try:
+        t1_tempered = raw_bytes.decode(detected_encoding)
+    except UnicodeDecodeError:
+        return 100.
+
+    m = SequenceMatcher(None, t_original, t1_tempered)
+
+    return round(
+        m.ratio() * 100,
+        ndigits=3
+    )
 
 
 if __name__ == '__main__':
@@ -81,13 +107,16 @@ if __name__ == '__main__':
 
     for path in files_queue:
 
-        target_encoding_dir = path.split('\\')[-2].lower().replace('-', '_')
+        target_encoding_dir = path.split('/')[-2].lower().replace('-', '_')
 
         if target_encoding_dir.startswith('windows_'):
             target_encoding_dir = '_'.join(target_encoding_dir.split('_')[:2])
         if target_encoding_dir.startswith('iso'):
             target_encoding_dir = 'iso{n1}_{n2}'.format(n1=target_encoding_dir.split('_')[1],
                                                         n2=target_encoding_dir.split('_')[2])
+        if 'sig' in target_encoding_dir:
+            target_encoding_dir = target_encoding_dir.replace('_sig', '')
+
         should_be_encoding = None
 
         for a, b in aliases.items():
@@ -99,7 +128,12 @@ if __name__ == '__main__':
                 break
 
         if should_be_encoding is None:
-            logger.warning('{encoding} could not be identified in encodings.aliases.')
+            logger.warning(
+                '{encoding} could not be identified in encodings.aliases. '
+                'So "{filename}" is going to be ignored.',
+                encoding=target_encoding_dir,
+                filename=basename(path)
+            )
             continue
 
         if should_be_encoding not in report['charset-normalizer']['encodings'].keys():
@@ -108,7 +142,8 @@ if __name__ == '__main__':
                     'performances': list(),
                     'success': 0,
                     'failure': 0,
-                    'confuse_it_with': set()
+                    'confuse_it_with': set(),
+                    'similarities_in_failures': list()
                 }
 
         logger.info('File "{filename}" is going to be tested. File owner claim it is encoded with {target_encoding}.', filename=basename(path), target_encoding=should_be_encoding)
@@ -138,11 +173,27 @@ if __name__ == '__main__':
             report['chardet']['failure'] += 1
             report['chardet']['encodings'][should_be_encoding]['failure'] += 1
         elif should_be_encoding != also_could_be(chardet_result.get('encoding').lower().replace('-', '_')) and does_it_matter(raw_content, should_be_encoding, also_could_be(chardet_result.get('encoding').lower().replace('-', '_'))) is True:
-            logger.error('"{filename}" content could not identified properly by CHARDET. ({got} instead of {should_be})', filename=basename(path), got=chardet_result.get('encoding').replace('-', '_'), should_be=should_be_encoding)
+
+            similarity_to_expected_result = how_far_for_expected_result(raw_content, chardet_result.get('encoding').replace('-', '_'), should_be_encoding)
+
+            logger.error(
+                '"{filename}" content could not identified properly by CHARDET. ({got} instead of {should_be}). '
+                '{percent_far_from_original} % is rendered correctly thought.',
+                filename=basename(path),
+                got=chardet_result.get('encoding').replace('-', '_'),
+                should_be=should_be_encoding,
+                percent_far_from_original=similarity_to_expected_result
+            )
+
             report['chardet']['failure'] += 1
+            report['chardet']['similarities_in_failures'].append(similarity_to_expected_result)
+
             report['chardet']['encodings'][should_be_encoding]['failure'] += 1
+            report['chardet']['encodings'][should_be_encoding]['similarities_in_failures'].append(similarity_to_expected_result)
             report['chardet']['encodings'][should_be_encoding]['confuse_it_with'].add(
                 also_could_be(chardet_result.get('encoding').lower().replace('-', '_')))
+
+
         else:
             report['chardet']['success'] += 1
             report['chardet']['encodings'][should_be_encoding]['success'] += 1
@@ -165,9 +216,24 @@ if __name__ == '__main__':
             report['cchardet']['failure'] += 1
             report['cchardet']['encodings'][should_be_encoding]['failure'] += 1
         elif should_be_encoding != also_could_be(cchardet_result.get('encoding').lower().replace('-', '_')) and does_it_matter(raw_content, should_be_encoding, also_could_be(cchardet_result.get('encoding').lower().replace('-', '_'))) is True:
-            logger.error('"{filename}" content could not identified properly by CCHARDET. ({got} instead of {should_be})', filename=basename(path), got=cchardet_result.get('encoding').replace('-', '_'), should_be=should_be_encoding)
+
+            similarity_to_expected_result = how_far_for_expected_result(raw_content, cchardet_result.get('encoding').replace('-', '_'), should_be_encoding)
+
+            logger.error(
+                '"{filename}" content could not identified properly by CCHARDET. ({got} instead of {should_be}). '
+                '{percent_far_from_original} % is rendered correctly thought.',
+                filename=basename(path),
+                got=cchardet_result.get('encoding').replace('-', '_'),
+                should_be=should_be_encoding,
+                percent_far_from_original=similarity_to_expected_result
+            )
+
             report['cchardet']['failure'] += 1
+            report['cchardet']['similarities_in_failures'].append(similarity_to_expected_result)
+
             report['cchardet']['encodings'][should_be_encoding]['failure'] += 1
+            report['cchardet']['encodings'][should_be_encoding]['similarities_in_failures'].append(similarity_to_expected_result)
+
             report['cchardet']['encodings'][should_be_encoding]['confuse_it_with'].add(
                 also_could_be(cchardet_result.get('encoding').lower().replace('-', '_')))
         else:
@@ -192,9 +258,24 @@ if __name__ == '__main__':
             report['charset-normalizer']['failure'] += 1
             report['charset-normalizer']['encodings'][should_be_encoding]['failure'] += 1
         elif should_be_encoding not in ' '.join(cn_result.could_be_from_charset):
-            logger.error('"{filename}" content could not identified properly by CHARSET-NORMALIZER. ({got} instead of {should_be})', filename=basename(path), got=cn_result.encoding, should_be=should_be_encoding)
+
+            similarity_to_expected_result = how_far_for_expected_result(raw_content, cn_result.encoding, should_be_encoding)
+
+            logger.error(
+                '"{filename}" content could not identified properly by CHARSET-NORMALIZER. ({got} instead of {should_be}). '
+                '{percent_far_from_original} % is rendered correctly thought.',
+                filename=basename(path),
+                got=cn_result.encoding,
+                should_be=should_be_encoding,
+                percent_far_from_original=similarity_to_expected_result
+            )
+
             report['charset-normalizer']['failure'] += 1
+            report['charset-normalizer']['similarities_in_failures'].append(similarity_to_expected_result)
+
             report['charset-normalizer']['encodings'][should_be_encoding]['failure'] += 1
+            report['charset-normalizer']['encodings'][should_be_encoding]['similarities_in_failures'].append(similarity_to_expected_result)
+
             report['charset-normalizer']['encodings'][should_be_encoding]['confuse_it_with'].add(
                 cn_result.encoding)
         else:
@@ -209,7 +290,8 @@ if __name__ == '__main__':
     x = PrettyTable(
         [
             'Package',
-            'Success Rate',
+            'Accuracy',
+            'Similarities in confusion',
             'Mean per file (ns)',
             'File per sec (est)'
         ]
@@ -230,6 +312,12 @@ if __name__ == '__main__':
                     (report[package]['success'] / (report[package]['success'] + report[package]['failure'])) * 100,
                     ndigits=2
                 ),
+                round(
+                    mean(
+                        report[package]['similarities_in_failures']
+                    ),
+                    ndigits=3
+                ) if len(report[package]['similarities_in_failures']) > 0 else 'N/A',
                 mean_perf_ns,
                 round(
                     1. / (mean_perf_ns / 1e+9),
@@ -242,18 +330,21 @@ if __name__ == '__main__':
         x
     )
 
-    y = PrettyTable(
-        [
-            'Package',
-            'Encoding',
-            'Success Rate',
-            'Mean per file (ns)',
-            'File per sec (est)',
-            'Confuse it with (sometime)'
-        ]
-    )
-
     for encoding in report['charset-normalizer']['encodings'].keys():
+
+        print('##', encoding.upper())
+
+        y = PrettyTable(
+            [
+                'Package',
+                'Accuracy',
+                'Similarities in confusion',
+                'Mean per file (ns)',
+                'File per sec (est)',
+                'Confuse it with (sometime)'
+            ]
+        )
+
         for package in report.keys():
             mean_perf_ns = round(
                 mean(
@@ -264,11 +355,14 @@ if __name__ == '__main__':
             y.add_row(
                 [
                     package,
-                    encoding,
                     round(
                         (report[package]['encodings'][encoding]['success'] / (report[package]['encodings'][encoding]['success'] + report[package]['encodings'][encoding]['failure'])) * 100,
                         ndigits=2
                     ),
+                    round(
+                        mean(report[package]['encodings'][encoding]['similarities_in_failures']),
+                        ndigits=3
+                    ) if len(report[package]['encodings'][encoding]['similarities_in_failures']) > 0 else 'N/A',
                     mean_perf_ns,
                     round(
                         1. / (mean_perf_ns / 1e+9),
@@ -278,6 +372,6 @@ if __name__ == '__main__':
                 ]
             )
 
-    print(
-        y
-    )
+        print(
+            y
+        )

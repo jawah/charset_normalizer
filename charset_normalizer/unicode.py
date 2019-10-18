@@ -20,9 +20,11 @@ class UnicodeRangeIdentify:
         if len(letter) != 1:
             raise IOError('Trying to associate multiple char <{}> to a single unicode range'.format(letter))
 
+        ord_target = ord(letter)
+
         for u_name, u_range in UNICODE_RANGES_ZIP.items():
 
-            if ord(letter) in u_range:
+            if ord_target in u_range:
                 return u_name
 
         return None
@@ -57,6 +59,15 @@ class UnicodeRangeIdentify:
 
     @staticmethod
     @lru_cache(maxsize=8192)
+    def is_private_use_only(letter):
+        """
+        :param str letter:
+        :return:
+        """
+        return 'Private' in (UnicodeRangeIdentify.find_letter_type(letter) or '')
+
+    @staticmethod
+    @lru_cache(maxsize=8192)
     def is_punc(letter):
         """
         Verify if a letter is a sort of punctuation sign
@@ -69,7 +80,7 @@ class UnicodeRangeIdentify:
         return r_name is not None and \
                ("Punctuation" in r_name or
                'Forms' in r_name or
-               letter in 'º¯—–‒‐⁃«‹?!;.:^$*»£¹¿~ª؟©±¡{}[]|¼½¾⅕⅙⅛™℠‼⁇❝❞¶⁋√↑↓�¤`')
+               letter in set('º¯—–‒‐⁃«‹?!;.:^$*»£¹¿~ª؟©±¡{}[]|¼½¾⅕⅙⅛™℠‼⁇❝❞¶⁋√↑↓�¤`'))
 
     @staticmethod
     @lru_cache(maxsize=8192)
@@ -82,33 +93,59 @@ class UnicodeRangeIdentify:
         return 'CJK' in (UnicodeRangeIdentify.find_letter_type(letter) or '')
 
     @staticmethod
+    def extract_minor_encountered_ranges(str_len, encountered_unicode_range_occurrences):
+        m_ = list()
+        for unicode_range, v in encountered_unicode_range_occurrences.items():
+            if v / str_len < 0.09:
+                m_.append(unicode_range)
+        return m_
+
+    @staticmethod
     def unravel_suspicious_ranges(str_len, encountered_unicode_range_occurrences):
         """
         :param int str_len:
         :param dict encountered_unicode_range_occurrences:
         :return:
         """
+        score_ = 0
 
-        items = encountered_unicode_range_occurrences.items()
-        s_ = 0
-
-        # print(encountered_unicode_range_occurrences)
-
-        for k, v in items:
-            k_ = k.lower()
+        for unicode_range, v in encountered_unicode_range_occurrences.items():
             if (
-                    'latin' not in k_ and 'general punctuation' not in k_ and 'symbols and punctuation' not in k_ and 'cjk' not in k_) or 'latin extended' in k_ or 'latin-1 supplement' in k_:
+                    'Latin' not in unicode_range and 'General Punctuation' not in unicode_range and 'Symbols and Punctuation' not in unicode_range and 'CJK' not in unicode_range) or 'Latin Extended' in unicode_range or 'Latin-1 Supplement' in unicode_range:
                 if v / str_len < 0.09:
-                    if len(encountered_unicode_range_occurrences.keys()) <= 2 and 'latin-1 supplement' in k_:
+                    if len(encountered_unicode_range_occurrences) <= 2 and 'Latin-1 Supplement' in unicode_range:
                         continue
-                    if 'halfwidth and fullwidth forms' in k_ and any(['CJK' in el for el in encountered_unicode_range_occurrences.keys()]):
+                    if 'Halfwidth and Fullwidth Forms' in unicode_range and any(['CJK' in el for el in encountered_unicode_range_occurrences]):
                         continue
-                    if 'hiragana' in k_ or 'katakana' in k_:
+                    if 'Hiragana' in unicode_range or 'Katakana' in unicode_range:
                         continue
-                    # print('suspicious', k_, 'with', v)
-                    s_ += v
+                    # print('suspicious', unicode_range, 'with', v)
+                    score_ += v
 
-        return s_
+        return score_
+
+    @staticmethod
+    def unravel_suspicious_ranges_v2(str_len, encountered_unicode_range_occurrences):
+        """
+        :param int str_len:
+        :param dict encountered_unicode_range_occurrences:
+        :return:
+        """
+        score_ = 0
+
+        if not sum(encountered_unicode_range_occurrences.values()) > str_len/2:
+            return score_
+
+        for unicode_range, v in encountered_unicode_range_occurrences.items():
+            is_a_secondary_range = UnicodeRangeIdentify.is_range_secondary(unicode_range)
+            range_occupation = round((v / str_len) * 100, ndigits=3)
+
+            if range_occupation < 10. and is_a_secondary_range is False and 'Latin' not in unicode_range:
+                score_ += v
+            elif range_occupation >= 10. and is_a_secondary_range is True :
+                score_ += v
+
+        return score_
 
     @staticmethod
     @lru_cache(maxsize=8192)
@@ -154,9 +191,7 @@ class UnicodeRangeIdentify:
         for el in word:
             if el.isspace():
                 raise IOError('Classification should not be invoked with sentences !')
-            u_name = UnicodeRangeIdentify.find_letter_type(el)
-            if u_name is None:
-                u_name = 'Unknown'
+            u_name = UnicodeRangeIdentify.find_letter_type(el) or 'Unknown'
             if u_name not in cla_:
                 cla_[u_name] = 0
             cla_[u_name] += 1
@@ -172,11 +207,6 @@ class UnicodeRangeIdentify:
         :return: True if secondary else False
         :rtype: bool
         """
-        try:
-            UnicodeRangeIdentify.get_range_id(u_range)
-        except ValueError:
-            return True
-
         for keyword in UNICODE_SECONDARY_RANGE_KEYWORD:
             if keyword in u_range:
                 return True
@@ -276,7 +306,7 @@ class UnicodeRangeIdentify:
                     break
 
             if s_ is False:
-                if u_range not in by_ranges.keys():
+                if u_range not in by_ranges:
                     by_ranges[u_range] = list()
                 by_ranges[u_range].append(l)
 

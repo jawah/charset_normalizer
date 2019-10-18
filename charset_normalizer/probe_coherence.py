@@ -85,8 +85,15 @@ class ProbeCoherence:
             return 1.
 
         ratios = [self.rank_per_lang[lg] for lg in languages]
+        mean = statistics.mean(ratios)
 
-        return statistics.mean(ratios) / 2 if self.non_latin_covered_any is True else statistics.mean(ratios)
+        if self.non_latin_not_covered_any is True:
+            return mean * 1.2 if mean > 0. else 0.2
+
+        if self.non_latin_covered_any is False:
+            return mean / 2
+
+        return mean
 
     @property
     def coverage(self):
@@ -116,6 +123,13 @@ class ProbeCoherence:
             if 'Latin' not in alphabet and covered is True:
                 return True
         return False
+
+    @property
+    def non_latin_not_covered_any(self):
+        for alphabet, covered in self.alphabet_coverage.items():
+            if 'Latin' not in alphabet and UnicodeRangeIdentify.is_range_secondary(alphabet) is False and self.non_latin_covered_any is True:
+                return False
+        return True
 
     def _probe(self):
 

@@ -119,6 +119,10 @@ class CharsetNormalizerMatch:
         return ProbeCoherence(self.char_counter).non_latin_covered_any
 
     @cached_property
+    def coherence_non_latin_not_covered(self):
+        return ProbeCoherence(self.char_counter).non_latin_not_covered_any
+
+    @cached_property
     def languages(self):
         """
         Return a list of probable language in text
@@ -403,16 +407,16 @@ class CharsetNormalizerMatches:
 
             k, p = support
 
+            if p in tested:
+                continue
+
+            tested.add(p)
+
             if cp_isolation is not None and p not in cp_isolation:
                 continue
 
             if cp_exclusion is not None and p in cp_exclusion:
                 continue
-
-            if p in tested:
-                continue
-
-            tested.add(p)
 
             bom_available = False
             bom_len = None
@@ -457,7 +461,40 @@ class CharsetNormalizerMatches:
                 int(maximum_length / steps)
             )
 
-            measures = [ProbeChaos(str(sequences[i:i + chunk_size], encoding=p, errors='ignore'), giveup_threshold=threshold, bonus_bom_sig=bom_available, bonus_multi_byte=is_multi_byte_enc) for i in r_]
+            measures = []
+
+            too_much_chaos = False
+
+            for i in r_:
+                measures.append(
+                    ProbeChaos(
+                        str(sequences[i:i + chunk_size], encoding=p, errors='ignore'),
+                        giveup_threshold=threshold,
+                        bonus_bom_sig=bom_available,
+                        bonus_multi_byte=is_multi_byte_enc
+                    )
+                )
+
+                logger.debug(
+                    '{encoding}/measure[{i}] = {chaos_measure} %',
+                    encoding=p,
+                    i=i,
+                    chaos_measure=round(measures[-1].ratio*100, ndigits=3)
+                )
+
+                if measures[-1].ratio > threshold * 2. and len(measures) < len(r_) / 4:
+                    too_much_chaos = True
+                    break
+
+            if too_much_chaos is True:
+                logger.warning(
+                    '{encoding} was excluded because it is unlikely the right one. '
+                    'Last chaos measure is about {last_chaos} %.',
+                    encoding=p,
+                    last_chaos=round(measures[-1].ratio*100, ndigits=3)
+                )
+                continue
+
             ratios = [el.ratio for el in measures]
             nb_gave_up = [el.gave_up is True or el.ratio >= threshold for el in measures].count(True)
 
@@ -505,6 +542,12 @@ class CharsetNormalizerMatches:
                 coherence=cnm.percent_coherence,
                 language=cnm.languages
             )
+
+            if cnm.coherence_non_latin_not_covered is True:
+                logger.error(
+                    '{encoding} could not verify coherence on foreign alphabet correctly.',
+                    encoding=p
+                )
 
             fingerprint_tests = [el.fingerprint == cnm.fingerprint for el in matches]
 

@@ -46,9 +46,9 @@ class ProbeWords:
 
             c_ = 0
 
-            is_latin_based = all(['Latin' in el for el in list(classification.keys())])
+            is_latin_based = all(['Latin' in el for el in classification])
 
-            if len(classification.keys()) > 1:
+            if len(classification) > 1:
                 for u_name, u_occ in classification.items():
 
                     if UnicodeRangeIdentify.is_range_secondary(u_name) is True:
@@ -56,12 +56,10 @@ class ProbeWords:
 
             if (not is_latin_based and c_ > int(w_len / 4)) \
                     or (is_latin_based and c_ > int(w_len / 2)) \
-                    or (UnicodeRangeIdentify.part_punc(el) > 0.4 and len(classification.keys()) > 1) \
+                    or (UnicodeRangeIdentify.part_punc(el) > 0.4 and len(classification) > 1) \
                     or (not is_latin_based and UnicodeRangeIdentify.part_accent(el) > 0.4) \
                     or (not is_latin_based and len(el) > 10 and UnicodeRangeIdentify.part_lonely_range(el) > 0.3):
                 self._suspicious.append(el)
-            else:
-                pass
 
     @property
     def ratio(self):
