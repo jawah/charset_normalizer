@@ -10,6 +10,18 @@ class TestBytes(unittest.TestCase):
             CnM.from_bytes(b'\xfe\xff').best().first()
         )
 
+    def test_empty_bytes(self):
+        r = CnM.from_bytes(b'').best().first()
+
+        self.assertIsNotNone(
+            r
+        )
+
+        self.assertEqual(
+            'utf-8',
+            r.encoding
+        )
+
     def test_bom_detection(self):
         with self.subTest('GB18030 UNAVAILABLE SIG'):
             self.assertFalse(
