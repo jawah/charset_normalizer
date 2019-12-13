@@ -125,6 +125,20 @@ class UnicodeRangeIdentify:
         return score_
 
     @staticmethod
+    def unicode_range_coverage(str_len, encountered_unicode_range_occurrences, target_ranges):
+        """
+        :param int str_len:
+        :param dict encountered_unicode_range_occurrences:
+        :param list[str] target_ranges:
+        :return:
+        """
+        range_coverage = 0.
+        for unicode_range, v in encountered_unicode_range_occurrences.items():
+            if unicode_range in target_ranges:
+                range_coverage += round((v / str_len) * 100, ndigits=3)
+        return range_coverage
+
+    @staticmethod
     def unravel_suspicious_ranges_v2(str_len, encountered_unicode_range_occurrences):
         """
         :param int str_len:
@@ -136,14 +150,20 @@ class UnicodeRangeIdentify:
         if not sum(encountered_unicode_range_occurrences.values()) > str_len/2:
             return score_
 
+        nb_normal_used_primary_range = 0
+
         for unicode_range, v in encountered_unicode_range_occurrences.items():
             is_a_secondary_range = UnicodeRangeIdentify.is_range_secondary(unicode_range)
             range_occupation = round((v / str_len) * 100, ndigits=3)
 
-            if range_occupation < 10. and is_a_secondary_range is False and 'Latin' not in unicode_range:
+            if range_occupation <= 20. and is_a_secondary_range is False and nb_normal_used_primary_range == 0:
+                # print('detected primary', unicode_range, 'with occupation', range_occupation)
                 score_ += v
-            elif range_occupation >= 10. and is_a_secondary_range is True :
+            elif range_occupation > 20. and is_a_secondary_range is True:
+                # print('detected secondary', unicode_range, 'with occupation', range_occupation)
                 score_ += v
+            elif not is_a_secondary_range:
+                nb_normal_used_primary_range += 1
 
         return score_
 

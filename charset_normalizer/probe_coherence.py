@@ -128,8 +128,8 @@ class ProbeCoherence:
     def non_latin_not_covered_any(self):
         for alphabet, covered in self.alphabet_coverage.items():
             if 'Latin' not in alphabet and UnicodeRangeIdentify.is_range_secondary(alphabet) is False and self.non_latin_covered_any is True:
-                return False
-        return True
+                return True
+        return False
 
     def _probe(self):
 

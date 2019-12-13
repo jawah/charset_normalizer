@@ -15,7 +15,7 @@ class TestFileCharsetNormalizer(unittest.TestCase):
         'sample.1.he.srt': 'cp1255',
         'sample.1.hi.srt': 'ascii',
         'sample.1.ru.srt': 'cp1251',
-        'sample.1.tu.srt': 'cp1252',  # Not actually the good one. But kinda readable.
+        'sample.1.tu.srt': 'cp1257',  # Not actually the good one. But kinda readable.
         'sample.2.ar.srt': 'cp1256',
         'sample.3.ar.srt': 'utf_8',
         'sample.4.ar.srt': 'cp1256',
@@ -28,7 +28,7 @@ class TestFileCharsetNormalizer(unittest.TestCase):
         'sample-hebrew-3.txt': 'cp1255',
         'sample-russian.txt': 'mac_cyrillic',
         'sample-russian-2.txt': 'utf_8',
-        'sample-turkish.txt': 'cp1252',
+        'sample-turkish.txt': 'cp1254',
         'sample-korean.txt': 'cp949',
         'sample-spanish.txt': 'utf_8',
         'sample-bulgarian.txt': 'utf_8',
@@ -36,7 +36,9 @@ class TestFileCharsetNormalizer(unittest.TestCase):
     }
 
     def test_file_input(self):
-        for path_name in glob('./data/*.srt') + glob('./data/*.txt'):
+        for path_name in glob('../data/*.srt') + glob('../data/*.txt'):
+
+            print(path_name)
 
             with self.subTest('test_file_input <{}>'.format(path_name)):
 

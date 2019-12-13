@@ -96,6 +96,9 @@ def how_far_for_expected_result(raw_bytes, detected_encoding, should_be_encoding
 
 if __name__ == '__main__':
 
+    cp_isolation = []
+    similarity_minimum = 99.
+
     logger.warning(
         "Running feature benchmark on charset-normalizer ({v1}), chardet ({v2}) and cchardet ({v3}).",
         v1=charset_normalizer_ver,
@@ -134,6 +137,9 @@ if __name__ == '__main__':
                 encoding=target_encoding_dir,
                 filename=basename(path)
             )
+            continue
+
+        if len(cp_isolation) > 0 and should_be_encoding not in cp_isolation:
             continue
 
         if should_be_encoding not in report['charset-normalizer']['encodings'].keys():
@@ -176,22 +182,34 @@ if __name__ == '__main__':
 
             similarity_to_expected_result = how_far_for_expected_result(raw_content, chardet_result.get('encoding').replace('-', '_'), should_be_encoding)
 
-            logger.error(
-                '"{filename}" content could not identified properly by CHARDET. ({got} instead of {should_be}). '
-                '{percent_far_from_original} % is rendered correctly thought.',
-                filename=basename(path),
-                got=chardet_result.get('encoding').replace('-', '_'),
-                should_be=should_be_encoding,
-                percent_far_from_original=similarity_to_expected_result
-            )
+            if similarity_to_expected_result >= similarity_minimum:
+                logger.warning(
+                    '"{filename}" content could not identified properly by CHARDET. ({got} instead of {should_be}). '
+                    '{percent_far_from_original} % is rendered correctly thought.',
+                    filename=basename(path),
+                    got=chardet_result.get('encoding').replace('-', '_'),
+                    should_be=should_be_encoding,
+                    percent_far_from_original=similarity_to_expected_result
+                )
+                report['chardet']['success'] += 1
+                report['chardet']['encodings'][should_be_encoding]['success'] += 1
+            else:
+                logger.error(
+                    '"{filename}" content could not identified properly by CHARDET. ({got} instead of {should_be}). '
+                    '{percent_far_from_original} % is rendered correctly, that is not enough.',
+                    filename=basename(path),
+                    got=chardet_result.get('encoding').replace('-', '_'),
+                    should_be=should_be_encoding,
+                    percent_far_from_original=similarity_to_expected_result
+                )
 
-            report['chardet']['failure'] += 1
-            report['chardet']['similarities_in_failures'].append(similarity_to_expected_result)
+                report['chardet']['failure'] += 1
+                report['chardet']['similarities_in_failures'].append(similarity_to_expected_result)
 
-            report['chardet']['encodings'][should_be_encoding]['failure'] += 1
-            report['chardet']['encodings'][should_be_encoding]['similarities_in_failures'].append(similarity_to_expected_result)
-            report['chardet']['encodings'][should_be_encoding]['confuse_it_with'].add(
-                also_could_be(chardet_result.get('encoding').lower().replace('-', '_')))
+                report['chardet']['encodings'][should_be_encoding]['failure'] += 1
+                report['chardet']['encodings'][should_be_encoding]['similarities_in_failures'].append(similarity_to_expected_result)
+                report['chardet']['encodings'][should_be_encoding]['confuse_it_with'].add(
+                    also_could_be(chardet_result.get('encoding').lower().replace('-', '_')))
 
 
         else:
@@ -219,23 +237,35 @@ if __name__ == '__main__':
 
             similarity_to_expected_result = how_far_for_expected_result(raw_content, cchardet_result.get('encoding').replace('-', '_'), should_be_encoding)
 
-            logger.error(
-                '"{filename}" content could not identified properly by CCHARDET. ({got} instead of {should_be}). '
-                '{percent_far_from_original} % is rendered correctly thought.',
-                filename=basename(path),
-                got=cchardet_result.get('encoding').replace('-', '_'),
-                should_be=should_be_encoding,
-                percent_far_from_original=similarity_to_expected_result
-            )
+            if similarity_to_expected_result >= similarity_minimum:
+                logger.warning(
+                    '"{filename}" content could not identified properly by CCHARDET. ({got} instead of {should_be}). '
+                    '{percent_far_from_original} % is rendered correctly thought.',
+                    filename=basename(path),
+                    got=cchardet_result.get('encoding').replace('-', '_'),
+                    should_be=should_be_encoding,
+                    percent_far_from_original=similarity_to_expected_result
+                )
+                report['cchardet']['success'] += 1
+                report['cchardet']['encodings'][should_be_encoding]['success'] += 1
+            else:
+                logger.error(
+                    '"{filename}" content could not identified properly by CCHARDET. ({got} instead of {should_be}). '
+                    '{percent_far_from_original} % is rendered correctly. That is NOT enough.',
+                    filename=basename(path),
+                    got=cchardet_result.get('encoding').replace('-', '_'),
+                    should_be=should_be_encoding,
+                    percent_far_from_original=similarity_to_expected_result
+                )
 
-            report['cchardet']['failure'] += 1
-            report['cchardet']['similarities_in_failures'].append(similarity_to_expected_result)
+                report['cchardet']['failure'] += 1
+                report['cchardet']['similarities_in_failures'].append(similarity_to_expected_result)
 
-            report['cchardet']['encodings'][should_be_encoding]['failure'] += 1
-            report['cchardet']['encodings'][should_be_encoding]['similarities_in_failures'].append(similarity_to_expected_result)
+                report['cchardet']['encodings'][should_be_encoding]['failure'] += 1
+                report['cchardet']['encodings'][should_be_encoding]['similarities_in_failures'].append(similarity_to_expected_result)
 
-            report['cchardet']['encodings'][should_be_encoding]['confuse_it_with'].add(
-                also_could_be(cchardet_result.get('encoding').lower().replace('-', '_')))
+                report['cchardet']['encodings'][should_be_encoding]['confuse_it_with'].add(
+                    also_could_be(cchardet_result.get('encoding').lower().replace('-', '_')))
         else:
             report['cchardet']['success'] += 1
             report['cchardet']['encodings'][should_be_encoding]['success'] += 1
@@ -261,23 +291,36 @@ if __name__ == '__main__':
 
             similarity_to_expected_result = how_far_for_expected_result(raw_content, cn_result.encoding, should_be_encoding)
 
-            logger.error(
-                '"{filename}" content could not identified properly by CHARSET-NORMALIZER. ({got} instead of {should_be}). '
-                '{percent_far_from_original} % is rendered correctly thought.',
-                filename=basename(path),
-                got=cn_result.encoding,
-                should_be=should_be_encoding,
-                percent_far_from_original=similarity_to_expected_result
-            )
+            if similarity_to_expected_result >= similarity_minimum:
+                logger.warning(
+                    '"{filename}" content could not identified properly by CHARSET-NORMALIZER. ({got} instead of {should_be}). '
+                    '{percent_far_from_original} % is rendered correctly thought.',
+                    filename=basename(path),
+                    got=cn_result.encoding,
+                    should_be=should_be_encoding,
+                    percent_far_from_original=similarity_to_expected_result
+                )
+                report['charset-normalizer']['success'] += 1
+                report['charset-normalizer']['encodings'][should_be_encoding]['success'] += 1
+            else:
 
-            report['charset-normalizer']['failure'] += 1
-            report['charset-normalizer']['similarities_in_failures'].append(similarity_to_expected_result)
+                logger.error(
+                    '"{filename}" content could not identified properly by CHARSET-NORMALIZER. ({got} instead of {should_be}). '
+                    '{percent_far_from_original} % is rendered correctly. That is NOT enough.',
+                    filename=basename(path),
+                    got=cn_result.encoding,
+                    should_be=should_be_encoding,
+                    percent_far_from_original=similarity_to_expected_result
+                )
 
-            report['charset-normalizer']['encodings'][should_be_encoding]['failure'] += 1
-            report['charset-normalizer']['encodings'][should_be_encoding]['similarities_in_failures'].append(similarity_to_expected_result)
+                report['charset-normalizer']['failure'] += 1
+                report['charset-normalizer']['similarities_in_failures'].append(similarity_to_expected_result)
 
-            report['charset-normalizer']['encodings'][should_be_encoding]['confuse_it_with'].add(
-                cn_result.encoding)
+                report['charset-normalizer']['encodings'][should_be_encoding]['failure'] += 1
+                report['charset-normalizer']['encodings'][should_be_encoding]['similarities_in_failures'].append(similarity_to_expected_result)
+
+                report['charset-normalizer']['encodings'][should_be_encoding]['confuse_it_with'].add(
+                    cn_result.encoding)
         else:
             report['charset-normalizer']['success'] += 1
             report['charset-normalizer']['encodings'][should_be_encoding]['success'] += 1

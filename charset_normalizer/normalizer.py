@@ -476,9 +476,10 @@ class CharsetNormalizerMatches:
                 )
 
                 logger.debug(
-                    '{encoding}/measure[{i}] = {chaos_measure} %',
+                    '{encoding}/measure[{i}:{j}] = {chaos_measure} %',
                     encoding=p,
                     i=i,
+                    j=i + chunk_size,
                     chaos_measure=round(measures[-1].ratio*100, ndigits=3)
                 )
 
