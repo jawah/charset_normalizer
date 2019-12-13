@@ -348,6 +348,14 @@ class CharsetNormalizerMatches:
         if not explain:
             logger.disable('charset_normalizer')
 
+        if len(sequences) == 0:
+            return CharsetNormalizerMatch(
+                sequences,
+                'utf-8',
+                0.,
+                []
+            )
+
         too_small_sequence = len(sequences) < 24
 
         if too_small_sequence is True:
