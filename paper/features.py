@@ -81,7 +81,7 @@ if __name__ == '__main__':
 
     for path in files_queue:
 
-        target_encoding_dir = path.split('\\')[-2].lower().replace('-', '_')
+        target_encoding_dir = path.split('/')[-2].lower().replace('-', '_')
 
         if target_encoding_dir.startswith('windows_'):
             target_encoding_dir = '_'.join(target_encoding_dir.split('_')[:2])
