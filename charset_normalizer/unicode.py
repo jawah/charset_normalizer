@@ -141,6 +141,9 @@ class UnicodeRangeIdentify:
         if 'CJK' in range_name_a and range_name_b in ['Katakana', 'Hiragana']:
             return False
 
+        if range_name_a in ['Katakana', 'Hiragana'] and range_name_b in ['Katakana', 'Hiragana']:
+            return False
+
         return True
 
     @staticmethod
