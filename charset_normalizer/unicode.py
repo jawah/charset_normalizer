@@ -69,7 +69,7 @@ class UnicodeRangeIdentify:
         return r_name is not None and \
                ("Punctuation" in r_name or
                'Forms' in r_name or
-               letter in 'º¯—–‒‐⁃«‹?!;.:^$*»£¹¿~ª؟©±¡{}[]|¼½¾⅕⅙⅛™℠‼⁇❝❞¶⁋√↑↓�¤`')
+               letter in set('º¯—–‒‐⁃«‹?!;.:^$¥*»£¹¿~ª؟©±¡{}[]|½⅓⅔¼¾⅕⅖⅗⅘⅙⅚⅐⅛⅜⅝⅞⅑⅒™℠¬‼⁇❝❞¶⁋√↑↓�¤`¨'))
 
     @staticmethod
     @lru_cache(maxsize=8192)
