@@ -116,7 +116,7 @@ class ProbeChaos:
     def _probe(self):
 
         c__ = False
-        upper_lower_m = False
+        upper_lower_m = 0
 
         for c, i_ in zip(self._string, range(0, len(self._string))):
 
@@ -197,13 +197,13 @@ class ProbeChaos:
                     continue
 
                 if (is_lower and self.previous_printable_letter.isupper()) or (is_upper and self.previous_printable_letter.islower()):
-                    if not upper_lower_m:
-                        upper_lower_m = True
+                    if upper_lower_m < 2:
+                        upper_lower_m += 1
                     else:
                         self.successive_upper_lower += 1
-                        upper_lower_m = False
+                        upper_lower_m = 0
                 else:
-                    upper_lower_m = False
+                    upper_lower_m = 0
 
                 if is_latin:
                     self.previous_encountered_unicode_range = u_name

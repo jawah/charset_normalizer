@@ -54,7 +54,10 @@ class ProbeWords:
                     if UnicodeRangeIdentify.is_range_secondary(u_name) is True:
                         c_ += u_occ
 
+            c_el = HashableCounter(el)
+
             if (not is_latin_based and c_ > int(w_len / 4)) \
+                    or (is_latin_based and len(el) >= 9 and c_el.most_common()[0][1] >= sum(c_el.values()) * 0.5) \
                     or (is_latin_based and c_ > int(w_len / 2)) \
                     or (UnicodeRangeIdentify.part_punc(el) > 0.4 and len(classification.keys()) > 1) \
                     or (not is_latin_based and UnicodeRangeIdentify.part_accent(el) > 0.4) \
@@ -65,5 +68,5 @@ class ProbeWords:
 
     @property
     def ratio(self):
-        return len(self._suspicious) / self._nb_words if self._nb_words > 5 else 0.
+        return len(self._suspicious) / self._nb_words if self._nb_words >= 1 else 0.
 
