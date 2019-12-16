@@ -7,20 +7,24 @@ class TestProbeChaos(unittest.TestCase):
 
     def test_not_gibberish(self):
 
-        self.assertLessEqual(
-            ProbeChaos('典肇乎庚辰年十二月廿一，及己丑年二月十九，收各方語言二百五十，合逾七百萬目；二十大卷佔八成，單英文卷亦過二百萬。悉文乃天下有志共筆而成；有意助之，幾網路、隨纂作，大典茁焉。').ratio,
-            0.
-        )
+        with self.subTest('Chinese Not Gibberish'):
+            self.assertLessEqual(
+                ProbeChaos(
+                    '典肇乎庚辰年十二月廿一，及己丑年二月十九，收各方語言二百五十，合逾七百萬目；二十大卷佔八成，單英文卷亦過二百萬。悉文乃天下有志共筆而成；有意助之，幾網路、隨纂作，大典茁焉。').ratio,
+                0.
+            )
 
-        self.assertEqual(
-            ProbeChaos('العقلية , التنويم المغناطيسي و / أو الاقتراح').ratio,
-            0.
-        )
+        with self.subTest('Arabic Not Gibberish'):
+            self.assertEqual(
+                ProbeChaos('العقلية , التنويم المغناطيسي و / أو الاقتراح').ratio,
+                0.
+            )
 
-        self.assertEqual(
-            ProbeChaos("RadoZ تـــعــــديــل الـــتــــوقــيــــت مـــن قــبــل").ratio,
-            0.
-        )
+        with self.subTest('Arabic Styled Not Gibberish'):
+            self.assertEqual(
+                ProbeChaos("RadoZ تـــعــــديــل الـــتــــوقــيــــت مـــن قــبــل").ratio,
+                0.
+            )
 
     def test_subtle_gibberish(self):
 
@@ -41,7 +45,7 @@ class TestProbeChaos(unittest.TestCase):
 
         self.assertLessEqual(
             ProbeChaos("´Á¥½³ø§i --  ±i®Ìºû, ³¯·Ø©v").ratio,
-            0.5
+            0.9
         )
 
         self.assertGreater(
