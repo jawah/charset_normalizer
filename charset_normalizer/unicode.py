@@ -69,7 +69,7 @@ class UnicodeRangeIdentify:
         return r_name is not None and \
                ("Punctuation" in r_name or
                'Forms' in r_name or
-               letter in 'º¯—–‒‐⁃«‹?!;.:^$*»£¹¿~ª؟©±¡{}[]|¼½¾⅕⅙⅛™℠‼⁇❝❞¶⁋√↑↓�¤`')
+               letter in set('º¯—–‒‐⁃«‹?!;.:^$¥*»£¹¿~ª؟©±¡{}[]|½⅓⅔¼¾⅕⅖⅗⅘⅙⅚⅐⅛⅜⅝⅞⅑⅒™℠¬‼⁇❝❞¶⁋√↑↓�¤`¨'))
 
     @staticmethod
     @lru_cache(maxsize=8192)
@@ -139,6 +139,9 @@ class UnicodeRangeIdentify:
             return False
 
         if 'CJK' in range_name_a and range_name_b in ['Katakana', 'Hiragana']:
+            return False
+
+        if range_name_a in ['Katakana', 'Hiragana'] and range_name_b in ['Katakana', 'Hiragana']:
             return False
 
         return True
