@@ -1,14 +1,16 @@
 language: python
 python:
-  - "2.7"
   - "3.5"
   - "3.6"
   - "3.7"
+  - "3.8"
+  - "3.9"
+  - "3.10-dev"
 
 matrix:
   allow_failures:
-    - python: "2.7"
     - python: "3.5"  # TODO: Investigate why language detection act differently
+    - python: "3.10-dev"
 
 install:
   - pip install nose codecov
