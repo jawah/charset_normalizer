@@ -4,7 +4,7 @@ import re
 import statistics
 from encodings.aliases import aliases
 from os.path import basename, splitext
-from platform import python_version_tuple
+from sys import version_info
 from warnings import warn
 
 from cached_property import cached_property
@@ -392,7 +392,7 @@ class CharsetNormalizerMatches:
                 excluded_list=', '.join(cp_exclusion))
 
         # Bellow Python 3.6, Expect dict to not behave the same.
-        py_v = [int(el) for el in python_version_tuple()]
+        py_v = [int(el) for el in (version_info.major, version_info.minor, version_info.micro,)]
         py_need_sort = py_v[0] < 3 or (py_v[0] == 3 and py_v[1] < 6)
 
         supported = collections.OrderedDict(aliases).items() if py_need_sort else aliases.items()
