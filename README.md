@@ -1,16 +1,12 @@
-<h1 align="center">Charset Detection, for everyone 👋 <a href="https://twitter.com/intent/tweet?text=The%20Real%20First%20Universal%20Charset%20%26%20Language%20Detector&url=https://www.github.com/Ousret/charset_normalizer&hashtags=python,encoding,chardet,developers"><img src="https://img.shields.io/twitter/url/http/shields.io.svg?style=social"/></a></h1>
+<h1 align="center">Charset Detection, for Everyone 👋 <a href="https://twitter.com/intent/tweet?text=The%20Real%20First%20Universal%20Charset%20%26%20Language%20Detector&url=https://www.github.com/Ousret/charset_normalizer&hashtags=python,encoding,chardet,developers"><img src="https://img.shields.io/twitter/url/http/shields.io.svg?style=social"/></a></h1>
 
 <p align="center">
   <sup>The Real First Universal Charset Detector</sup><br>
   <a href="https://travis-ci.org/Ousret/charset_normalizer">
     <img src="https://travis-ci.org/Ousret/charset_normalizer.svg?branch=master"/>
   </a>
-  <img src="https://img.shields.io/pypi/pyversions/charset_normalizer.svg?orange=blue" />
-  <a href="https://pepy.tech/project/charset-normalizer/">
-    <img alt="Download Count /Month" src="https://pepy.tech/badge/charset-normalizer/month"/>
-  </a>
-  <a href="https://github.com/ousret/charset_normalizer/blob/master/LICENSE">
-    <img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-purple.svg" target="_blank" />
+  <a href="https://pypi.org/project/charset-normalizer">
+    <img src="https://img.shields.io/pypi/pyversions/charset_normalizer.svg?orange=blue" />
   </a>
   <a href="https://app.codacy.com/project/Ousret/charset_normalizer/dashboard">
     <img alt="Code Quality Badge" src="https://api.codacy.com/project/badge/Grade/a0c85b7f56dd4f628dc022763f82762c"/>
@@ -21,7 +17,9 @@
   <a href='https://charset-normalizer.readthedocs.io/en/latest/?badge=latest'>
     <img src='https://readthedocs.org/projects/charset-normalizer/badge/?version=latest' alt='Documentation Status' />
   </a>
-  <img alt="Download Count Total" src="https://pepy.tech/badge/charset-normalizer" />
+  <a href="https://pepy.tech/project/charset-normalizer/">
+    <img alt="Download Count Total" src="https://pepy.tech/badge/charset-normalizer" />
+  </a>
 </p>
 
 > A library that helps you read text from an unknown charset encoding.<br /> Motivated by `chardet`,
