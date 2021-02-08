@@ -23,11 +23,10 @@ REQUIRES_PYTHON = '>=3.5.0'
 VERSION = get_version()
 
 REQUIRED = [
-    'cached_property',
-    'dragonmapper',
-    'zhon',
-    'prettytable',
-    'loguru'
+    'cached_property>=1.5,<2.0',
+    'dragonmapper>=0.2,<0.3',
+    'prettytable>=1.0,<2.0',
+    'loguru>=0.5,<0.6'
 ]
 
 EXTRAS = {
@@ -80,6 +79,8 @@ setup(
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
         'Topic :: Text Processing :: Linguistic',
         'Topic :: Utilities',
         'Programming Language :: Python :: Implementation :: PyPy'
