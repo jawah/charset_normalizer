@@ -353,7 +353,7 @@ class CharsetNormalizerMatches:
                 sequences,
                 'utf-8',
                 0.,
-                []
+                {}
             )
 
         too_small_sequence = len(sequences) < 24
