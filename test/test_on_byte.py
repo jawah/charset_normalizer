@@ -22,6 +22,11 @@ class TestBytes(unittest.TestCase):
             r.encoding
         )
 
+        self.assertEqual(
+            0,
+            len(r.alphabets)
+        )
+
     def test_bom_detection(self):
         with self.subTest('GB18030 UNAVAILABLE SIG'):
             self.assertFalse(
