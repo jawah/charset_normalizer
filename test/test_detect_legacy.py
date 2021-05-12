@@ -71,5 +71,5 @@ class TestDetectLegacy(unittest.TestCase):
         with self.subTest("Verify that UTF-8-SIG is returned when using legacy detect"):
             self.assertEqual(
                 r['encoding'],
-                "utf_8-sig"
+                "utf_8_sig"
             )
