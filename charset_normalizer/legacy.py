@@ -19,8 +19,17 @@ def detect(byte_str):
 
     r = CnM.from_bytes(byte_str).best().first()
 
+    encoding = r.encoding if r is not None else None
+    language = r.language if r is not None and r.language != 'Unknown' else ''
+    confidence = 1. - r.chaos if r is not None else None
+
+    # Note: CharsetNormalizer does not return 'UTF-8-SIG' as the sig get stripped in the detection/normalization process
+    # but chardet does return 'utf-8-sig' and it is a valid codec name.
+    if encoding == 'utf_8' and r.bom:
+        encoding += '_sig'
+
     return {
-        'encoding': r.encoding if r is not None else None,
-        'language': r.language if r is not None and r.language != 'Unknown' else '',
-        'confidence': 1. - r.chaos if r is not None else None
+        'encoding': encoding,
+        'language': language,
+        'confidence': confidence
     }
