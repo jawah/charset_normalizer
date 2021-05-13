@@ -264,7 +264,7 @@ class CharsetNormalizerMatch:
         :return:
         :rtype: bytes
         """
-        return str(self).encode(encoding)
+        return str(self).encode(encoding, 'replace')
 
 
 class CharsetNormalizerMatches:
