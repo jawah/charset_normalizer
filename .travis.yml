@@ -16,7 +16,7 @@ install:
   - python setup.py install
 
 script:
-  - pytest --cov=charset_normalizer --cov-report=term-missing -rxXs
+  - pytest --cov=charset_normalizer --cov-report=xml
 
 after_success:
   - codecov
