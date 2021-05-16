@@ -13,11 +13,11 @@ matrix:
     - python: "3.10-dev"
 
 install:
-  - pip install nose codecov
+  - pip install pytest pytest-cov codecov
   - python setup.py install
 
 script:
-  - "nosetests --with-coverage --cover-package=charset_normalizer test/*.py"
+  - pytest
 
 after_success:
   - codecov
