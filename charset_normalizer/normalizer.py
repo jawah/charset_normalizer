@@ -7,7 +7,7 @@ from os.path import basename, splitext
 from sys import version_info
 from warnings import warn
 
-from cached_property import cached_property
+from charset_normalizer.cached_property import cached_property
 
 from charset_normalizer.constant import BYTE_ORDER_MARK
 from charset_normalizer.probe_chaos import ProbeChaos
@@ -395,8 +395,7 @@ class CharsetNormalizerMatches:
                 ', '.join(cp_exclusion))
 
         # Bellow Python 3.6, Expect dict to not behave the same.
-        py_v = [int(el) for el in (version_info.major, version_info.minor, version_info.micro,)]
-        py_need_sort = py_v[0] < 3 or (py_v[0] == 3 and py_v[1] < 6)
+        py_need_sort = version_info <= (3, 5)
 
         supported = collections.OrderedDict(aliases).items() if py_need_sort else aliases.items()
 
