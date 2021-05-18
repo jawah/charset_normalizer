@@ -23,7 +23,6 @@ REQUIRES_PYTHON = '>=3.5.0'
 VERSION = get_version()
 
 REQUIRED = [
-    'dragonmapper>=0.2,<0.3',
     'prettytable>=1.0,<3.0',
     'cached_property>=1.5,<2.0; python_version <= "3.5"'
 ]
