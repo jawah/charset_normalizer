@@ -216,6 +216,12 @@ class CharsetNormalizerMatch:
         """
         return self._bom
 
+    @bom.setter
+    def bom(self, toggle):
+        if not isinstance(toggle, bool):
+            raise ValueError("Expect boolean,", str(type(toggle)), "given !")
+        self._bom = toggle
+
     @property
     def byte_order_mark(self):
         """
