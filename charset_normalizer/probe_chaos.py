@@ -1,10 +1,5 @@
 # coding: utf-8
-import re
 from functools import lru_cache
-
-from dragonmapper.hanzi import MIXED, BOTH, UNKNOWN
-from dragonmapper.hanzi import identify as s_identify
-from zhon.hanzi import sentence as cjc_sentence_re
 
 from charset_normalizer.probe_coherence import HashableCounter
 from charset_normalizer.probe_words import ProbeWords
@@ -221,24 +216,6 @@ class ProbeChaos:
             self.not_encountered_white_space = 0
         if self.successive_upper_lower < 3:
             self.successive_upper_lower = 0
-
-    @staticmethod
-    def _unravel_cjk_suspicious_chinese(string, encountered_unicode_range_occurrences):
-        if len(string) <= 10:
-            return UNKNOWN
-
-        encountered_unicode_range = encountered_unicode_range_occurrences.keys()
-
-        if 'CJK Unified Ideographs' in encountered_unicode_range and ('Hiragana' not in encountered_unicode_range and 'Katakana' not in encountered_unicode_range):
-            i_ = s_identify(string)
-            if i_ in [MIXED, BOTH]:
-                return encountered_unicode_range_occurrences['CJK Unified Ideographs']
-            elif i_ != UNKNOWN and len(re.findall(cjc_sentence_re, string)) > 0:
-                return -encountered_unicode_range_occurrences['CJK Unified Ideographs']
-            elif i_ != UNKNOWN:
-                return int(encountered_unicode_range_occurrences['CJK Unified Ideographs']*0.3)
-
-        return UNKNOWN
 
     @property
     def ratio(self):
