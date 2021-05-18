@@ -42,7 +42,7 @@ This project offers you an alternative to **Universal Charset Encoding Detector*
 | `License` | LGPL-2.1 | MIT | MPL-1.1
 | `Native Python` | :heavy_check_mark: | :heavy_check_mark: | ❌ |
 | `Detect spoken language` | ❌ | :heavy_check_mark: | N/A |
-| `Supported Encoding` | 30 | :tada: [90](https://charset-normalizer.readthedocs.io/en/latest/support.html)  | 40
+| `Supported Encoding` | 30 | :tada: [92](https://charset-normalizer.readthedocs.io/en/latest/support.html)  | 40
 
 | Package       | Accuracy       | Mean per file (ns) | File per sec (est) |
 | ------------- | :-------------: | :------------------: | :------------------: |

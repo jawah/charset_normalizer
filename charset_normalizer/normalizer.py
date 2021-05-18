@@ -411,6 +411,10 @@ class CharsetNormalizerMatches:
 
             k, p = support
 
+            # Dropping support for UTF-7 in 1.4.0; Sorry!
+            if support == "utf_7":
+                continue
+
             if cp_isolation is not None and p not in cp_isolation:
                 continue
 

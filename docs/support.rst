@@ -93,7 +93,6 @@ mac_roman        macintosh, macroman
 mac_turkish      macturkish
 mbcs             ansi, dbcs
 ptcp154          csptcp154, pt154, cp154, cyrillic_asian
-quopri_codec     quopri, quoted_printable, quotedprintable
 rot_13           rot13
 shift_jis        csshiftjis, shiftjis, sjis, s_jis, x_mac_japanese
 shift_jis_2004   shiftjis2004, sjis_2004, s_jis_2004
@@ -106,7 +105,6 @@ utf_16_le        unicodelittleunmarked, utf_16le
 utf_32           u32, utf32
 utf_32_be        utf_32be
 utf_32_le        utf_32le
-utf_7            u7, utf7, unicode_1_1_utf_7
 utf_8            u8, utf, utf8, utf8_ucs2, utf8_ucs4
 ===============  ===============================================================================================================================
 
