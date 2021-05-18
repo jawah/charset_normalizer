@@ -8,7 +8,7 @@ from os.path import dirname, realpath, exists
 import charset_normalizer.unicode as unicode_utils
 from charset_normalizer.constant import COHERENCE_ACCEPTED_MARGIN_LETTER_RANK, COHERENCE_ALPHABET_COVERED_IF, COHERENCE_PICKING_LETTER_MIN_APPEARANCE, COHERENCE_MIN_LETTER_NEEDED, COHERENCE_MAXIMUM_UNAVAILABLE_LETTER, COHERENCE_MAXIMUM_NOT_RESPECTED_RANK
 
-from cached_property import cached_property
+from charset_normalizer.cached_property import cached_property
 
 
 class HashableCounter(Counter):
