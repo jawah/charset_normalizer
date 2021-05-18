@@ -11,12 +11,16 @@ matrix:
   allow_failures:
     - python: "3.5"
 
+before_install:
+  - "pip install -U pip setuptools"
+  - "pip install -r requirements.txt"
+
 install:
   - pip install -r requirements.txt
   - python setup.py install
 
 script:
-  - pytest --cov=./ --cov-report=term-missing -rxXs
+  - pytest
 
 after_success:
   - codecov
