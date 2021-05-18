@@ -44,5 +44,5 @@ Please be aware of the following things when filing bug reports:
      differently and have different bugs.
 
    If you do not provide all of these things, it will take us much longer to
-   fix your problem. If we ask you to clarify these and you never respond, we
+   fix your problem. If we ask you to clarify these, and you never respond, we
    will close your issue without fixing it.
