@@ -17,9 +17,12 @@ from charset_normalizer.encoding import is_multi_byte_encoding
 
 from charset_normalizer.probe_inherent_sign import any_specified_encoding
 
-from loguru import logger
+import logging as logger
 
 from hashlib import sha256
+
+
+logger.basicConfig(level=logger.DEBUG, format='%(asctime)s | %(levelname)s | %(message)s')
 
 
 class CharsetNormalizerMatch:
@@ -346,7 +349,7 @@ class CharsetNormalizerMatches:
         :rtype: CharsetNormalizerMatches
         """
         if not explain:
-            logger.disable('charset_normalizer')
+            logger.disable(logger.ERROR)
 
         if len(sequences) == 0:
             return CharsetNormalizerMatch(
@@ -366,8 +369,8 @@ class CharsetNormalizerMatches:
         # Adjust steps and chunk_size when content is just too small for it
         if maximum_length <= (chunk_size * steps):
             logger.warning(
-                'override steps and chunk_size as content does not fit parameters.',
-                chunk_size=chunk_size, steps=steps, seq_len=maximum_length)
+                'override steps (%i) and chunk_size (%i) as content does not fit (%i byte(s) given) parameters.',
+                steps, chunk_size, maximum_length)
             steps = 1
             chunk_size = maximum_length
 
@@ -382,14 +385,14 @@ class CharsetNormalizerMatches:
 
         if cp_isolation is not None:
             logger.warning('cp_isolation is set. use this flag for debugging purpose. '
-                           'limited list of encoding allowed : {allowed_list}.',
-                           allowed_list=', '.join(cp_isolation))
+                           'limited list of encoding allowed : %s.',
+                           ', '.join(cp_isolation))
 
         if cp_exclusion is not None:
             logger.warning(
                 'cp_exclusion is set. use this flag for debugging purpose. '
-                'limited list of encoding excluded : {excluded_list}.',
-                excluded_list=', '.join(cp_exclusion))
+                'limited list of encoding excluded : %s.',
+                ', '.join(cp_exclusion))
 
         # Bellow Python 3.6, Expect dict to not behave the same.
         py_v = [int(el) for el in (version_info.major, version_info.minor, version_info.micro,)]
@@ -441,7 +444,7 @@ class CharsetNormalizerMatches:
                             bom_available = True
                             bom_len = len(BYTE_ORDER_MARK[p][bom_c_list.index(True)])
                     if bom_available is True:
-                        logger.info('{encoding} has a SIG or BOM mark on first {n_byte} byte(s).  Adding chaos bonus.', encoding=p, n_byte=bom_len)
+                        logger.info('%s has a SIG or BOM mark on first %i byte(s).  Adding chaos bonus.', p, bom_len)
 
                 str(
                     sequences if bom_available is False else sequences[bom_len:],
@@ -449,7 +452,7 @@ class CharsetNormalizerMatches:
                 )
 
             except UnicodeDecodeError as e:
-                logger.debug('{encoding} does not fit given bytes sequence at ALL. {explanation}', encoding=p, explanation=str(e))
+                logger.debug('%s does not fit given bytes sequence at ALL. %s', p, str(e))
                 continue
             except LookupError:
                 continue
@@ -457,11 +460,11 @@ class CharsetNormalizerMatches:
             is_multi_byte_enc = is_multi_byte_encoding(p)
 
             if is_multi_byte_enc is True:
-                logger.info('{encoding} is a multi byte encoding table. '
+                logger.info('%s is a multi byte encoding table. '
                             'Should not be a coincidence. Adding chaos bonus.',
-                            encoding=p)
+                            p)
             else:
-                logger.debug('{encoding} is a single byte encoding table.', encoding=p)
+                logger.debug('%s is a single byte encoding table.', p)
 
             r_ = range(
                 0 if bom_available is False else bom_len,
@@ -474,8 +477,7 @@ class CharsetNormalizerMatches:
             nb_gave_up = [el.gave_up is True or el.ratio >= threshold for el in measures].count(True)
 
             if len(ratios) == 0:
-                logger.warning('{encoding} was excluded because no measure can be done on sequence. ',
-                               encoding=p)
+                logger.warning('%s was excluded because no measure can be done on sequence. ', p)
                 continue
 
             chaos_means = statistics.mean(ratios)
@@ -483,13 +485,13 @@ class CharsetNormalizerMatches:
             # chaos_min = min(ratios)
             # chaos_max = max(ratios)
 
-            if (len(r_) >= 4 and nb_gave_up > len(r_) / 4) or chaos_means > threshold:
-                logger.warning('{encoding} was excluded because of initial chaos probing. '
-                                      'Gave up {nb_gave_up} time(s). '
-                                      'Computed median chaos is {chaos_median} %.',
-                                      encoding=p,
-                                      nb_gave_up=nb_gave_up,
-                                      chaos_median=round(chaos_means*100, ndigits=3))
+            if ((len(r_) >= 4 and nb_gave_up > len(r_) / 4) or chaos_means > threshold) and p != "ascii":
+                logger.warning('%s was excluded because of initial chaos probing. '
+                                      'Gave up %i time(s). '
+                                      'Computed median chaos is %f %%.',
+                                      p,
+                                      nb_gave_up,
+                                      round(chaos_means*100, ndigits=3))
                 continue
 
             encountered_unicode_range_occurrences = dict()
@@ -509,37 +511,37 @@ class CharsetNormalizerMatches:
             )
 
             logger.info(
-                '{encoding} passed initial chaos probing. '
-                'Measured chaos is {chaos_means} % and coherence is {coherence} %. '
-                'It seems to be written in {language}.',
-                encoding=p,
-                chaos_means=round(chaos_means*100, ndigits=3),
-                coherence=cnm.percent_coherence,
-                language=cnm.languages
+                '%s passed initial chaos probing. '
+                'Measured chaos is %f %% and coherence is %f %%. '
+                'It seems to be written in %s.',
+                p,
+                round(chaos_means*100, ndigits=3),
+                cnm.percent_coherence,
+                cnm.languages
             )
 
             fingerprint_tests = [el.fingerprint == cnm.fingerprint for el in matches]
 
             if any(fingerprint_tests) is True:
                 matches[fingerprint_tests.index(True)].submatch.append(cnm)
-                logger.debug('{encoding} is marked as a submatch of {primary_encoding}.', encoding=cnm.encoding, primary_encoding=matches[fingerprint_tests.index(True)].encoding)
+                if bom_available and matches[fingerprint_tests.index(True)].bom is False:
+                    matches[fingerprint_tests.index(True)].bom = True
+                logger.debug('%s is marked as a submatch of %s.', cnm.encoding, matches[fingerprint_tests.index(True)].encoding)
             else:
                 matches.append(
                     cnm
                 )
 
             if specified_encoding is not None and p == specified_encoding:
-                logger.info('{encoding} is most likely the one. '
+                logger.info('%s is most likely the one. '
                             'Because it is specified in analysed byte sequence and '
                             'initial test passed successfully. '
                             'Disable this behaviour by setting preemptive_behaviour '
-                            'to False', encoding=specified_encoding)
+                            'to False', specified_encoding)
                 return CharsetNormalizerMatches([cnm]) if any(fingerprint_tests) is False else CharsetNormalizerMatches([matches[fingerprint_tests.index(True)]])
 
-            if (p == 'ascii' and chaos_median == 0.) or bom_available is True:
-                logger.info('{encoding} is most likely the one. {bom_available}',
-                                   encoding=p,
-                                   bom_available='BOM/SIG available' if bom_available else '')
+            if p == 'ascii' or bom_available is True:
+                logger.info('%s is most likely the one. %s', p, 'BOM/SIG available' if bom_available else '')
 
                 return CharsetNormalizerMatches([matches[-1]])
 
@@ -619,21 +621,21 @@ class CharsetNormalizerMatches:
             logger.debug('best() is not required because there is only one match in it.')
             return CharsetNormalizerMatches(self._matches)
 
-        logger.info('We need to choose between {nb_suitable_match} match. Order By Chaos Then Coherence.', nb_suitable_match=len(self))
+        logger.info('We need to choose between %i match. Order By Chaos Then Coherence.', len(self))
 
         sorted_matches = sorted(self._matches, key=lambda x: x.chaos)
 
         nb_lowest_ratio = [el.chaos <= sorted_matches[0].chaos * 1.2 for el in sorted_matches[1:]].count(True)
 
-        logger.info('Lowest Chaos found is {lowest_chaos} %. Reduced list to {nb_suitable_match} match.', lowest_chaos=sorted_matches[0].percent_chaos, nb_suitable_match=nb_lowest_ratio+1)
+        logger.info('Lowest Chaos found is %f %%. Reduced list to %i match.', sorted_matches[0].percent_chaos, nb_lowest_ratio+1)
 
         if nb_lowest_ratio+1 > 1:
-            logger.info('Order By Chaos is not enough, {nb_suitable_match} remaining. Next, ordering by Coherence.', nb_suitable_match=nb_lowest_ratio+1)
+            logger.info('Order By Chaos is not enough, %i remaining. Next, ordering by Coherence.', nb_lowest_ratio+1)
 
             sorted_matches_second_pass = sorted(sorted_matches[:nb_lowest_ratio+1], key=lambda x: x.coherence)
             nb_lowest_ratio = [el.coherence == sorted_matches_second_pass[0].coherence for el in sorted_matches_second_pass[1:]].count(True)
 
-            logger.info('Highest Coherence found is {lowest_chaos} %. Reduced list to {nb_suitable_match} match.', lowest_chaos=sorted_matches_second_pass[0].percent_coherence, nb_suitable_match=nb_lowest_ratio+1)
+            logger.info('Highest Coherence found is %f %%. Reduced list to %i match.', sorted_matches_second_pass[0].percent_coherence, nb_lowest_ratio+1)
 
             return CharsetNormalizerMatches(
                 sorted_matches_second_pass[:nb_lowest_ratio+1]
