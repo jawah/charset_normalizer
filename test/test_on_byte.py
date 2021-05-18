@@ -42,10 +42,10 @@ class TestBytes(unittest.TestCase):
                 ).best().first().byte_order_mark
             )
 
-        with self.subTest('UTF-7 AVAILABLE BOM'):
+        with self.subTest('UTF-32 AVAILABLE BOM'):
             self.assertTrue(
                 CnM.from_bytes(
-                    b'\x2b\x2f\x76\x38' + '我没有埋怨，磋砣的只是一些时间。'.encode('utf_7')
+                   '我没有埋怨，磋砣的只是一些时间。'.encode('utf_32')
                 ).best().first().byte_order_mark
             )
 
@@ -90,28 +90,12 @@ class TestBytes(unittest.TestCase):
                 'utf_8'
             )
 
-        with self.subTest('Encode & Detect UTF-7 WITHOUT BOM (CJK)'):
+        with self.subTest('Encode & Detect UTF-32 WITH BOM (CJK)'):
             self.assertEqual(
                 CnM.from_bytes(
-                    '我没有埋怨,蹉跎的只是一些时间。'.encode('utf_7')
+                    '我没有埋怨，磋砣的只是一些时间。'.encode('utf_32')
                 ).best().first().encoding,
-                'utf_7'
-            )
-
-        with self.subTest('Encode & Detect UTF-7 WITH BOM (CJK)'):
-            self.assertEqual(
-                CnM.from_bytes(
-                    b'\x2b\x2f\x76\x38'+'我没有埋怨，磋砣的只是一些时间。'.encode('utf_7')
-                ).best().first().encoding,
-                'utf_7'
-            )
-
-        with self.subTest('Encode & Detect UTF-7 WITHOUT BOM (CYRILLIC)'):
-            self.assertEqual(
-                CnM.from_bytes(
-                    'Bсеки човек има право на образование. Oбразованието трябва да бъде безплатно,'.encode('utf_7')
-                ).best().first().encoding,
-                'utf_7'
+                'utf_32'
             )
 
         with self.subTest('Encode & Detect UTF-8 WITH SIG (CJK)'):
