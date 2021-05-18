@@ -105,6 +105,16 @@ def unravel_suspicious_ranges(str_len, encountered_unicode_range_occurrences):
     return s_
 
 
+def unravel_suspicious_chinese_or_japanese(input_str, encountered_unicode_range_occurrences):
+    if len(input_str) <= 10:
+        return 0
+
+    if 'CJK Unified Ideographs' in encountered_unicode_range_occurrences and ('Hiragana' not in encountered_unicode_range_occurrences and 'Katakana' not in encountered_unicode_range_occurrences):
+        if "。" not in input_str:
+            return encountered_unicode_range_occurrences['CJK Unified Ideographs']
+
+    return 0
+
 @lru_cache(maxsize=8192)
 def is_suspiciously_successive_range(range_name_a, range_name_b):
     """
