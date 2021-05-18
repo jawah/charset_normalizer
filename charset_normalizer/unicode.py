@@ -41,7 +41,7 @@ def get_range_id(range_name):
     return UNICODE_RANGES_NAMES.index(range_name)
 
 
-@lru_cache(maxsize=None)
+@lru_cache(maxsize=8192)
 def is_latin(letter):
     """
     Verify if a letter is Latin based
@@ -51,7 +51,7 @@ def is_latin(letter):
     return 'Latin' in (find_letter_type(letter) or '')
 
 
-@lru_cache(maxsize=None)
+@lru_cache(maxsize=8192)
 def is_punc(letter):
     """
     Verify if a letter is a sort of punctuation sign
@@ -105,7 +105,7 @@ def unravel_suspicious_ranges(str_len, encountered_unicode_range_occurrences):
     return s_
 
 
-@lru_cache(maxsize=None)
+@lru_cache(maxsize=8192)
 def is_suspiciously_successive_range(range_name_a, range_name_b):
     """
     Verify if range B encountered just after range A is considered suspicious
@@ -161,7 +161,7 @@ def classification(word):
     return cla_
 
 
-@lru_cache(maxsize=None)
+@lru_cache(maxsize=8192)
 def is_range_secondary(u_range):
     """
     Determine if a unicode range name is not a primary range by search specific keyword in range name
