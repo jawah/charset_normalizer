@@ -80,11 +80,6 @@ class TestProbeChaos(unittest.TestCase):
             0.4
         )
 
-        self.assertGreater(
-            ProbeChaos("锌褉械锌芯写邪胁邪褌械谢褟屑懈 锌芯褝褌芯 ").ratio,
-            0.4
-        )
-
 
 if __name__ == '__main__':
     unittest.main()

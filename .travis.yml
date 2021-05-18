@@ -9,14 +9,14 @@ python:
 
 matrix:
   allow_failures:
-    - python: "3.5"  # TODO: Investigate why language detection act differently
+    - python: "3.5"
 
 install:
-  - pip install pytest pytest-cov codecov
+  - pip install -r requirements.txt
   - python setup.py install
 
 script:
-  - pytest --cov=charset_normalizer --cov-report=term-missing -rxXs test
+  - pytest --cov=charset_normalizer --cov-report=term-missing -rxXs
 
 after_success:
   - codecov
