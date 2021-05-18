@@ -86,12 +86,12 @@ class ProbeChaos:
         k_.not_encountered_white_space = self.not_encountered_white_space + other.not_encountered_white_space
 
         for u_name, u_occ in self.encountered_unicode_range_occurrences.items():
-            if u_name not in k_.encountered_unicode_range_occurrences.keys():
+            if u_name not in k_.encountered_unicode_range_occurrences:
                 k_.encountered_unicode_range_occurrences[u_name] = 0
             k_.encountered_unicode_range_occurrences[u_name] += u_occ
 
         for u_name, u_occ in other.encountered_unicode_range_occurrences.items():
-            if u_name not in k_.encountered_unicode_range_occurrences.keys():
+            if u_name not in k_.encountered_unicode_range_occurrences:
                 k_.encountered_unicode_range_occurrences[u_name] = 0
             k_.encountered_unicode_range_occurrences[u_name] += u_occ
 

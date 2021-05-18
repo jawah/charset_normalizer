@@ -438,7 +438,7 @@ class CharsetNormalizerMatches:
             bom_len = None
 
             try:
-                if p in BYTE_ORDER_MARK.keys():
+                if p in BYTE_ORDER_MARK:
 
                     if isinstance(BYTE_ORDER_MARK[p], bytes) and sequences.startswith(BYTE_ORDER_MARK[p]):
                         bom_available = True
@@ -503,7 +503,7 @@ class CharsetNormalizerMatches:
 
             for el in measures:
                 for u_name, u_occ in el.encountered_unicode_range_occurrences.items():
-                    if u_name not in encountered_unicode_range_occurrences.keys():
+                    if u_name not in encountered_unicode_range_occurrences:
                         encountered_unicode_range_occurrences[u_name] = 0
                     encountered_unicode_range_occurrences[u_name] += u_occ
 

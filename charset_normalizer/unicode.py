@@ -273,7 +273,7 @@ def list_by_range(letters):
                 break
 
         if s_ is False:
-            if u_range not in by_ranges.keys():
+            if u_range not in by_ranges:
                 by_ranges[u_range] = list()
             by_ranges[u_range].append(l)
 

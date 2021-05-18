@@ -131,7 +131,7 @@ class ProbeCoherence:
             for o_l in letters:
                 if not o_l.isalpha():
                     continue
-                if o_l not in self._most_common_dict.keys():
+                if o_l not in self._most_common_dict:
                     n_letter_not_available += 1
                 elif self._most_common_dict[o_l] / self.nb_count_occurrence >= COHERENCE_PICKING_LETTER_MIN_APPEARANCE:
                     most_common_cpy.append(
@@ -156,10 +156,10 @@ class ProbeCoherence:
 
                 if not_respected_rank_coeff < COHERENCE_MAXIMUM_NOT_RESPECTED_RANK and n_tested_verified_on >= COHERENCE_MIN_LETTER_NEEDED:
 
-                    if str(ratio_unavailable_letters) not in self.index_of_rates.keys():
+                    if str(ratio_unavailable_letters) not in self.index_of_rates:
                         self.index_of_rates[str(ratio_unavailable_letters)] = dict()
 
-                    if str(not_respected_rank_coeff) not in self.index_of_rates[str(ratio_unavailable_letters)].keys():
+                    if str(not_respected_rank_coeff) not in self.index_of_rates[str(ratio_unavailable_letters)]:
                         self.index_of_rates[str(ratio_unavailable_letters)][str(not_respected_rank_coeff)] = list()
 
                     self.index_of_rates[str(ratio_unavailable_letters)][str(not_respected_rank_coeff)].append(language)
