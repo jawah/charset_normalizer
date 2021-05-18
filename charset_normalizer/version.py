@@ -2,5 +2,5 @@
 Expose version
 """
 
-__version__ = "1.3.9"
+__version__ = "1.4.0"
 VERSION = __version__.split('.')
