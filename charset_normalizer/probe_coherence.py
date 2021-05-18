@@ -5,7 +5,7 @@ from collections import Counter
 from functools import lru_cache
 from os.path import dirname, realpath, exists
 
-from charset_normalizer.unicode import UnicodeRangeIdentify
+import charset_normalizer.unicode as unicode_utils
 from charset_normalizer.constant import COHERENCE_ACCEPTED_MARGIN_LETTER_RANK, COHERENCE_ALPHABET_COVERED_IF, COHERENCE_PICKING_LETTER_MIN_APPEARANCE, COHERENCE_MIN_LETTER_NEEDED, COHERENCE_MAXIMUM_UNAVAILABLE_LETTER, COHERENCE_MAXIMUM_NOT_RESPECTED_RANK
 
 from cached_property import cached_property
@@ -94,7 +94,7 @@ class ProbeCoherence:
 
     @cached_property
     def alphabet_coverage(self):
-        list_by_range = UnicodeRangeIdentify.list_by_range(self.letters)
+        list_by_range = unicode_utils.list_by_range(self.letters)
         coverages = dict()
 
         for u_range, letters in list_by_range.items():

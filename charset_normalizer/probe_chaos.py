@@ -8,7 +8,7 @@ from zhon.hanzi import sentence as cjc_sentence_re
 
 from charset_normalizer.probe_coherence import HashableCounter
 from charset_normalizer.probe_words import ProbeWords
-from charset_normalizer.unicode import UnicodeRangeIdentify
+import charset_normalizer.unicode as unicode_utils
 
 
 @lru_cache(maxsize=8192)
@@ -134,7 +134,7 @@ class ProbeChaos:
 
             if not c.isprintable():
                 if c not in ['\n', '\t', '\r']:
-                    if not UnicodeRangeIdentify.is_cjk(c) and not UnicodeRangeIdentify.is_punc(c):
+                    if not unicode_utils.is_cjk(c) and not unicode_utils.is_punc(c):
                         self.unprintable += 2
 
                 self.encountered_white_space += 1
@@ -156,19 +156,19 @@ class ProbeChaos:
                 self.previous_printable_letter = c
                 continue
 
-            is_accent = UnicodeRangeIdentify.is_accentuated(c)
-            u_name = UnicodeRangeIdentify.find_letter_type(c)
+            is_accent = unicode_utils.is_accentuated(c)
+            u_name = unicode_utils.find_letter_type(c)
 
             is_upper = c.isupper()
             is_lower = c.islower() if not is_upper else False
             is_alpha = c.isalpha()
-            is_latin = UnicodeRangeIdentify.is_latin(c)
+            is_latin = unicode_utils.is_latin(c)
 
             if u_name is not None and u_name not in self.encountered_unicode_range:
                 self.encountered_unicode_range_occurrences[u_name] = 0
                 self.encountered_unicode_range.add(u_name)
 
-            if is_accent and UnicodeRangeIdentify.is_accentuated(self.previous_printable_letter):
+            if is_accent and unicode_utils.is_accentuated(self.previous_printable_letter):
                 self.successive_accent += 2
 
             if is_lower:
@@ -187,7 +187,7 @@ class ProbeChaos:
             if u_name is not None:
                 self.encountered_unicode_range_occurrences[u_name] += 1
 
-                is_punc = UnicodeRangeIdentify.is_punc(c)
+                is_punc = unicode_utils.is_punc(c)
 
                 if is_punc is True:
                     self.encountered_punc_sign += 1
@@ -209,9 +209,9 @@ class ProbeChaos:
                     self.previous_encountered_unicode_range = u_name
                     self.previous_printable_letter = c
 
-                if self.previous_encountered_unicode_range is not None and UnicodeRangeIdentify.is_suspiciously_successive_range(u_name, self.previous_encountered_unicode_range) is True:
+                if self.previous_encountered_unicode_range is not None and unicode_utils.is_suspiciously_successive_range(u_name, self.previous_encountered_unicode_range) is True:
 
-                    if not UnicodeRangeIdentify.is_punc(self.previous_printable_letter):
+                    if not unicode_utils.is_punc(self.previous_printable_letter):
                         self.successive_different_unicode_range += 1
 
             self.previous_encountered_unicode_range = u_name
@@ -253,7 +253,7 @@ class ProbeChaos:
             return 1.
         r_ = self.total_upper_accent_encountered if self.total_letter_encountered > 0 and self.total_unaccented_letter_encountered / self.total_letter_encountered < 0.5 else 0
         q_ = self.total_upper_letter_encountered / 3 if self.total_upper_letter_encountered > self.total_lower_letter_encountered * 0.4 else 0
-        z_ = UnicodeRangeIdentify.unravel_suspicious_ranges(len(self._string), self.encountered_unicode_range_occurrences)
+        z_ = unicode_utils.unravel_suspicious_ranges(len(self._string), self.encountered_unicode_range_occurrences)
         p_ = self.encountered_punc_sign if self.encountered_punc_sign / len(self._string) > 0.2 else 0
 
         bonus_sig_bom = -int(len(self._string)*0.5) if self._bonus_bom_sig is True else 0
