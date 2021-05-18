@@ -545,7 +545,7 @@ class CharsetNormalizerMatches:
                             'to False', specified_encoding)
                 return CharsetNormalizerMatches([cnm]) if any(fingerprint_tests) is False else CharsetNormalizerMatches([matches[fingerprint_tests.index(True)]])
 
-            if p == 'ascii' or bom_available is True:
+            if p in ['ascii', 'utf_8'] or bom_available is True:
                 logger.info('%s is most likely the one. %s', p, 'BOM/SIG available' if bom_available else '')
 
                 return CharsetNormalizerMatches([matches[-1]])
