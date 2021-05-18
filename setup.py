@@ -30,7 +30,6 @@ REQUIRED = [
 ]
 
 EXTRAS = {
-    'LetterFrequency': ['requests_html', 'requests'],
     'UnicodeDataBackport': ['unicodedata2']
 }
 
