@@ -115,8 +115,8 @@ See the docs for advanced usage : [readthedocs.io](https://charset-normalizer.re
 
 ## 😇 Why
 
-When I started using Chardet, I noticed that it was unreliable nowadays and also
-it's unmaintained, and most likely will never be.
+When I started using Chardet, I noticed that it was not suited to my expectations, and I wanted to propose a
+reliable alternative using a completely different method. Also! I never back down on a good challenge !
 
 I **don't care** about the **originating charset** encoding, because **two different tables** can
 produce **two identical files.**
