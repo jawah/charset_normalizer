@@ -556,6 +556,10 @@ class CharsetNormalizerMatches:
                 return CharsetNormalizerMatches([cnm]) if any(fingerprint_tests) is False else CharsetNormalizerMatches([matches[fingerprint_tests.index(True)]])
 
             if p in ['ascii', 'utf_8'] or bom_available is True:
+                if p == "ascii" and chaos_means >= 0.4:
+                    logger.warning('ASCII does fit the given payload but, in regards of the huge amount of signs, wont return directly it.')
+                    continue
+
                 logger.info('%s is most likely the one. %s', p, 'BOM/SIG available' if bom_available else '')
 
                 return CharsetNormalizerMatches([matches[-1]])
