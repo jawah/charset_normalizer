@@ -425,7 +425,8 @@ class CharsetNormalizerMatches:
             k, p = support
 
             # Dropping support for UTF-7 in 1.4.0; Sorry!
-            if support == "utf_7":
+            if p == "utf_7":
+                logger.debug("UTF-7 is no longer supported since 1.4.0. You may want to help us bring it back by proposing a patch.")
                 continue
 
             if cp_isolation is not None and p not in cp_isolation:
