@@ -246,10 +246,10 @@ class ProbeChaos:
         r_ = self.total_upper_accent_encountered if self.total_letter_encountered > 0 and self.total_unaccented_letter_encountered / self.total_letter_encountered < 0.5 else 0
         q_ = self.total_upper_letter_encountered / 3 if self.total_upper_letter_encountered > self.total_lower_letter_encountered * 0.4 else 0
         z_ = unicode_utils.unravel_suspicious_ranges(len(self._string), self.encountered_unicode_range_occurrences)
-        p_ = self.encountered_punc_sign if self.encountered_punc_sign / len(self._string) > 0.2 else 0
+        p_ = self.encountered_punc_sign if self.encountered_punc_sign / len(self._string) >= 0.2 else 0
 
         bonus_sig_bom = -int(len(self._string)*0.5) if self._bonus_bom_sig is True else 0
 
-        initial_ratio = ((r_ + p_ + q_ + self.successive_upper_lower + self.successive_accent + self.successive_different_unicode_range + self.not_encountered_white_space + self.unprintable + z_ + bonus_sig_bom + unicode_utils.unravel_suspicious_chinese_or_japanese(self._string, self.encountered_unicode_range_occurrences)) / len(self._string)) + self._probe_word.ratio  # + len(self.encountered_unicode_range)-1
+        initial_ratio = ((r_ + p_ + q_ + self.successive_upper_lower + self.successive_accent + self.successive_different_unicode_range + self.not_encountered_white_space + self.unprintable + z_ + bonus_sig_bom) / len(self._string)) + self._probe_word.ratio  # + len(self.encountered_unicode_range)-1
 
         return initial_ratio / 1.3 if self._bonus_multi_byte is True and initial_ratio > 0. else initial_ratio
