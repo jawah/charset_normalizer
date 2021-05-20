@@ -51,7 +51,7 @@ This project offers you an alternative to **Universal Charset Encoding Detector*
 | charset-normalizer |    **97.25 %**     |     209 503 253 ns      |       4.773 file/sec    |
 
 <p align="center">
-<img src="https://i.imgflip.com/373iay.gif" alt="Reading Normalized Text" width="226"/><img src="https://image.noelshack.com/fichiers/2019/31/5/1564761473-ezgif-5-cf1bd9dd66b0.gif" alt="Cat Reading Text" width="200"/>
+<img src="https://i.imgflip.com/373iay.gif" alt="Reading Normalized Text" width="226"/><img src="https://media.tenor.com/images/c0180f70732a18b4965448d33adba3d0/tenor.gif" alt="Cat Reading Text" width="200"/>
 
 *\*\* : They are clearly using specific code for a specific encoding even if covering most of used one*<br> 
 
