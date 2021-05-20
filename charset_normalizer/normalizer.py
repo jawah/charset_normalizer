@@ -44,10 +44,10 @@ class CharsetNormalizerMatch:
         self._bom = has_bom
         self._string = str(self._raw, encoding=self._encoding) if decoded_payload is None else decoded_payload
 
-        if len(self._string) <= 10e6:
+        if len(self._string) <= 10e3:
             self._string_printable_only = re.sub(CharsetNormalizerMatch.RE_NOT_PRINTABLE_LETTER, ' ', self._string.lower())
         else:
-            self._string_printable_only = re.sub(CharsetNormalizerMatch.RE_NOT_PRINTABLE_LETTER, ' ',self._string[:int(10e6)].lower())
+            self._string_printable_only = re.sub(CharsetNormalizerMatch.RE_NOT_PRINTABLE_LETTER, ' ',self._string[:int(10e3)].lower())
 
         self.char_counter = HashableCounter(self._string_printable_only.replace(' ', ''))
 
@@ -469,10 +469,18 @@ class CharsetNormalizerMatches:
             )
 
             try:
-                decoded_payload = str(
-                    sequences if bom_available is False else sequences[bom_len:],
-                    encoding=p
-                )
+                if too_large_sequence and is_multi_byte_enc is False:
+                    decoded_payload = None
+
+                    str(
+                        sequences[:int(10e6)],
+                        encoding=p
+                    )
+                else:
+                    decoded_payload = str(
+                        sequences if bom_available is False else sequences[bom_len:],
+                        encoding=p
+                    )
             except UnicodeDecodeError as e:
                 logger.debug('%s does not fit given bytes sequence at ALL. %s', p, str(e))
                 continue
@@ -516,15 +524,19 @@ class CharsetNormalizerMatches:
                         encountered_unicode_range_occurrences[u_name] = 0
                     encountered_unicode_range_occurrences[u_name] += u_occ
 
-            cnm = CharsetNormalizerMatch(
-                sequences if not bom_available else sequences[bom_len:],
-                p,
-                chaos_means,
-                encountered_unicode_range_occurrences,
-                bom_available,
-                [],
-                decoded_payload
-            )
+            try:
+                cnm = CharsetNormalizerMatch(
+                    sequences if not bom_available else sequences[bom_len:],
+                    p,
+                    chaos_means,
+                    encountered_unicode_range_occurrences,
+                    bom_available,
+                    [],
+                    decoded_payload
+                )
+            except UnicodeDecodeError:
+                logger.warning("Encoding %s passed initial chaos probing but failed complete decoding. We were using a lazy bytes decode due to the size.", p)
+                continue
 
             logger.info(
                 '%s passed initial chaos probing. '
