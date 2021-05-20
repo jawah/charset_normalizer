@@ -370,6 +370,7 @@ class CharsetNormalizerMatches:
             )
 
         too_small_sequence = len(sequences) < 24
+        too_large_sequence = len(sequences) >= 10e6
 
         if too_small_sequence is True:
             warn('Trying to detect encoding from a tiny portion of ({}) bytes.'.format(len(sequences)))
@@ -442,31 +443,40 @@ class CharsetNormalizerMatches:
             bom_len = None
 
             try:
-                if p in BYTE_ORDER_MARK:
+                is_multi_byte_enc = is_multi_byte_encoding(p)
+            except ModuleNotFoundError:
+                logger.debug("Encoding %s does not provide an IncrementalDecoder", p)
+                continue
 
-                    if isinstance(BYTE_ORDER_MARK[p], bytes) and sequences.startswith(BYTE_ORDER_MARK[p]):
+            if p in BYTE_ORDER_MARK:
+
+                if isinstance(BYTE_ORDER_MARK[p], bytes) and sequences.startswith(BYTE_ORDER_MARK[p]):
+                    bom_available = True
+                    bom_len = len(BYTE_ORDER_MARK[p])
+                elif isinstance(BYTE_ORDER_MARK[p], list):
+                    bom_c_list = [sequences.startswith(el) for el in BYTE_ORDER_MARK[p]]
+                    if any(bom_c_list) is True:
                         bom_available = True
-                        bom_len = len(BYTE_ORDER_MARK[p])
-                    elif isinstance(BYTE_ORDER_MARK[p], list):
-                        bom_c_list = [sequences.startswith(el) for el in BYTE_ORDER_MARK[p]]
-                        if any(bom_c_list) is True:
-                            bom_available = True
-                            bom_len = len(BYTE_ORDER_MARK[p][bom_c_list.index(True)])
-                    if bom_available is True:
-                        logger.info('%s has a SIG or BOM mark on first %i byte(s).  Adding chaos bonus.', p, bom_len)
+                        bom_len = len(BYTE_ORDER_MARK[p][bom_c_list.index(True)])
+                if bom_available is True:
+                    logger.info('%s has a SIG or BOM mark on first %i byte(s).  Adding chaos bonus.', p, bom_len)
 
+            r_ = range(
+                0 if bom_available is False else bom_len,
+                maximum_length,
+                int(maximum_length / steps)
+            )
+
+            try:
                 decoded_payload = str(
                     sequences if bom_available is False else sequences[bom_len:],
                     encoding=p
                 )
-
             except UnicodeDecodeError as e:
                 logger.debug('%s does not fit given bytes sequence at ALL. %s', p, str(e))
                 continue
             except LookupError:
                 continue
-
-            is_multi_byte_enc = is_multi_byte_encoding(p)
 
             if is_multi_byte_enc is True:
                 logger.info('%s is a multi byte encoding table. '
@@ -474,12 +484,6 @@ class CharsetNormalizerMatches:
                             p)
             else:
                 logger.debug('%s is a single byte encoding table.', p)
-
-            r_ = range(
-                0 if bom_available is False else bom_len,
-                maximum_length,
-                int(maximum_length / steps)
-            )
 
             measures = [ProbeChaos(str(sequences[i:i + chunk_size], encoding=p, errors='ignore'), giveup_threshold=threshold, bonus_bom_sig=bom_available, bonus_multi_byte=is_multi_byte_enc) for i in r_]
             ratios = [el.ratio for el in measures]
@@ -490,7 +494,7 @@ class CharsetNormalizerMatches:
                 continue
 
             chaos_means = statistics.mean(ratios)
-            chaos_median = statistics.median(ratios)
+            # chaos_median = statistics.median(ratios)
             # chaos_min = min(ratios)
             # chaos_max = max(ratios)
 
