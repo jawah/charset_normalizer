@@ -42,7 +42,7 @@ This project offers you an alternative to **Universal Charset Encoding Detector*
 | `License` | LGPL-2.1 | MIT | MPL-1.1
 | `Native Python` | :heavy_check_mark: | :heavy_check_mark: | ❌ |
 | `Detect spoken language` | ❌ | :heavy_check_mark: | N/A |
-| `Supported Encoding` | 30 | :tada: [90](https://charset-normalizer.readthedocs.io/en/latest/support.html)  | 40
+| `Supported Encoding` | 30 | :tada: [92](https://charset-normalizer.readthedocs.io/en/latest/support.html)  | 40
 
 | Package       | Accuracy       | Mean per file (ns) | File per sec (est) |
 | ------------- | :-------------: | :------------------: | :------------------: |
@@ -115,8 +115,8 @@ See the docs for advanced usage : [readthedocs.io](https://charset-normalizer.re
 
 ## 😇 Why
 
-When I started using Chardet, I noticed that it was unreliable nowadays and also
-it's unmaintained, and most likely will never be.
+When I started using Chardet, I noticed that it was not suited to my expectations, and I wanted to propose a
+reliable alternative using a completely different method. Also! I never back down on a good challenge !
 
 I **don't care** about the **originating charset** encoding, because **two different tables** can
 produce **two identical files.**

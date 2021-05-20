@@ -5,10 +5,10 @@ from collections import Counter
 from functools import lru_cache
 from os.path import dirname, realpath, exists
 
-from charset_normalizer.unicode import UnicodeRangeIdentify
+import charset_normalizer.unicode as unicode_utils
 from charset_normalizer.constant import COHERENCE_ACCEPTED_MARGIN_LETTER_RANK, COHERENCE_ALPHABET_COVERED_IF, COHERENCE_PICKING_LETTER_MIN_APPEARANCE, COHERENCE_MIN_LETTER_NEEDED, COHERENCE_MAXIMUM_UNAVAILABLE_LETTER, COHERENCE_MAXIMUM_NOT_RESPECTED_RANK
 
-from cached_property import cached_property
+from charset_normalizer.cached_property import cached_property
 
 
 class HashableCounter(Counter):
@@ -94,7 +94,7 @@ class ProbeCoherence:
 
     @cached_property
     def alphabet_coverage(self):
-        list_by_range = UnicodeRangeIdentify.list_by_range(self.letters)
+        list_by_range = unicode_utils.list_by_range(self.letters)
         coverages = dict()
 
         for u_range, letters in list_by_range.items():
@@ -131,7 +131,7 @@ class ProbeCoherence:
             for o_l in letters:
                 if not o_l.isalpha():
                     continue
-                if o_l not in self._most_common_dict.keys():
+                if o_l not in self._most_common_dict:
                     n_letter_not_available += 1
                 elif self._most_common_dict[o_l] / self.nb_count_occurrence >= COHERENCE_PICKING_LETTER_MIN_APPEARANCE:
                     most_common_cpy.append(
@@ -156,10 +156,10 @@ class ProbeCoherence:
 
                 if not_respected_rank_coeff < COHERENCE_MAXIMUM_NOT_RESPECTED_RANK and n_tested_verified_on >= COHERENCE_MIN_LETTER_NEEDED:
 
-                    if str(ratio_unavailable_letters) not in self.index_of_rates.keys():
+                    if str(ratio_unavailable_letters) not in self.index_of_rates:
                         self.index_of_rates[str(ratio_unavailable_letters)] = dict()
 
-                    if str(not_respected_rank_coeff) not in self.index_of_rates[str(ratio_unavailable_letters)].keys():
+                    if str(not_respected_rank_coeff) not in self.index_of_rates[str(ratio_unavailable_letters)]:
                         self.index_of_rates[str(ratio_unavailable_letters)][str(not_respected_rank_coeff)] = list()
 
                     self.index_of_rates[str(ratio_unavailable_letters)][str(not_respected_rank_coeff)].append(language)
@@ -230,65 +230,3 @@ class ProbeCoherence:
                 return 1., n_tested, n_tested_verified
 
         return n_not_rightfully_ranked / n_tested, n_tested, n_tested_verified
-
-    @staticmethod
-    def frequencies_json(minimum_char_count=45000000, save_to_file=True, proxies=None):  # pragma: no cover
-        """
-        This method refresh or create frequencies.json at will.
-        Don't abuse it as it perform HTTP GET query
-        Data scrapped from and (c) simia.net,
-
-        To invoke, use trickery: ProbeCoherence.frequencies_json.__func__()
-
-        :param int minimum_char_count:
-        :param bool save_to_file:
-        :param dict proxies: Proxies to use as used by requests if needed
-        :return:
-        """
-
-        try:
-            from requests import get
-            from requests_html import HTML
-        except ImportError:
-            raise ImportError('You need to install requests and requests_html in order to invoke frequencies_json static method.')
-
-        r = get(
-            'http://simia.net/letters/',
-            headers={'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:68.0) Gecko/20100101 Firefox/68.0'},
-            proxies=proxies
-        )
-
-        if r.ok is False:
-            raise IOError('Unable to perform HTTP GET on "http://simia.net/letters/". Got HTTP/{}.'.format(r.status_code))
-
-        d = HTML(html=r.content)
-        ProbeCoherence.FREQUENCIES = dict()
-
-        for _row in d.find('tr'):
-            td_language, td_letters = tuple(_row.find('td'))
-
-            language = td_language.find('a')[0].text
-            n_char = int(td_language.find('span')[0].text.replace('characters', '').replace(',', ''))
-
-            if n_char < minimum_char_count and 'Chinese' not in language:
-                continue
-
-            letters = list()
-
-            for span in td_letters.find('span'):
-                letter = span.text  # type: str
-
-                if letter.isalpha():
-                    letters.append(letter)
-
-                if len(letters) > 25:
-                    break
-
-            print('ADDED', language, '|Computed WITH|', n_char, '|WITH Letters|', letters)
-
-            ProbeCoherence.FREQUENCIES[language] = letters
-
-        if save_to_file:
-            with open('{}/frequencies.json'.format(ProbeCoherence.ASSETS_PATH) if exists('{}/frequencies.json'.format(
-                    ProbeCoherence.ASSETS_PATH)) else './charset_normalizer/assets/frequencies.json', 'w', encoding='utf-8') as fp:
-                json.dump(ProbeCoherence.FREQUENCIES, fp)

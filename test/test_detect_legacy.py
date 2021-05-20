@@ -54,13 +54,13 @@ class TestDetectLegacy(unittest.TestCase):
 
     def test_detect_dict_value(self):
         r = detect(
-            '我没有埋怨，磋砣的只是一些时间。'.encode('utf_7')
+            '我没有埋怨，磋砣的只是一些时间。'.encode('utf_32')
         )
 
-        with self.subTest('encoding is equal to utf_7'):
+        with self.subTest('encoding is equal to utf_32'):
             self.assertEqual(
                 r['encoding'],
-                'utf_7'
+                'utf_32'
             )
 
     def test_utf8_sig_not_striped(self):

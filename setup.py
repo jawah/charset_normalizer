@@ -23,14 +23,11 @@ REQUIRES_PYTHON = '>=3.5.0'
 VERSION = get_version()
 
 REQUIRED = [
-    'cached_property>=1.5,<2.0',
-    'dragonmapper>=0.2,<0.3',
     'prettytable>=1.0,<3.0',
-    'loguru>=0.5,<0.6'
+    'cached_property>=1.5,<2.0; python_version <= "3.5"'
 ]
 
 EXTRAS = {
-    'LetterFrequency': ['requests_html', 'requests'],
     'UnicodeDataBackport': ['unicodedata2']
 }
 
