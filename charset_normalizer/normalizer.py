@@ -29,7 +29,7 @@ class CharsetNormalizerMatch:
 
     RE_NOT_PRINTABLE_LETTER = re.compile(r'[0-9\W\n\r\t]+')
 
-    def __init__(self, b_content, guessed_source_encoding, chaos_ratio, ranges, has_bom=False, submatch=None):
+    def __init__(self, b_content, guessed_source_encoding, chaos_ratio, ranges, has_bom=False, submatch=None, decoded_payload=None):
         """
         :param bytes b_content: Raw binary content
         :param str guessed_source_encoding: Guessed source encoding accessible by Python
@@ -42,9 +42,13 @@ class CharsetNormalizerMatch:
         self._chaos_ratio = chaos_ratio
 
         self._bom = has_bom
-        self._string = str(self._raw, encoding=self._encoding).replace('\r', '')
+        self._string = str(self._raw, encoding=self._encoding) if decoded_payload is None else decoded_payload
 
-        self._string_printable_only = re.sub(CharsetNormalizerMatch.RE_NOT_PRINTABLE_LETTER, ' ', self._string.lower())
+        if len(self._string) <= 10e6:
+            self._string_printable_only = re.sub(CharsetNormalizerMatch.RE_NOT_PRINTABLE_LETTER, ' ', self._string.lower())
+        else:
+            self._string_printable_only = re.sub(CharsetNormalizerMatch.RE_NOT_PRINTABLE_LETTER, ' ',self._string[:int(10e6)].lower())
+
         self.char_counter = HashableCounter(self._string_printable_only.replace(' ', ''))
 
         self.ranges = ranges
@@ -451,7 +455,7 @@ class CharsetNormalizerMatches:
                     if bom_available is True:
                         logger.info('%s has a SIG or BOM mark on first %i byte(s).  Adding chaos bonus.', p, bom_len)
 
-                str(
+                decoded_payload = str(
                     sequences if bom_available is False else sequences[bom_len:],
                     encoding=p
                 )
@@ -512,7 +516,9 @@ class CharsetNormalizerMatches:
                 p,
                 chaos_means,
                 encountered_unicode_range_occurrences,
-                bom_available
+                bom_available,
+                [],
+                decoded_payload
             )
 
             logger.info(

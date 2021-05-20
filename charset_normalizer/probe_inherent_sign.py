@@ -21,7 +21,7 @@ def any_specified_encoding(sequence):
 
     results = findall(
         RE_POSSIBLE_ENCODING_INDICATION,
-        sequence[:seq_len if seq_len <= 2048 else int(seq_len*0.3)].decode('ascii', errors='ignore')
+        sequence[:seq_len if seq_len <= 2048 else 2048].decode('ascii', errors='ignore')
     )  # type: list[str]
 
     if len(results) == 0:
