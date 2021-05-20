@@ -444,7 +444,7 @@ class CharsetNormalizerMatches:
 
             try:
                 is_multi_byte_enc = is_multi_byte_encoding(p)
-            except ModuleNotFoundError:
+            except (ModuleNotFoundError, ImportError):
                 logger.debug("Encoding %s does not provide an IncrementalDecoder", p)
                 continue
 
