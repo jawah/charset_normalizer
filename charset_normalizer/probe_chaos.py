@@ -53,6 +53,9 @@ class ProbeChaos:
 
         self.total_unaccented_letter_encountered = 0
 
+        self.cjk_traditional_chinese = 0
+        self.cjk_simplified_chinese = 0
+
         self._probe_word = ProbeWords(HashableCounter(self._string.split()))
 
         self.gave_up = False
@@ -73,6 +76,8 @@ class ProbeChaos:
         k_.successive_upper_lower = self.successive_upper_lower + other.successive_upper_lower
         k_.successive_accent = self.successive_accent + other.successive_accent
         k_.successive_different_unicode_range = self.successive_different_unicode_range + other.successive_different_unicode_range
+        k_.cjk_traditional_chinese = self.cjk_traditional_chinese + other.cjk_traditional_chinese
+        k_.cjk_simplified_chinese = self.cjk_simplified_chinese + other.cjk_simplified_chinese
 
         for el in self.encountered_unicode_range:
             k_.encountered_unicode_range.add(el)
@@ -190,6 +195,16 @@ class ProbeChaos:
                     self.not_encountered_white_space = 0
                     self.not_encountered_white_space_reset += 1
                     continue
+                else:
+                    if unicode_utils.is_cjk(c):
+                        is_cjk_traditional_chinese = unicode_utils.is_traditional_chinese(c)
+                        is_cjk_simplified_chinese = unicode_utils.is_simplified_chinese(c)
+
+                        if is_cjk_traditional_chinese:
+                            self.cjk_traditional_chinese += 1
+
+                        if is_cjk_simplified_chinese:
+                            self.cjk_simplified_chinese += 1
 
                 if (is_lower and self.previous_printable_letter.isupper()) or (is_upper and self.previous_printable_letter.islower()):
                     if upper_lower_m < 2:
