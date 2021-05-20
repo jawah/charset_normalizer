@@ -64,7 +64,7 @@ def is_punc(letter):
     return r_name is not None and \
            ("Punctuation" in r_name or
            'Forms' in r_name or
-           letter in set('º¯—–‒‐⁃«‹?!;.:^$¥*»£¹¿~ª؟©±¡{}[]|½⅓⅔¼¾⅕⅖⅗⅘⅙⅚⅐⅛⅜⅝⅞⅑⅒™℠¬‼⁇❝❞¶⁋√↑↓�¤©`¨'))
+           letter in set('%º¯—–‒‐⁃«‹?!;.:^$¥*»£¹¿~ª؟©±¡{}[]|½⅓⅔¼¾⅕⅖⅗⅘⅙⅚⅐⅛⅜⅝⅞⅑⅒™℠¬‼⁇❝❞¶⁋√↑↓�¤©`¨'))
 
 
 @lru_cache(maxsize=8192)
