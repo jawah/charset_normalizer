@@ -92,15 +92,19 @@ def cli_detect(argv=None):
     )
 
     parser.add_argument('file', type=argparse.FileType('rb'), nargs='+', help='Filename')
-    parser.add_argument('--verbose', action="store_true", default=False, dest='verbose',
-                        help='Display complementary information about file if any.')
-    parser.add_argument('--normalize', action="store_true", default=False, dest='normalize',
+    parser.add_argument('-v', '--verbose', action="store_true", default=False, dest='verbose',
+                        help='Display complementary information about file if any. Stdout will contain logs about the detection process.')
+    parser.add_argument('-a', '--with-alternative', action="store_true", default=False, dest='alternatives',
+                        help='Output complementary possibilities if any. Top-level JSON WILL be a list.')
+    parser.add_argument('-n', '--normalize', action="store_true", default=False, dest='normalize',
                         help='Permit to normalize input file. If not set, program does not write anything.')
-    parser.add_argument('--replace', action="store_true", default=False, dest='replace',
+    parser.add_argument('-m', '--minimal', action="store_true", default=False, dest='minimal',
+                        help='Only output the charset detected to STDOUT. Disabling JSON output.')
+    parser.add_argument('-r', '--replace', action="store_true", default=False, dest='replace',
                         help='Replace file when trying to normalize it instead of creating a new one.')
-    parser.add_argument('--force', action="store_true", default=False, dest='force',
+    parser.add_argument('-f', '--force', action="store_true", default=False, dest='force',
                         help='Replace file without asking if you are sure, use this flag with caution.')
-    parser.add_argument('--threshold', action="store", default=0.2, type=float, dest='threshold',
+    parser.add_argument('-t', '--threshold', action="store", default=0.2, type=float, dest='threshold',
                         help="Define a custom maximum amount of chaos allowed in decoded content. 0. <= chaos <= 1.")
 
     args = parser.parse_args(argv)
@@ -157,7 +161,7 @@ def cli_detect(argv=None):
             )
         )
 
-        if len(matches) > 1 and args.verbose:
+        if len(matches) > 1 and args.alternatives:
             for el in matches:
                 if el != p_:
                     x_.append(
@@ -213,15 +217,25 @@ def cli_detect(argv=None):
         if my_file.closed is False:
             my_file.close()
 
-    print(
-        dumps(
-            [
-                el.__dict__ for el in x_
-            ] if len(x_) > 1 else x_[0].__dict__,
-            ensure_ascii=True,
-            indent=4
+
+    if args.minimal is False:
+        print(
+            dumps(
+                [
+                    el.__dict__ for el in x_
+                ] if args.alternatives else x_[0].__dict__,
+                ensure_ascii=True,
+                indent=4
+            )
         )
-    )
+    else:
+        print(
+            ', '.join(
+                [
+                    el.encoding for el in x_
+                ]
+            )
+        )
 
     return 0
 

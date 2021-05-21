@@ -69,11 +69,36 @@ pip install charset-normalizer
 ## 🚀 Basic Usage
 
 ### CLI
-This package comes with a CLI
+This package comes with a CLI.
 
 ```
-usage: normalizer [-h] [--verbose] [--normalize] [--replace] [--force]
+usage: normalizer [-h] [-v] [-a] [-n] [-m] [-r] [-f] [-t THRESHOLD]
                   file [file ...]
+
+The Real First Universal Charset Detector. Discover originating encoding used
+on text file. Normalize text to unicode.
+
+positional arguments:
+  file                  Filename
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -v, --verbose         Display complementary information about file if any.
+                        Stdout will contain logs about the detection process.
+  -a, --with-alternative
+                        Output complementary possibilities if any. Top-level
+                        JSON WILL be a list.
+  -n, --normalize       Permit to normalize input file. If not set, program
+                        does not write anything.
+  -m, --minimal         Only output the charset detected to STDOUT. Disabling
+                        JSON output.
+  -r, --replace         Replace file when trying to normalize it instead of
+                        creating a new one.
+  -f, --force           Replace file without asking if you are sure, use this
+                        flag with caution.
+  -t THRESHOLD, --threshold THRESHOLD
+                        Define a custom maximum amount of chaos allowed in
+                        decoded content. 0. <= chaos <= 1.
 ```
 
 ```bash
