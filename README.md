@@ -61,9 +61,13 @@ Please ⭐ this repository if this project helped you!
 
 ## ✨ Installation
 
-Using PyPi
+Using PyPi for latest stable
 ```sh
 pip install charset-normalizer
+```
+Or directly from dev-master for latest preview
+```sh
+pip install git+https://github.com/Ousret/charset_normalizer.git
 ```
 
 ## 🚀 Basic Usage
