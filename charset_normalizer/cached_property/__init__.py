@@ -16,15 +16,8 @@ elif version_info >= (3, 8):
 else:
     # Standard Library
     from threading import RLock
-    from typing import Any
-    from typing import Callable
-    from typing import Optional
-    from typing import Type
-    from typing import TypeVar
 
     _NOT_FOUND = object()
-    _T = TypeVar("_T")
-    _S = TypeVar("_S")
 
     # noinspection PyPep8Naming
     class cached_property:  # NOSONAR  # pylint: disable=invalid-name  # noqa: N801
@@ -37,14 +30,14 @@ else:
         that are otherwise effectively immutable.
         """
 
-        def __init__(self, func: Callable[[Any], _T]) -> None:
+        def __init__(self, func):
             """Cached property implementation."""
             self.func = func
-            self.attrname: Optional[str] = None
+            self.attrname = None
             self.__doc__ = func.__doc__
             self.lock = RLock()
 
-        def __set_name__(self, owner: Type[Any], name: str) -> None:
+        def __set_name__(self, owner, name: str):
             """Assign attribute name and owner."""
             if self.attrname is None:
                 self.attrname = name
@@ -54,11 +47,10 @@ else:
                     f"({self.attrname!r} and {name!r})."
                 )
 
-        def __get__(self, instance: Optional[_S], owner: Optional[Type[Any]] = None) -> Any:
+        def __get__(self, instance, owner=None):
             """Property-like getter implementation.
 
             :return: property instance if requested on class or value/cached value if requested on instance.
-            :rtype: Union[cached_property[_T], _T]
             :raises TypeError: call without calling __set_name__ or no '__dict__' attribute
             """
             if instance is None:
