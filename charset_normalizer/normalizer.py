@@ -461,6 +461,11 @@ class CharsetNormalizerMatches:
             if p == "utf_7" and bom_available is False:
                 logger.debug("UTF_7 is no longer supported for pure detection since 1.4.0. You may want to help us bring it back by proposing a patch.")
                 continue
+
+            if p in ["utf_16", "utf_32"] and bom_available is False:
+                logger.info("Encoding %s wont be tested as-is because it require a BOM. Will try some sub-encoder LE/BE.", p)
+                continue
+
             r_ = range(
                 0 if bom_available is False else bom_len,
                 maximum_length,
