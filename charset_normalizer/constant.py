@@ -602,6 +602,14 @@ BYTE_ORDER_MARK = {
         b'\x2b\x2f\x76\x38\x2d'
     ],
     'gb18030': b'\x84\x31\x95\x33',
+    'utf_32': [
+        BOM_UTF32_BE,
+        BOM_UTF32_LE
+    ],
+    'utf_16': [
+        BOM_UTF16_BE,
+        BOM_UTF16_LE
+    ],
     'utf_32_be': BOM_UTF32_BE,
     'utf_32_le': BOM_UTF32_LE,
     'utf_16_be': BOM_UTF16_BE,
