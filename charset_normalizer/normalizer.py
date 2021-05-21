@@ -406,7 +406,7 @@ class CharsetNormalizerMatches:
                 ', '.join(cp_exclusion))
 
         # Bellow Python 3.6, Expect dict to not behave the same.
-        py_need_sort = version_info <= (3, 5)
+        py_need_sort = version_info < (3, 6)
 
         supported = collections.OrderedDict(aliases).items() if py_need_sort else aliases.items()
 

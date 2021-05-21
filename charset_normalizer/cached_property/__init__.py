@@ -8,7 +8,7 @@ __all__ = ("cached_property",)
 # Standard Library
 from sys import version_info
 
-if version_info <= (3, 5):
+if version_info < (3, 6):
     from cached_property import cached_property
 elif version_info >= (3, 8):
     # Standard Library
