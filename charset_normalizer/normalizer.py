@@ -473,7 +473,7 @@ class CharsetNormalizerMatches:
                     decoded_payload = None
 
                     str(
-                        sequences[:int(10e6)],
+                        sequences[:int(50e4)],
                         encoding=p
                     )
                 else:
