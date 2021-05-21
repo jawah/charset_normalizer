@@ -406,7 +406,7 @@ class CharsetNormalizerMatches:
                 ', '.join(cp_exclusion))
 
         # Bellow Python 3.6, Expect dict to not behave the same.
-        py_need_sort = version_info <= (3, 5)
+        py_need_sort = version_info < (3, 6)
 
         supported = collections.OrderedDict(aliases).items() if py_need_sort else aliases.items()
 
@@ -438,9 +438,11 @@ class CharsetNormalizerMatches:
             bom_available = False
             bom_len = None
 
+            tbe = (ImportError, ) if py_need_sort else (ModuleNotFoundError, ImportError)
+
             try:
                 is_multi_byte_enc = is_multi_byte_encoding(p)
-            except (ModuleNotFoundError, ImportError):
+            except tbe:
                 logger.debug("Encoding %s does not provide an IncrementalDecoder", p)
                 continue
 

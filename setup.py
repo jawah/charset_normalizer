@@ -14,7 +14,7 @@ def get_version():
                       version_file.read()).group('version')
 
 # Package meta-data.
-NAME = 'charset_normalizer'
+NAME = 'charset-normalizer'
 DESCRIPTION = 'The Real First Universal Charset Detector. No Cpp Bindings, Using Voodoo and Magical Artifacts.'
 URL = 'https://github.com/ousret/charset_normalizer'
 EMAIL = 'ahmed.tahri@cloudnursery.dev'
@@ -23,7 +23,6 @@ REQUIRES_PYTHON = '>=3.5.0'
 VERSION = get_version()
 
 REQUIRED = [
-    'prettytable>=1.0,<3.0',
     'cached_property>=1.5,<2.0; python_version <= "3.5"'
 ]
 
