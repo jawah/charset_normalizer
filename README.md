@@ -63,7 +63,7 @@ Please ⭐ this repository if this project helped you!
 
 Using PyPi
 ```sh
-pip install charset_normalizer
+pip install charset-normalizer
 ```
 
 ## 🚀 Basic Usage
@@ -80,12 +80,39 @@ usage: normalizer [-h] [--verbose] [--normalize] [--replace] [--force]
 normalizer ./data/sample.1.fr.srt
 ```
 
-```
-+----------------------+----------+----------+------------------------------------+-------+-----------+
-|       Filename       | Encoding | Language |             Alphabets              | Chaos | Coherence |
-+----------------------+----------+----------+------------------------------------+-------+-----------+
-| data/sample.1.fr.srt |  cp1252  |  French  | Basic Latin and Latin-1 Supplement | 0.0 % |  84.924 % |
-+----------------------+----------+----------+------------------------------------+-------+-----------+
+:tada: Since version 1.4.0 the CLI produce easily usable stdout result in JSON format.
+
+```json
+{
+    "path": "./data/sample.1.fr.srt",
+    "encoding": "cp1252",
+    "encoding_aliases": [
+        "1252",
+        "windows_1252"
+    ],
+    "alternative_encodings": [
+        "cp1254",
+        "cp1256",
+        "cp1258",
+        "iso8859_14",
+        "iso8859_15",
+        "iso8859_16",
+        "iso8859_3",
+        "iso8859_9",
+        "latin_1",
+        "mbcs"
+    ],
+    "language": "French",
+    "alphabets": [
+        "Basic Latin",
+        "Latin-1 Supplement"
+    ],
+    "has_sig_or_bom": false,
+    "chaos": 0.149,
+    "coherence": 97.152,
+    "unicode_path": null,
+    "is_preferred": true
+}
 ```
 
 ### Python

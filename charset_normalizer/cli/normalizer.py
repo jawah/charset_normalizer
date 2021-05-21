@@ -1,9 +1,47 @@
 import argparse
 import sys
-
-from prettytable import PrettyTable
+from json import dumps
 
 from charset_normalizer import CharsetNormalizerMatches
+
+
+class DetectionResult:
+    # 'Filename', 'Encoding', 'Language', 'Alphabets', 'Chaos', 'Coherence'
+    def __init__(self, path, encoding, encoding_aliases, alternative_encodings, language, alphabets, has_sig_or_bom, chaos, coherence, unicode_path, is_preferred):
+        self.path = path
+        self.unicode_path = unicode_path
+        self.encoding = encoding
+        self.encoding_aliases = encoding_aliases
+        self.alternative_encodings = alternative_encodings
+        self.language = language
+        self.alphabets = alphabets
+        self.has_sig_or_bom = has_sig_or_bom
+        self.chaos = chaos
+        self.coherence = coherence
+        self.is_preferred = is_preferred
+
+    @property
+    def __dict__(self):
+        return {
+            'path': self.path,
+            'encoding': self.encoding,
+            'encoding_aliases': self.encoding_aliases,
+            'alternative_encodings': self.alternative_encodings,
+            'language': self.language,
+            'alphabets': self.alphabets,
+            'has_sig_or_bom': self.has_sig_or_bom,
+            'chaos': self.chaos,
+            'coherence': self.coherence,
+            'unicode_path': self.unicode_path,
+            'is_preferred': self.is_preferred
+        }
+
+    def to_json(self):
+        return dumps(
+            self.__dict__,
+            ensure_ascii=True,
+            indent=4
+        )
 
 
 def query_yes_no(question, default="yes"):
@@ -81,14 +119,15 @@ def cli_detect(argv=None):
         return 1
 
     if args.threshold < 0. or args.threshold > 1.:
-        print('--threshold VALUE should be between 0. AND 1.')
+        print('--threshold VALUE should be between 0. AND 1.', file=sys.stderr)
         return 1
 
     for my_file in args.file:
 
         matches = CharsetNormalizerMatches.from_fp(
             my_file,
-            threshold=args.threshold
+            threshold=args.threshold,
+            explain=args.verbose
         )
 
         if len(matches) == 0:
@@ -97,52 +136,50 @@ def cli_detect(argv=None):
                 my_file.close()
             continue
 
-        x_ = PrettyTable(['Filename', 'Encoding', 'Language', 'Alphabets', 'Chaos', 'Coherence'])
+        x_ = []
 
         r_ = matches.best()
         p_ = r_.first()
 
-        x_.add_row(
-            [
+        x_.append(
+            DetectionResult(
                 my_file.name,
                 p_.encoding,
+                p_.encoding_aliases,
+                [cp for cp in p_.could_be_from_charset if cp != p_.encoding],
                 p_.language,
-                (' and ' if len(p_.alphabets) < 4 else '\n').join([el if 'and' not in el else '"{}"'.format(el) for el in p_.alphabets]),
-                '{} %'.format(round(p_.chaos * 100., ndigits=3)),
-                '{} %'.format(round(100. - p_.coherence * 100., ndigits=3))
-            ]
+                p_.alphabets,
+                p_.bom,
+                round(p_.chaos * 100., ndigits=3),
+                round(100. - p_.coherence * 100., ndigits=3),
+                None,
+                True
+            )
         )
 
         if len(matches) > 1 and args.verbose:
             for el in matches:
                 if el != p_:
-                    x_.add_row(
-                        [
-                            '** ALTERNATIVE '+my_file.name+'**',
+                    x_.append(
+                        DetectionResult(
+                            my_file.name,
                             el.encoding,
+                            el.encoding_aliases,
+                            [cp for cp in el.could_be_from_charset if cp != el.encoding],
                             el.language,
-                            (' and ' if len(el.alphabets) < 4 else '\n').join([el if 'and' not in el else '"{}"'.format(el) for el in el.alphabets]),
-                            '{} %'.format(round(el.chaos * 100., ndigits=3)),
-                            '{} %'.format(round(100. - el.coherence * 100., ndigits=3))
-                        ]
+                            el.alphabets,
+                            el.bom,
+                            round(el.chaos * 100., ndigits=3),
+                            round(100. - el.coherence * 100., ndigits=3),
+                            None,
+                            False
+                        )
                     )
-
-        print(x_)
-
-        if args.verbose is True:
-            if len(r_.could_be_from_charset) > 1:
-                print('"{}" could be also originating from {}.'.format(my_file.name, ','.join(r_.could_be_from_charset)))
-            if len(p_.could_be_from_charset) > 1:
-                print('"{}" produce the EXACT same output with those encoding : {}.'.format(my_file.name, ' OR '.join(p_.could_be_from_charset)))
-            if len(p_.languages) > 1:
-                print('"{}" could be also be written in {}.'.format(my_file.name, ' or '.join(p_.languages)))
-            if p_.byte_order_mark is True:
-                print('"{}" has a signature or byte order mark (BOM) in it.'.format(my_file.name))
 
         if args.normalize is True:
 
             if p_.encoding.startswith('utf') is True:
-                print('"{}" file does not need to be normalized, as it already came from unicode.'.format(my_file.name))
+                print('"{}" file does not need to be normalized, as it already came from unicode.'.format(my_file.name), file=sys.stderr)
                 if my_file.closed is False:
                     my_file.close()
                 continue
@@ -161,11 +198,12 @@ def cli_detect(argv=None):
                     continue
 
             try:
-                with open('./{}'.format('.'.join(o_)), 'w', encoding='utf-8') as fp:
+                x_[0].unicode_path = './{}'.format('.'.join(o_))
+
+                with open(x_[0].unicode_path, 'w', encoding='utf-8') as fp:
                     fp.write(
                         str(p_)
                     )
-                print('"{}" has been successfully written to disk.'.format('.'.join(o_)))
             except IOError as e:
                 print(str(e), file=sys.stderr)
                 if my_file.closed is False:
@@ -174,6 +212,16 @@ def cli_detect(argv=None):
 
         if my_file.closed is False:
             my_file.close()
+
+    print(
+        dumps(
+            [
+                el.__dict__ for el in x_
+            ] if len(x_) > 1 else x_[0].__dict__,
+            ensure_ascii=True,
+            indent=4
+        )
+    )
 
     return 0
 
