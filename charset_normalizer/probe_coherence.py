@@ -34,7 +34,7 @@ class ProbeCoherence:
 
         if ProbeCoherence.FREQUENCIES is None:
             with open('{}/frequencies.json'.format(ProbeCoherence.ASSETS_PATH) if exists('{}/frequencies.json'.format(
-                    ProbeCoherence.ASSETS_PATH)) else './charset_normalizer/assets/frequencies.json', 'r') as fp:
+                    ProbeCoherence.ASSETS_PATH)) else './charset_normalizer/assets/frequencies.json', 'r', encoding='utf_8') as fp:
                 ProbeCoherence.FREQUENCIES = json.load(fp)
 
         self._character_occurrences = character_occurrences
