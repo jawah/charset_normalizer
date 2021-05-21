@@ -435,11 +435,6 @@ class CharsetNormalizerMatches:
 
             tested.add(p)
 
-            # Dropping support for UTF-7 in 1.4.0; Sorry!
-            if p == "utf_7":
-                logger.debug("UTF-7 is no longer supported since 1.4.0. You may want to help us bring it back by proposing a patch.")
-                continue
-
             bom_available = False
             bom_len = None
 
@@ -462,6 +457,10 @@ class CharsetNormalizerMatches:
                 if bom_available is True:
                     logger.info('%s has a SIG or BOM mark on first %i byte(s).  Adding chaos bonus.', p, bom_len)
 
+            # Dropping support for UTF-7 in 1.4.0 if there no SIG; Sorry!
+            if p == "utf_7" and bom_available is False:
+                logger.debug("UTF_7 is no longer supported for pure detection since 1.4.0. You may want to help us bring it back by proposing a patch.")
+                continue
             r_ = range(
                 0 if bom_available is False else bom_len,
                 maximum_length,
