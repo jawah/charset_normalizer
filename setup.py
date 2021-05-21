@@ -23,7 +23,7 @@ REQUIRES_PYTHON = '>=3.5.0'
 VERSION = get_version()
 
 REQUIRED = [
-    'cached_property>=1.5,<2.0; python_version <= "3.5"'
+    'cached_property>=1.3,<=1.5.2; python_version <= "3.5"'
 ]
 
 EXTRAS = {
