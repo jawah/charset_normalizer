@@ -135,7 +135,7 @@ class ProbeChaos:
             if not c.isprintable():
                 if c not in ['\n', '\t', '\r']:
                     if not unicode_utils.is_cjk(c) and not unicode_utils.is_punc(c):
-                        self.unprintable += 2
+                        self.unprintable += 3
 
                 self.encountered_white_space += 1
                 self.not_encountered_white_space = 0
