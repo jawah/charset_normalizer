@@ -56,6 +56,8 @@ class ProbeChaos:
         self.cjk_traditional_chinese = 0
         self.cjk_simplified_chinese = 0
 
+        self.cjk_bad_stop = 0
+
         self._probe_word = ProbeWords(HashableCounter(self._string.split()))
 
         self.gave_up = False
@@ -78,6 +80,7 @@ class ProbeChaos:
         k_.successive_different_unicode_range = self.successive_different_unicode_range + other.successive_different_unicode_range
         k_.cjk_traditional_chinese = self.cjk_traditional_chinese + other.cjk_traditional_chinese
         k_.cjk_simplified_chinese = self.cjk_simplified_chinese + other.cjk_simplified_chinese
+        k_.cjk_bad_stop = self.cjk_bad_stop + other.cjk_bad_stop
 
         for el in self.encountered_unicode_range:
             k_.encountered_unicode_range.add(el)
@@ -206,6 +209,9 @@ class ProbeChaos:
                         if is_cjk_simplified_chinese:
                             self.cjk_simplified_chinese += 1
 
+                        if c in {'丄', '丅'}:
+                            self.cjk_bad_stop += 1
+
                 if (is_lower and self.previous_printable_letter.isupper()) or (is_upper and self.previous_printable_letter.islower()):
                     if upper_lower_m < 2:
                         upper_lower_m += 1
@@ -250,6 +256,16 @@ class ProbeChaos:
 
         bonus_sig_bom = -int(len(self._string)*0.5) if self._bonus_bom_sig is True else 0
 
-        initial_ratio = ((r_ + p_ + q_ + self.successive_upper_lower + self.successive_accent + self.successive_different_unicode_range + self.not_encountered_white_space + self.unprintable + z_ + bonus_sig_bom) / len(self._string)) + self._probe_word.ratio  # + len(self.encountered_unicode_range)-1
+        t_ = 0  # reserved for CJK score detection
+
+        # CJK mess detector
+        if self.cjk_traditional_chinese > 0 or self.cjk_simplified_chinese > 0:
+            diff_t_ = abs(self.cjk_simplified_chinese - self.cjk_traditional_chinese)
+            if diff_t_ <= ((self.cjk_traditional_chinese + self.cjk_simplified_chinese) / 3):
+                t_ += self.cjk_traditional_chinese + self.cjk_simplified_chinese
+            if self.cjk_bad_stop > 0:
+                t_ += self.cjk_bad_stop
+
+        initial_ratio = ((r_ + p_ + q_ + self.successive_upper_lower + self.successive_accent + self.successive_different_unicode_range + self.not_encountered_white_space + self.unprintable + z_ + t_ + bonus_sig_bom) / len(self._string)) + self._probe_word.ratio
 
         return initial_ratio / 1.3 if self._bonus_multi_byte is True and initial_ratio > 0. else initial_ratio
