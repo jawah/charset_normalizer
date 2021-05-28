@@ -17,12 +17,16 @@ from charset_normalizer.encoding import is_multi_byte_encoding
 
 from charset_normalizer.probe_inherent_sign import any_specified_encoding
 
-import logging as logger
+import logging
 
 from hashlib import sha256
 
+logger = logging.getLogger("charset_normalizer")
+logger.setLevel(logging.DEBUG)
 
-logger.basicConfig(level=logger.DEBUG, format='%(asctime)s | %(levelname)s | %(message)s')
+handler = logging.StreamHandler()
+handler.setFormatter(logging.Formatter('%(asctime)s | %(levelname)s | %(message)s'))
+logger.addHandler(handler)
 
 
 class CharsetNormalizerMatch:
@@ -359,7 +363,7 @@ class CharsetNormalizerMatches:
         :rtype: CharsetNormalizerMatches
         """
         if not explain:
-            logger.disable(logger.ERROR)
+            logger.setLevel(logging.ERROR)
 
         if len(sequences) == 0:
             return CharsetNormalizerMatch(
