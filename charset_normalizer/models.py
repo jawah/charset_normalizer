@@ -32,7 +32,7 @@ class CharsetMatch:
 
     def __eq__(self, other) -> bool:
         if not isinstance(other, CharsetMatch):
-            raise TypeError(f'__eq__ cannot be invoked on {str(other.__class__)} and {str(self.__class__)}.')
+            raise TypeError('__eq__ cannot be invoked on {} and {}.'.format(str(other.__class__), str(self.__class__)))
         return self.encoding == other.encoding
 
     def __lt__(self, other) -> bool:

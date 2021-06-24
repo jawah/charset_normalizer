@@ -151,7 +151,7 @@ def is_multi_byte_encoding(name: str) -> bool:
     Verify is a specific encoding is a multi byte one based on it IANA name
     """
     return name in {"utf_8", "utf_8_sig", "utf_16", "utf_16_be", "utf_16_le", "utf_32", "utf_32_le", "utf_32_be", "utf_7"} or issubclass(
-        importlib.import_module(f'encodings.{name}').IncrementalDecoder,
+        importlib.import_module('encodings.{}'.format(name)).IncrementalDecoder,
         MultibyteIncrementalDecoder
     )
 
@@ -208,8 +208,8 @@ def cp_similarity(iana_name_a: str, iana_name_b: str) -> float:
     if is_multi_byte_encoding(iana_name_a) or is_multi_byte_encoding(iana_name_b):
         return 0.
 
-    decoder_a = importlib.import_module(f'encodings.{iana_name_a}').IncrementalDecoder
-    decoder_b = importlib.import_module(f'encodings.{iana_name_b}').IncrementalDecoder
+    decoder_a = importlib.import_module('encodings.{}'.format(iana_name_a)).IncrementalDecoder
+    decoder_b = importlib.import_module('encodings.{}'.format(iana_name_b)).IncrementalDecoder
 
     id_a: IncrementalDecoder = decoder_a(errors="ignore")
     id_b: IncrementalDecoder = decoder_b(errors="ignore")

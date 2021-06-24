@@ -79,7 +79,7 @@ def from_bytes(
     is_too_large_sequence = len(sequences) >= TOO_BIG_SEQUENCE  # type: bool
 
     if is_too_small_sequence:
-        warn(f'Trying to detect encoding from a tiny portion of ({length}) byte(s).')
+        warn('Trying to detect encoding from a tiny portion of ({}) byte(s).'.format(length))
 
     prioritized_encodings = []  # type: List[str]
 

@@ -3,7 +3,7 @@ from typing import Dict, List
 from os.path import dirname, realpath, exists
 from warnings import warn
 
-FILE_PATH: str = f'{dirname(realpath(__file__))}/frequencies.json'
+FILE_PATH: str = dirname(realpath(__file__)) + '/frequencies.json'
 FREQUENCIES: Dict[str, List[str]]
 
 if not exists(FILE_PATH):
