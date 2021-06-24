@@ -234,7 +234,7 @@ def from_bytes(
             target_languages = mb_encoding_languages(encoding_iana)  # type: List[str]
 
         if target_languages:
-            logger.debug(f"{encoding_iana} should target any language(s) of {str(target_languages)}")
+            logger.debug("{} should target any language(s) of {}".format(encoding_iana, str(target_languages)))
 
         cd_ratios = []
 
@@ -248,7 +248,7 @@ def from_bytes(
         cd_ratios_merged = merge_coherence_ratios(cd_ratios)
 
         if cd_ratios_merged:
-            logger.debug(f"We detected language {cd_ratios_merged} using {encoding_iana}")
+            logger.debug("We detected language {} using {}".format(cd_ratios_merged, encoding_iana))
 
         results.add(
             CharsetMatch(

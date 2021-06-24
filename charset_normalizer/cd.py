@@ -97,7 +97,7 @@ def alphabet_languages(characters: List[str]) -> List[str]:
 
 def characters_popularity_compare(language: str, ordered_characters: List[str]) -> float:
     if language not in FREQUENCIES:
-        raise ValueError(f"{language} not available")
+        raise ValueError("{} not available".format(language))
 
     character_approved_count: int = 0
 

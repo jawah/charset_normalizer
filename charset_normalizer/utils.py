@@ -187,7 +187,7 @@ def iana_name(cp_name: str) -> str:
         if cp_name == encoding_alias or cp_name == encoding_iana:
             return encoding_iana
 
-    raise ValueError(f"Unable to retrieve IANA for '{cp_name}'")
+    raise ValueError("Unable to retrieve IANA for '{}'".format(cp_name))
 
 
 def range_scan(decoded_sequence: str) -> List[str]:

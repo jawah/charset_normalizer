@@ -78,8 +78,8 @@ def cli_detect(argv=None):
     args = parser.parse_args(argv)
 
     if args.show_version is True:
-        print(f"Charset-Normalizer {__version__}")
-        print(f"Python {python_version}")
+        print("Charset-Normalizer {}".format(__version__))
+        print("Python {}".format(python_version))
         return 0
 
     if len(args.files) == 0:
