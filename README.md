@@ -27,7 +27,7 @@
 > All IANA character set names for which the Python core library provides codecs are supported.
 
 <p align="center">
-  >>>>> <a href="https://charsetnormalizerweb.ousret.now.sh" target="_blank">❤️ Try Me Online Now, Then Adopt Me ❤️ </a> <<<<<
+  >>>>> <a href="https://charsetnormalizerweb.ousret.now.sh" target="_blank">👉 Try Me Online Now, Then Adopt Me 👈 </a> <<<<<
 </p>
 
 This project offers you an alternative to **Universal Charset Encoding Detector**, also known as **Chardet**.
@@ -46,9 +46,9 @@ This project offers you an alternative to **Universal Charset Encoding Detector*
 
 | Package       | Accuracy       | Mean per file (ns) | File per sec (est) |
 | ------------- | :-------------: | :------------------: | :------------------: |
-|      [chardet](https://github.com/chardet/chardet)       |     93.5 %     |     126 081 168 ns      |       7.931 file/sec        |
-|      [cchardet](https://github.com/PyYoshi/cChardet)      |     97.0 %     |      1 668 145 ns       |      **599.468 file/sec**      |
-| charset-normalizer |    **97.25 %**     |     209 503 253 ns      |       4.773 file/sec    |
+|      [chardet](https://github.com/chardet/chardet)       |     93.5 %     |     126 081 168 ns      |       7.93 file/sec        |
+|      [cchardet](https://github.com/PyYoshi/cChardet)      |     97.0 %     |      1 668 145 ns       |      **599.47 file/sec**      |
+| charset-normalizer |    **97.25 %**     |     90 903 100 ns      |       11.11 file/sec    |
 
 <p align="center">
 <img src="https://i.imgflip.com/373iay.gif" alt="Reading Normalized Text" width="226"/><img src="https://media.tenor.com/images/c0180f70732a18b4965448d33adba3d0/tenor.gif" alt="Cat Reading Text" width="200"/>

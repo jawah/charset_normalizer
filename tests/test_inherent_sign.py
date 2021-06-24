@@ -1,5 +1,5 @@
 import unittest
-from charset_normalizer.probe_inherent_sign import any_specified_encoding
+from charset_normalizer.utils import any_specified_encoding
 
 
 class TestDetectLegacy(unittest.TestCase):

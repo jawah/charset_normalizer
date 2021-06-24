@@ -1,7 +1,8 @@
-from charset_normalizer.normalizer import CharsetNormalizerMatches as CnM
+from charset_normalizer.api import from_bytes
+from typing import Dict, Optional
 
 
-def detect(byte_str):
+def detect(byte_str: bytes) -> Dict[str, Optional[str]]:
     """
     chardet/cchardet legacy method
     Detect the encoding of the given byte string.
@@ -15,9 +16,9 @@ def detect(byte_str):
             raise TypeError('Expected object of type bytes or bytearray, got: '
                             '{0}'.format(type(byte_str)))
         else:
-            byte_str = bytearray(byte_str)
+            byte_str = bytes(byte_str)
 
-    r = CnM.from_bytes(byte_str).best().first()
+    r = from_bytes(byte_str).best()
 
     encoding = r.encoding if r is not None else None
     language = r.language if r is not None and r.language != 'Unknown' else ''

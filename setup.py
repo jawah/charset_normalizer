@@ -22,14 +22,11 @@ AUTHOR = 'Ahmed TAHRI @Ousret'
 REQUIRES_PYTHON = '>=3.5.0'
 VERSION = get_version()
 
-REQUIRED = [
-    'cached_property>=1.3,<=1.5.2; python_version < "3.6"'
-]
+REQUIRED = []
 
 EXTRAS = {
-    'UnicodeDataBackport': ['unicodedata2']
+    'unicode_backport': ['unicodedata2']
 }
-
 
 here = os.path.abspath(os.path.dirname(__file__))
 
