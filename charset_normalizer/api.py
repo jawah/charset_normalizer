@@ -35,6 +35,7 @@ def from_bytes(
 ) -> CharsetMatches:
     """
     Given a raw bytes sequence, return the best possibles charset usable to render str objects.
+    If there is no results, it is a strong indicator that the source is binary/not text.
     """
 
     if not explain:
@@ -178,7 +179,7 @@ def from_bytes(
             continue
 
         r_ = range(
-            0 if strip_sig_or_bom is False else len(sig_payload) + 1,
+            0 if bom_or_sig_available is False else len(sig_payload) + 1,
             length,
             int(length / steps)
         )
@@ -199,7 +200,13 @@ def from_bytes(
         md_ratios = []
 
         for i in r_:
-            chunk = sequences[i:i + chunk_size].decode(encoding_iana, errors="ignore")  # type: str
+
+            cut_sequence = sequences[i:i + chunk_size]
+
+            if bom_or_sig_available and strip_sig_or_bom is False:
+                cut_sequence = sig_payload+cut_sequence
+
+            chunk = cut_sequence.decode(encoding_iana, errors="ignore")  # type: str
 
             md_chunks.append(chunk)
 
@@ -216,7 +223,10 @@ def from_bytes(
             if early_stop_count >= max_chunk_gave_up:
                 break
 
-        mean_mess_ratio = sum(md_ratios) / len(md_ratios)  # type: float
+        if md_ratios:
+            mean_mess_ratio = sum(md_ratios) / len(md_ratios)  # type: float
+        else:
+            mean_mess_ratio = 0.
 
         if mean_mess_ratio >= threshold or early_stop_count >= max_chunk_gave_up:
             tested_but_soft_failure.append(encoding_iana)
