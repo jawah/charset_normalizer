@@ -3,6 +3,8 @@ from encodings.aliases import aliases
 from hashlib import sha256
 from json import dumps
 from typing import Optional, List, Tuple
+from collections import Counter
+from re import sub, compile
 
 from charset_normalizer.md import mess_ratio
 
@@ -75,6 +77,18 @@ class CharsetMatch:
         """
         warnings.warn("coherence_non_latin is deprecated and will be removed in 3.0", DeprecationWarning)
         return 0.
+
+    @property
+    def w_counter(self) -> Counter:
+        """
+        Word counter instance on decoded text.
+        Notice: Will be removed in 3.0
+        """
+        warnings.warn("w_counter is deprecated and will be removed in 3.0", DeprecationWarning)
+        not_printable_pattern = compile(r'[0-9\W\n\r\t]+')
+        string_printable_only = sub(not_printable_pattern, ' ', self._string.lower())
+
+        return Counter(string_printable_only.split())
 
     def __str__(self) -> str:
         return self._string
