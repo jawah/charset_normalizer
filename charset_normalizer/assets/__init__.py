@@ -9,6 +9,7 @@ from json import load
 from typing import Dict, List
 from os.path import dirname, realpath, exists
 from warnings import warn
+from collections import OrderedDict
 
 FILE_PATH = dirname(realpath(__file__)) + '/frequencies.json'  # type: str
 
@@ -17,4 +18,4 @@ if not exists(FILE_PATH):
     FREQUENCIES = {}  # type: Dict[str, List[str]]
 else:
     with open(FILE_PATH, 'r', encoding='utf_8') as fp:
-        FREQUENCIES = load(fp)  # type: Dict[str, List[str]]
+        FREQUENCIES = load(fp, object_pairs_hook=OrderedDict)  # type: Dict[str, List[str]]
