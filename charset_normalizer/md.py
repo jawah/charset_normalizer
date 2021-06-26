@@ -235,7 +235,7 @@ class SuperWeirdWordPlugin(MessDetectorPlugin):
             return
         if (character.isspace() or is_punctuation(character) or is_separator(character)) and self._buffer:
             self._word_count += 1
-            buffer_length: int = len(self._buffer)
+            buffer_length = len(self._buffer)  # type: int
 
             self._character_count += buffer_length
 
