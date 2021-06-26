@@ -13,9 +13,10 @@ def get_version():
         return search(r"""__version__\s+=\s+(['"])(?P<version>.+?)\1""",
                       version_file.read()).group('version')
 
+
 # Package meta-data.
 NAME = 'charset-normalizer'
-DESCRIPTION = 'The Real First Universal Charset Detector. No Cpp Bindings, Using Voodoo and Magical Artifacts.'
+DESCRIPTION = 'The Real First Universal Charset Detector. Open, modern and actively maintained alternative to Chardet.'
 URL = 'https://github.com/ousret/charset_normalizer'
 EMAIL = 'ahmed.tahri@cloudnursery.dev'
 AUTHOR = 'Ahmed TAHRI @Ousret'

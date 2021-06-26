@@ -14,17 +14,17 @@ from charset_normalizer.constant import UNICODE_RANGES_COMBINED, UNICODE_SECONDA
 
 @lru_cache(maxsize=UTF8_MAXIMAL_ALLOCATION)
 def is_accentuated(character: str) -> bool:
-    description: str = unicodedata.name(character)
+    description = unicodedata.name(character)  # type: str
     return "WITH GRAVE" in description or "WITH ACUTE" in description or "WITH CEDILLA" in description
 
 
 @lru_cache(maxsize=UTF8_MAXIMAL_ALLOCATION)
 def remove_accent(character: str) -> str:
-    decomposed: str = unicodedata.decomposition(character)
+    decomposed = unicodedata.decomposition(character)  # type: str
     if not decomposed:
         return character
 
-    codes: List[str] = decomposed.split(" ")
+    codes = decomposed.split(" ")  # type: List[str]
 
     return chr(
         int(
@@ -39,7 +39,7 @@ def unicode_range(character: str) -> Optional[str]:
     """
     Retrieve the Unicode range official name from a single character.
     """
-    character_ord: int = ord(character)
+    character_ord = ord(character)  # type: int
 
     for range_name, ord_range in UNICODE_RANGES_COMBINED.items():
         if character_ord in ord_range:
@@ -51,7 +51,7 @@ def unicode_range(character: str) -> Optional[str]:
 @lru_cache(maxsize=UTF8_MAXIMAL_ALLOCATION)
 def is_latin(character: str) -> bool:
     try:
-        description: str = unicodedata.name(character)
+        description = unicodedata.name(character)  # type: str
     except ValueError:
         return False
     return "LATIN" in description
@@ -59,12 +59,12 @@ def is_latin(character: str) -> bool:
 
 @lru_cache(maxsize=UTF8_MAXIMAL_ALLOCATION)
 def is_punctuation(character: str) -> bool:
-    character_category: str = unicodedata.category(character)
+    character_category = unicodedata.category(character)  # type: str
 
     if "P" in character_category:
         return True
 
-    character_range: Optional[str] = unicode_range(character)
+    character_range = unicode_range(character)  # type: Optional[str]
 
     if character_range is None:
         return False
@@ -74,12 +74,12 @@ def is_punctuation(character: str) -> bool:
 
 @lru_cache(maxsize=UTF8_MAXIMAL_ALLOCATION)
 def is_symbol(character: str) -> bool:
-    character_category: str = unicodedata.category(character)
+    character_category = unicodedata.category(character)  # type: str
 
     if "S" in character_category or "N" in character_category:
         return True
 
-    character_range: Optional[str] = unicode_range(character)
+    character_range = unicode_range(character)  # type: Optional[str]
 
     if character_range is None:
         return False
@@ -92,13 +92,13 @@ def is_separator(character: str) -> bool:
     if character.isspace() or character in ["｜", "+"]:
         return True
 
-    character_category: str = unicodedata.category(character)
+    character_category = unicodedata.category(character)  # type: str
 
     return "Z" in character_category
 
 
 def is_private_use_only(character: str) -> bool:
-    character_category: str = unicodedata.category(character)
+    character_category = unicodedata.category(character)  # type: str
 
     return "Co" == character_category
 
@@ -123,12 +123,12 @@ def any_specified_encoding(sequence: bytes, search_zone: int = 4096) -> Optional
     if not isinstance(sequence, bytes):
         raise TypeError
 
-    seq_len = len(sequence)
+    seq_len = len(sequence)  # type: int
 
-    results = findall(
+    results = findall(  # type: list[str]
         RE_POSSIBLE_ENCODING_INDICATION,
         sequence[:seq_len if seq_len <= search_zone else search_zone].decode('ascii', errors='ignore')
-    )  # type: list[str]
+    )
 
     if len(results) == 0:
         return None
@@ -162,7 +162,7 @@ def identify_sig_or_bom(sequence: bytes) -> Tuple[Optional[str], bytes]:
     """
 
     for iana_encoding in ENCODING_MARKS:
-        marks: Union[bytes, List[bytes]] = ENCODING_MARKS[iana_encoding]
+        marks = ENCODING_MARKS[iana_encoding]  # type: Union[bytes, List[bytes]]
 
         if isinstance(marks, bytes):
             marks = [marks]
@@ -181,7 +181,7 @@ def should_strip_sig_or_bom(iana_encoding: str) -> bool:
 
 
 def iana_name(cp_name: str) -> str:
-    cp_name = cp_name.lower().replace('-', '_')
+    cp_name = cp_name.lower().replace('-', '_')  # type: str
 
     for encoding_alias, encoding_iana in aliases.items():
         if cp_name == encoding_alias or cp_name == encoding_iana:
@@ -191,10 +191,10 @@ def iana_name(cp_name: str) -> str:
 
 
 def range_scan(decoded_sequence: str) -> List[str]:
-    ranges: Set[str] = set()
+    ranges = set()  # type: Set[str]
 
     for character in decoded_sequence:
-        character_range: str = unicode_range(character)
+        character_range = unicode_range(character)  # type: str
 
         ranges.add(
             character_range
@@ -211,13 +211,13 @@ def cp_similarity(iana_name_a: str, iana_name_b: str) -> float:
     decoder_a = importlib.import_module('encodings.{}'.format(iana_name_a)).IncrementalDecoder
     decoder_b = importlib.import_module('encodings.{}'.format(iana_name_b)).IncrementalDecoder
 
-    id_a: IncrementalDecoder = decoder_a(errors="ignore")
-    id_b: IncrementalDecoder = decoder_b(errors="ignore")
+    id_a = decoder_a(errors="ignore")  # type: IncrementalDecoder
+    id_b = decoder_b(errors="ignore")  # type: IncrementalDecoder
 
-    character_match_count: int = 0
+    character_match_count = 0  # type: int
 
     for i in range(0, 255):
-        to_be_decoded: bytes = bytes([i])
+        to_be_decoded = bytes([i])  # type: bytes
         if id_a.decode(to_be_decoded) == id_b.decode(to_be_decoded):
             character_match_count += 1
 

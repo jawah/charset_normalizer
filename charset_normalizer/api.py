@@ -7,7 +7,7 @@ from charset_normalizer.models import CharsetMatches, CharsetMatch
 from warnings import warn
 import logging
 
-from charset_normalizer.utils import any_specified_encoding, is_multi_byte_encoding, identify_sig_or_bom, range_scan, \
+from charset_normalizer.utils import any_specified_encoding, is_multi_byte_encoding, identify_sig_or_bom, \
     should_strip_sig_or_bom, is_cp_similar
 from charset_normalizer.cd import coherence_ratio, encoding_languages, mb_encoding_languages, merge_coherence_ratios
 
@@ -29,6 +29,9 @@ def from_bytes(
         preemptive_behaviour: bool = True,
         explain: bool = False
 ) -> CharsetMatches:
+    """
+    Given a raw bytes sequence, return the best possibles charset usable to render str objects.
+    """
 
     if not explain:
         logger.setLevel(logging.ERROR)

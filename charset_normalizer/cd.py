@@ -11,21 +11,24 @@ from collections import Counter
 
 
 def encoding_unicode_range(iana_name: str) -> List[str]:
+    """
+    Return associated unicode ranges in a single byte code page.
+    """
     if is_multi_byte_encoding(iana_name):
         raise IOError("Function not supported on multi-byte code page")
 
     decoder = importlib.import_module('encodings.{}'.format(iana_name)).IncrementalDecoder
 
-    p: IncrementalDecoder = decoder(errors="ignore")
-    seen_ranges: Set[str] = set()
+    p = decoder(errors="ignore")  # type: IncrementalDecoder
+    seen_ranges = set()  # type: Set[str]
 
     for i in range(48, 255):
-        chunk: str = p.decode(
+        chunk = p.decode(  # type: str
             bytes([i])
         )
 
         if chunk:
-            character_range: str = unicode_range(chunk)
+            character_range = unicode_range(chunk)  # type: str
 
             if is_unicode_range_secondary(character_range) is False:
                 seen_ranges.add(character_range)
@@ -34,7 +37,10 @@ def encoding_unicode_range(iana_name: str) -> List[str]:
 
 
 def unicode_range_languages(primary_range: str) -> List[str]:
-    languages: List[str] = []
+    """
+    Return inferred languages used with a unicode range.
+    """
+    languages = []  # type: List[str]
 
     for language, characters in FREQUENCIES.items():
         for character in characters:
@@ -48,10 +54,11 @@ def unicode_range_languages(primary_range: str) -> List[str]:
 @lru_cache()
 def encoding_languages(iana_name: str) -> List[str]:
     """
-    Single-byte encoding language association
+    Single-byte encoding language association. Some code page are heavily linked to particular language(s).
+    This function does the correspondence.
     """
-    unicode_ranges: List[str] = encoding_unicode_range(iana_name)
-    primary_range: Optional[str] = None
+    unicode_ranges = encoding_unicode_range(iana_name)  # type: List[str]
+    primary_range = None  # type: Optional[str]
 
     for specified_range in unicode_ranges:
         if "Latin" not in specified_range:
@@ -66,7 +73,8 @@ def encoding_languages(iana_name: str) -> List[str]:
 
 def mb_encoding_languages(iana_name: str) -> List[str]:
     """
-    Multi-byte encoding language association
+    Multi-byte encoding language association. Some code page are heavily linked to particular language(s).
+    This function does the correspondence.
     """
     if iana_name.startswith("shift_") or iana_name.startswith("iso2022_jp") or iana_name.startswith("euc_j") or iana_name in {"cp932"}:
         return ["Japanese"]
@@ -79,11 +87,14 @@ def mb_encoding_languages(iana_name: str) -> List[str]:
 
 
 def alphabet_languages(characters: List[str]) -> List[str]:
-    languages: List[str] = []
+    """
+    Return associated languages associated to given characters.
+    """
+    languages = []  # type: List[str]
 
     for language, language_characters in FREQUENCIES.items():
-        character_match_count: int = 0
-        character_count: int = len(language_characters)
+        character_match_count = 0  # type: int
+        character_count = len(language_characters)  # type: int
 
         for character in language_characters:
             if character in characters:
@@ -96,23 +107,28 @@ def alphabet_languages(characters: List[str]) -> List[str]:
 
 
 def characters_popularity_compare(language: str, ordered_characters: List[str]) -> float:
+    """
+    Determine if a ordered characters list (by occurrence from most appearance to rarest) match a particular language.
+    The result is a ratio between 0. (absolutely no correspondence) and 1. (near perfect fit).
+    Beware that is function is not strict on the match in order to ease the detection. (Meaning close match is 1.)
+    """
     if language not in FREQUENCIES:
         raise ValueError("{} not available".format(language))
 
-    character_approved_count: int = 0
+    character_approved_count = 0  # type: int
 
     for character in ordered_characters:
         if character not in FREQUENCIES[language]:
             continue
 
-        characters_before_source: List[str] = FREQUENCIES[language][0:FREQUENCIES[language].index(character)]
-        characters_after_source: List[str] = FREQUENCIES[language][FREQUENCIES[language].index(character):]
+        characters_before_source = FREQUENCIES[language][0:FREQUENCIES[language].index(character)]  # type: List[str]
+        characters_after_source = FREQUENCIES[language][FREQUENCIES[language].index(character):]  # type: List[str]
 
-        characters_before: List[str] = ordered_characters[0:ordered_characters.index(character)]
-        characters_after: List[str] = ordered_characters[ordered_characters.index(character):]
+        characters_before = ordered_characters[0:ordered_characters.index(character)]  # type: List[str]
+        characters_after = ordered_characters[ordered_characters.index(character):]  # type: List[str]
 
-        before_match_count: int = [e in characters_before for e in characters_before_source].count(True)
-        after_match_count: int = [e in characters_after for e in characters_after_source].count(True)
+        before_match_count = [e in characters_before for e in characters_before_source].count(True)  # type: int
+        after_match_count = [e in characters_after for e in characters_after_source].count(True)  # type: int
 
         if len(characters_before_source) == 0 and before_match_count <= 4:
             character_approved_count += 1
@@ -130,15 +146,20 @@ def characters_popularity_compare(language: str, ordered_characters: List[str]) 
 
 
 def alpha_unicode_split(decoded_sequence: str) -> List[str]:
-    layers: Dict[str, str] = {}
+    """
+    Given a decoded text sequence, return a list of str. Unicode range / alphabet separation.
+    Ex. a text containing English/Latin with a bit a Hebrew will return two items in the resulting list;
+    One containing the latin letters and the other hebrew.
+    """
+    layers = {}  # type: Dict[str, str]
 
     for character in decoded_sequence:
         if character.isalpha() is False:
             continue
 
-        character_range: str = unicode_range(character)
+        character_range = unicode_range(character)  # type: str
 
-        layer_target_range: Optional[str] = None
+        layer_target_range = None  # type: Optional[str]
 
         for discovered_range in layers:
             if is_suspiciously_successive_range(discovered_range, character_range) is False:
@@ -158,8 +179,12 @@ def alpha_unicode_split(decoded_sequence: str) -> List[str]:
 
 
 def merge_coherence_ratios(results: List[CoherenceMatches]) -> CoherenceMatches:
-    per_language_ratios: Dict[str, List[float]] = {}
-    merge: CoherenceMatches = []
+    """
+    This function merge results previously given by the function coherence_ratio.
+    The return type is the same as coherence_ratio.
+    """
+    per_language_ratios = {}  # type: Dict[str, List[float]]
+    merge = []  # type: CoherenceMatches
 
     for result in results:
         for sub_result in result:
@@ -189,10 +214,14 @@ def merge_coherence_ratios(results: List[CoherenceMatches]) -> CoherenceMatches:
 
 @lru_cache(maxsize=2048)
 def coherence_ratio(decoded_sequence: str, threshold: float = 0.1, lg_inclusion: Optional[str] = None) -> CoherenceMatches:
+    """
+    Detect ANY language that can be identified in given sequence. The sequence will be analysed by layers.
+    A layer = Character extraction by alphabets/ranges.
+    """
 
-    results: List[Tuple[str, float]] = []
+    results = []  # type: List[Tuple[str, float]]
 
-    sufficient_match_count: int = 0
+    sufficient_match_count = 0  # type: int
 
     if lg_inclusion is not None:
         lg_inclusion = lg_inclusion.split(",")
@@ -201,18 +230,18 @@ def coherence_ratio(decoded_sequence: str, threshold: float = 0.1, lg_inclusion:
         lg_inclusion.remove("Latin Based")
 
     for layer in alpha_unicode_split(decoded_sequence):
-        sequence_frequencies: Counter = Counter(layer)
+        sequence_frequencies = Counter(layer)  # type: Counter
         most_common = sequence_frequencies.most_common()
 
-        character_count: int = sum([o for c, o in most_common])
+        character_count = sum([o for c, o in most_common])  # type: int
 
         if character_count <= 32:
             continue
 
-        popular_character_ordered: List[str] = [c for c, o in most_common]
+        popular_character_ordered = [c for c, o in most_common]  # type: List[str]
 
         for language in lg_inclusion or alphabet_languages(popular_character_ordered):
-            ratio: float = characters_popularity_compare(language, popular_character_ordered)
+            ratio = characters_popularity_compare(language, popular_character_ordered)  # type: float
 
             if ratio < threshold:
                 continue

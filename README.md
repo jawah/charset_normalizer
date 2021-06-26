@@ -215,4 +215,4 @@ Feel free to check [issues page](https://github.com/ousret/charset_normalizer/is
 Copyright © 2019 [Ahmed TAHRI @Ousret](https://github.com/Ousret).<br />
 This project is [MIT](https://github.com/Ousret/charset_normalizer/blob/master/LICENSE) licensed.
 
-Letter appearances frequencies used in this project © 2012 [Denny Vrandečić](http://denny.vrandecic.de)
+Characters frequencies used in this project © 2012 [Denny Vrandečić](http://denny.vrandecic.de)

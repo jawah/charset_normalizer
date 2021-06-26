@@ -1,7 +1,7 @@
 from codecs import BOM_UTF8, BOM_UTF16_BE, BOM_UTF16_LE, BOM_UTF32_BE, BOM_UTF32_LE
 from typing import Dict, List, Union
 from encodings.aliases import aliases
-import re
+from re import compile, IGNORECASE
 
 # Contain for each eligible encoding a list of/item bytes SIG/BOM
 ENCODING_MARKS = {  # type: Dict[str, Union[bytes, List[bytes]]]
@@ -49,9 +49,9 @@ UNICODE_SECONDARY_RANGE_KEYWORD = [  # type: List[str]
     'Tags'
 ]
 
-RE_POSSIBLE_ENCODING_INDICATION = re.compile(
+RE_POSSIBLE_ENCODING_INDICATION = compile(
     r'(?:(?:encoding)|(?:charset)|(?:coding))(?:[\:= ]{1,10})(?:[\"\']?)([a-zA-Z0-9\-_]+)(?:[\"\']?)',
-    re.IGNORECASE
+    IGNORECASE
 )
 
 IANA_SUPPORTED = sorted(  # type: List[str]
@@ -63,6 +63,7 @@ IANA_SUPPORTED = sorted(  # type: List[str]
 
 IANA_SUPPORTED_COUNT = len(IANA_SUPPORTED)  # type: int
 
+# pre-computed code page that are similar using the function cp_similarity.
 IANA_SUPPORTED_SIMILAR = {  # type: Dict[str, List[str]]
     "cp037": [
         "cp1026",

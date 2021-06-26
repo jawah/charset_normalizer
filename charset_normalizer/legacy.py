@@ -5,7 +5,7 @@ from typing import Dict, Optional
 def detect(byte_str: bytes) -> Dict[str, Optional[str]]:
     """
     chardet/cchardet legacy method
-    Detect the encoding of the given byte string.
+    Detect the encoding of the given byte string. It should be mostly backward-compatible.
 
     :param byte_str:     The byte sequence to examine.
     :type byte_str:      ``bytes`` or ``bytearray``
