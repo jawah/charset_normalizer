@@ -191,11 +191,11 @@ def from_bytes(
 
         early_stop_count = 0  # type: int
 
-        md_chunks: List[str] = []
+        md_chunks = []  # type: List[str]
         md_ratios = []
 
         for i in r_:
-            chunk: str = sequences[i:i + chunk_size].decode(encoding_iana, errors="ignore")
+            chunk = sequences[i:i + chunk_size].decode(encoding_iana, errors="ignore")  # type: str
 
             md_chunks.append(chunk)
 
