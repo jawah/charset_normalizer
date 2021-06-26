@@ -1,5 +1,9 @@
-from os import PathLike
-from typing import List, BinaryIO, Optional, Set
+from typing import List, BinaryIO, Optional, Set, Union
+
+try:
+    from os import PathLike
+except ImportError:
+    PathLike = Union[str, 'os.PathLike[str]']
 
 from charset_normalizer.constant import TOO_SMALL_SEQUENCE, TOO_BIG_SEQUENCE, IANA_SUPPORTED
 from charset_normalizer.md import mess_ratio
