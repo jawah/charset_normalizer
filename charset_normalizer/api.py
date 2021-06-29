@@ -338,3 +338,35 @@ def from_path(
 ) -> CharsetMatches:
     with open(path, 'rb') as fp:
         return from_fp(fp, steps, chunk_size, threshold, cp_isolation, cp_exclusion, preemptive_behaviour, explain)
+
+
+def normalize(path: PathLike, steps: int = 10, chunk_size: int = 512, threshold: float = 0.20, cp_isolation: List[str] = None, cp_exclusion: List[str] = None, preemptive_behaviour: bool = True) -> CharsetMatch:
+    """
+    Take a (text-based) file path and try to create another file next to it, this time using UTF-8.
+    """
+    results = from_path(
+        path,
+        steps,
+        chunk_size,
+        threshold,
+        cp_isolation,
+        cp_exclusion,
+        preemptive_behaviour
+    )
+
+    filename = basename(path)
+    target_extensions = list(splitext(filename))
+
+    if len(results) == 0:
+        raise IOError('Unable to normalize "{}", no encoding charset seems to fit.'.format(filename))
+
+    result = results.best()
+
+    target_extensions[0] += '-' + result.encoding  # type: ignore
+
+    with open('{}'.format(path.replace(filename, ''.join(target_extensions))), 'wb') as fp:
+        fp.write(
+            result.output()  # type: ignore
+        )
+
+    return result  # type: ignore

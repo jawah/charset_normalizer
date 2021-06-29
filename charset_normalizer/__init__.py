@@ -20,7 +20,7 @@ at <https://github.com/Ousret/charset_normalizer>.
 :copyright: (c) 2021 by Ahmed TAHRI
 :license: MIT, see LICENSE for more details.
 """
-from charset_normalizer.api import from_fp, from_path, from_bytes
+from charset_normalizer.api import from_fp, from_path, from_bytes, normalize
 from charset_normalizer.legacy import detect
 from charset_normalizer.version import __version__, VERSION
 from charset_normalizer.models import CharsetMatch, CharsetMatches
