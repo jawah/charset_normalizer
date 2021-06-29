@@ -3,7 +3,7 @@ from codecs import IncrementalDecoder
 from re import findall
 from typing import Optional, Tuple, Union, List, Set
 import importlib
-from _multibytecodec import MultibyteIncrementalDecoder
+from _multibytecodec import MultibyteIncrementalDecoder  # type: ignore
 
 from encodings.aliases import aliases
 from functools import lru_cache
@@ -125,10 +125,10 @@ def any_specified_encoding(sequence: bytes, search_zone: int = 4096) -> Optional
 
     seq_len = len(sequence)  # type: int
 
-    results = findall(  # type: list[str]
+    results = findall(
         RE_POSSIBLE_ENCODING_INDICATION,
         sequence[:seq_len if seq_len <= search_zone else search_zone].decode('ascii', errors='ignore')
-    )
+    )  # type: List[str]
 
     if len(results) == 0:
         return None
@@ -151,7 +151,7 @@ def is_multi_byte_encoding(name: str) -> bool:
     Verify is a specific encoding is a multi byte one based on it IANA name
     """
     return name in {"utf_8", "utf_8_sig", "utf_16", "utf_16_be", "utf_16_le", "utf_32", "utf_32_le", "utf_32_be", "utf_7"} or issubclass(
-        importlib.import_module('encodings.{}'.format(name)).IncrementalDecoder,
+        importlib.import_module('encodings.{}'.format(name)).IncrementalDecoder,  # type: ignore
         MultibyteIncrementalDecoder
     )
 
@@ -181,7 +181,7 @@ def should_strip_sig_or_bom(iana_encoding: str) -> bool:
 
 
 def iana_name(cp_name: str) -> str:
-    cp_name = cp_name.lower().replace('-', '_')  # type: str
+    cp_name = cp_name.lower().replace('-', '_')
 
     for encoding_alias, encoding_iana in aliases.items():
         if cp_name == encoding_alias or cp_name == encoding_iana:
@@ -194,7 +194,10 @@ def range_scan(decoded_sequence: str) -> List[str]:
     ranges = set()  # type: Set[str]
 
     for character in decoded_sequence:
-        character_range = unicode_range(character)  # type: str
+        character_range = unicode_range(character)  # type: Optional[str]
+
+        if character_range is None:
+            continue
 
         ranges.add(
             character_range
@@ -208,8 +211,8 @@ def cp_similarity(iana_name_a: str, iana_name_b: str) -> float:
     if is_multi_byte_encoding(iana_name_a) or is_multi_byte_encoding(iana_name_b):
         return 0.
 
-    decoder_a = importlib.import_module('encodings.{}'.format(iana_name_a)).IncrementalDecoder
-    decoder_b = importlib.import_module('encodings.{}'.format(iana_name_b)).IncrementalDecoder
+    decoder_a = importlib.import_module('encodings.{}'.format(iana_name_a)).IncrementalDecoder  # type: ignore
+    decoder_b = importlib.import_module('encodings.{}'.format(iana_name_b)).IncrementalDecoder  # type: ignore
 
     id_a = decoder_a(errors="ignore")  # type: IncrementalDecoder
     id_b = decoder_b(errors="ignore")  # type: IncrementalDecoder

@@ -2,7 +2,7 @@ import warnings
 from encodings.aliases import aliases
 from hashlib import sha256
 from json import dumps
-from typing import Optional, List, Tuple
+from typing import Optional, List, Tuple, Dict
 from collections import Counter
 from re import sub, compile
 
@@ -212,7 +212,7 @@ class CharsetMatch:
             self._output_encoding = encoding
             self._output_payload = str(self).encode(encoding, "replace")
 
-        return self._output_payload
+        return self._output_payload  # type: ignore
 
     @property
     def fingerprint(self) -> str:
@@ -290,17 +290,17 @@ CoherenceMatches = List[CoherenceMatch]
 class CliDetectionResult:
 
     def __init__(self, path: str, encoding: str, encoding_aliases: List[str], alternative_encodings: List[str], language: str, alphabets: List[str], has_sig_or_bom: bool, chaos: float, coherence: float, unicode_path: Optional[str], is_preferred: bool):
-        self.path = path
-        self.unicode_path = unicode_path
-        self.encoding = encoding
-        self.encoding_aliases = encoding_aliases
-        self.alternative_encodings = alternative_encodings
-        self.language = language
-        self.alphabets = alphabets
-        self.has_sig_or_bom = has_sig_or_bom
-        self.chaos = chaos
-        self.coherence = coherence
-        self.is_preferred = is_preferred
+        self.path = path  # type: str
+        self.unicode_path = unicode_path  # type: Optional[str]
+        self.encoding = encoding  # type: str
+        self.encoding_aliases = encoding_aliases  # type: List[str]
+        self.alternative_encodings = alternative_encodings  # type: List[str]
+        self.language = language  # type: str
+        self.alphabets = alphabets  # type: List[str]
+        self.has_sig_or_bom = has_sig_or_bom  # type: bool
+        self.chaos = chaos  # type: float
+        self.coherence = coherence  # type: float
+        self.is_preferred = is_preferred  # type: bool
 
     @property
     def __dict__(self):
@@ -318,7 +318,7 @@ class CliDetectionResult:
             'is_preferred': self.is_preferred
         }
 
-    def to_json(self):
+    def to_json(self) -> str:
         return dumps(
             self.__dict__,
             ensure_ascii=True,

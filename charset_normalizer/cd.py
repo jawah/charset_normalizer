@@ -17,18 +17,21 @@ def encoding_unicode_range(iana_name: str) -> List[str]:
     if is_multi_byte_encoding(iana_name):
         raise IOError("Function not supported on multi-byte code page")
 
-    decoder = importlib.import_module('encodings.{}'.format(iana_name)).IncrementalDecoder
+    decoder = importlib.import_module('encodings.{}'.format(iana_name)).IncrementalDecoder  # type: ignore
 
     p = decoder(errors="ignore")  # type: IncrementalDecoder
     seen_ranges = set()  # type: Set[str]
 
     for i in range(48, 255):
-        chunk = p.decode(  # type: str
+        chunk = p.decode(
             bytes([i])
-        )
+        )  # type: str
 
         if chunk:
-            character_range = unicode_range(chunk)  # type: str
+            character_range = unicode_range(chunk)  # type: Optional[str]
+
+            if character_range is None:
+                continue
 
             if is_unicode_range_secondary(character_range) is False:
                 seen_ranges.add(character_range)

@@ -1,9 +1,10 @@
+from os.path import splitext, basename
 from typing import List, BinaryIO, Optional, Set, Union
 
 try:
     from os import PathLike
 except ImportError:
-    PathLike = Union[str, 'os.PathLike[str]']
+    PathLike = Union[str, 'os.PathLike[str]']  # type: ignore
 
 from charset_normalizer.constant import TOO_SMALL_SEQUENCE, TOO_BIG_SEQUENCE, IANA_SUPPORTED
 from charset_normalizer.md import mess_ratio
@@ -248,7 +249,7 @@ def from_bytes(
         if not is_multi_byte_decoder:
             target_languages = encoding_languages(encoding_iana)  # type: List[str]
         else:
-            target_languages = mb_encoding_languages(encoding_iana)  # type: List[str]
+            target_languages = mb_encoding_languages(encoding_iana)
 
         if target_languages:
             logger.debug("{} should target any language(s) of {}".format(encoding_iana, str(target_languages)))

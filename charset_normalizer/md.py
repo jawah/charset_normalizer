@@ -152,7 +152,7 @@ class SuspiciousDuplicateAccentPlugin(MessDetectorPlugin):
     def reset(self) -> None:
         self._successive_count = 0
         self._character_count = 0
-        self._last_latin_character = 0
+        self._last_latin_character = None
 
     @property
     def ratio(self) -> float:
@@ -183,8 +183,8 @@ class SuspiciousRange(MessDetectorPlugin):
             self._last_printable_seen = None
             return
 
-        unicode_range_a = unicode_range(self._last_printable_seen)  # type: str
-        unicode_range_b = unicode_range(character)  # type: str
+        unicode_range_a = unicode_range(self._last_printable_seen)  # type: Optional[str]
+        unicode_range_b = unicode_range(character)  # type: Optional[str]
 
         if is_suspiciously_successive_range(unicode_range_a, unicode_range_b):
             self._suspicious_successive_range_count += 1
@@ -374,9 +374,9 @@ def mess_ratio(decoded_sequence: str, maximum_threshold: float = 0.2, debug: boo
     if length < 512:
         intermediary_mean_mess_ratio_calc = 32  # type: int
     elif length <= 1024:
-        intermediary_mean_mess_ratio_calc = 64  # type: int
+        intermediary_mean_mess_ratio_calc = 64
     else:
-        intermediary_mean_mess_ratio_calc = 128  # type: int
+        intermediary_mean_mess_ratio_calc = 128
 
     for character, index in zip(decoded_sequence, range(0, length)):
         for detector in detectors:
