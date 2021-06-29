@@ -2,27 +2,28 @@ from codecs import BOM_UTF8, BOM_UTF16_BE, BOM_UTF16_LE, BOM_UTF32_BE, BOM_UTF32
 from typing import Dict, List, Union
 from encodings.aliases import aliases
 from re import compile, IGNORECASE
+from collections import OrderedDict
 
 # Contain for each eligible encoding a list of/item bytes SIG/BOM
-ENCODING_MARKS = {  # type: Dict[str, Union[bytes, List[bytes]]]
-    'utf_8': BOM_UTF8,
-    'utf_7': [
+ENCODING_MARKS = OrderedDict([
+    ('utf_8', BOM_UTF8),
+    ('utf_7', [
         b'\x2b\x2f\x76\x38',
         b'\x2b\x2f\x76\x39',
         b'\x2b\x2f\x76\x2b',
         b'\x2b\x2f\x76\x2f',
         b'\x2b\x2f\x76\x38\x2d'
-    ],
-    'gb18030': b'\x84\x31\x95',
-    'utf_32': [
+    ]),
+    ('gb18030', b'\x84\x31\x95'),
+    ('utf_32', [
         BOM_UTF32_BE,
         BOM_UTF32_LE
-    ],
-    'utf_16': [
+    ]),
+    ('utf_16', [
         BOM_UTF16_BE,
         BOM_UTF16_LE
-    ],
-}
+    ]),
+])  # type: Dict[str, Union[bytes, List[bytes]]]
 
 TOO_SMALL_SEQUENCE = 32  # type: int
 TOO_BIG_SEQUENCE = int(10e6)  # type: int
