@@ -40,7 +40,25 @@ def from_bytes(
     """
 
     if not explain:
-        logger.setLevel(logging.ERROR)
+        logger.setLevel(logging.CRITICAL)
+
+    length = len(sequences)  # type: int
+
+    if length == 0:
+        logger.warning("Given content is empty, stopping the process very early, returning empty utf_8 str match")
+        return CharsetMatches(
+            [
+                CharsetMatch(
+                    sequences,
+                    "utf_8",
+                    0.,
+                    False,
+                    [],
+                    [],
+                    ""
+                )
+            ]
+        )
 
     if cp_isolation is not None:
         logger.warning('cp_isolation is set. use this flag for debugging purpose. '
@@ -56,23 +74,6 @@ def from_bytes(
             ', '.join(cp_exclusion))
     else:
         cp_exclusion = []
-
-    length = len(sequences)  # type: int
-
-    if length == 0:
-        return CharsetMatches(
-            [
-                CharsetMatch(
-                    sequences,
-                    "utf_8",
-                    0.,
-                    False,
-                    [],
-                    [],
-                    ""
-                )
-            ]
-        )
 
     if length <= (chunk_size * steps):
         logger.warning(
@@ -180,12 +181,12 @@ def from_bytes(
             continue
 
         r_ = range(
-            0 if bom_or_sig_available is False else len(sig_payload) + 1,
+            0 if bom_or_sig_available is False else len(sig_payload),
             length,
             int(length / steps)
         )
 
-        multi_byte_bonus = is_multi_byte_decoder and len(decoded_payload) < length  # type: bool
+        multi_byte_bonus = is_multi_byte_decoder and decoded_payload is not None and len(decoded_payload) < length  # type: bool
 
         if multi_byte_bonus:
             logger.info('Code page %s is a multi byte encoding table and it appear that at least one character was encoded using n-bytes. Should not be a coincidence. Priority +1 given.', encoding_iana)
@@ -201,7 +202,6 @@ def from_bytes(
         md_ratios = []
 
         for i in r_:
-
             cut_sequence = sequences[i:i + chunk_size]
 
             if bom_or_sig_available and strip_sig_or_bom is False:
@@ -221,7 +221,7 @@ def from_bytes(
             if md_ratios[-1] >= threshold:
                 early_stop_count += 1
 
-            if early_stop_count >= max_chunk_gave_up:
+            if (early_stop_count >= max_chunk_gave_up) or (bom_or_sig_available and strip_sig_or_bom is False):
                 break
 
         if md_ratios:

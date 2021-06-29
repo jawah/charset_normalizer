@@ -175,9 +175,7 @@ def identify_sig_or_bom(sequence: bytes) -> Tuple[Optional[str], bytes]:
 
 
 def should_strip_sig_or_bom(iana_encoding: str) -> bool:
-    if iana_encoding in {"utf_16", "utf_32"}:
-        return False
-    return True
+    return iana_encoding not in {"utf_16", "utf_32"}
 
 
 def iana_name(cp_name: str) -> str:

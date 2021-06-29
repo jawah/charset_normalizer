@@ -239,7 +239,7 @@ class CharsetMatches:
             return self._results[item]
         if isinstance(item, str):
             for result in self._results:
-                if item == result.encoding:
+                if item in result.could_be_from_charset:
                     return result
         raise KeyError
 

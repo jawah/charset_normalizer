@@ -3,9 +3,9 @@
 
 import io
 import os
+from re import search
 
 from setuptools import find_packages, setup
-from re import search
 
 
 def get_version():
