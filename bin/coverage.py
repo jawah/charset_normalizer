@@ -39,7 +39,7 @@ def cli_coverage(arguments: List[str]):
     success_count = 0
     total_count = 0
 
-    for tbt_path in glob("../char-dataset/**/*.*"):
+    for tbt_path in glob("./char-dataset/**/*.*"):
 
         expected_encoding = tbt_path.split(sep)[-2]
         total_count += 1

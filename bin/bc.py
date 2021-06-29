@@ -41,7 +41,7 @@ def cli_bc(arguments: List[str]):
     success_count = 0
     total_count = 0
 
-    for tbt_path in glob("../char-dataset/**/*.*"):
+    for tbt_path in glob("./char-dataset/**/*.*"):
         total_count += 1
 
         with open(tbt_path, "rb") as fp:
