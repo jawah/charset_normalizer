@@ -34,4 +34,4 @@ jobs:
         python ./bin/coverage.py --coverage 90 --with-preemptive
     - name: Coverage WITHOUT preemptive
       run: |
-        python ./bin/coverage.py --coverage 90 --without-preemptive
+        python ./bin/coverage.py --coverage 90
