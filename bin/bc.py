@@ -72,6 +72,7 @@ def cli_bc(arguments: List[str]):
         if calc_eq >= 0.98:
             success_count += 1
             print("️✅ ️'{}' (got '{}' but eq {} WITH {} %)".format(tbt_path, charset_normalizer_encoding, chardet_encoding, round(calc_eq * 100., 3)))
+            continue
 
         print("⚡⚡ '{}' (BC-Break) New('{}') vs Legacy('{}')".format(tbt_path, charset_normalizer_encoding, chardet_encoding))
 
