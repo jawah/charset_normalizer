@@ -46,3 +46,21 @@ Please be aware of the following things when filing bug reports:
    If you do not provide all of these things, it will take us much longer to
    fix your problem. If we ask you to clarify these, and you never respond, we
    will close your issue without fixing it.
+
+
+## What PR are we accepting?
+
+Mostly anything, from cosmetic to the detection-mechanism improvement at the solo condition that you do not break
+the backward-compatibility.
+
+## What PR are doomed?
+
+- Dropping EOL Python 3.5
+> We are waiting upon the right moment to drop it. Hint, wait for requests to drop it first.
+
+- Add support for a removed charset/encoding
+> If you looked carefully at the project, you would see that it aims to be generic whenever possible. So adding a specific prober is out of the question.
+
+- Of course, if the CI/CD are failing
+> Getting the discussion started often mean doing the minimum effort to get it Green! (Be reassured, maintainers will look into it)
+
