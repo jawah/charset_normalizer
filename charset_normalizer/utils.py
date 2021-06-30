@@ -104,7 +104,12 @@ def is_private_use_only(character: str) -> bool:
 
 
 def is_cjk(character: str) -> bool:
-    return "CJK" in unicodedata.name(character)
+    try:
+        character_name = unicodedata.name(character)
+    except ValueError:
+        return False
+
+    return "CJK" in character_name
 
 
 @lru_cache(maxsize=len(UNICODE_RANGES_COMBINED))

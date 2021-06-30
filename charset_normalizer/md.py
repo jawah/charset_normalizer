@@ -3,7 +3,7 @@ from typing import Optional, List
 
 from charset_normalizer.constant import UNICODE_SECONDARY_RANGE_KEYWORD
 from charset_normalizer.utils import is_punctuation, is_symbol, unicode_range, is_accentuated, is_latin, \
-    remove_accent, is_separator
+    remove_accent, is_separator, is_cjk
 
 
 class MessDetectorPlugin:
@@ -267,6 +267,37 @@ class SuperWeirdWordPlugin(MessDetectorPlugin):
             return 0.
 
         return self._bad_character_count / self._character_count
+
+
+class CjkInvalidStopPlugin(MessDetectorPlugin):
+    """
+    GB(Chinese) based encoding often render the stop incorrectly when the content does not fit and can be easily detected.
+    Searching for the overuse of '丅' and '丄'.
+    """
+
+    def __init__(self):
+        self._wrong_stop_count = 0  # type: int
+        self._cjk_character_count = 0  # type: int
+
+    def eligible(self, character: str) -> bool:
+        return True
+
+    def feed(self, character: str) -> None:
+        if character in ["丅", "丄"]:
+            self._wrong_stop_count += 1
+            return
+        if is_cjk(character):
+            self._cjk_character_count += 1
+
+    def reset(self) -> None:
+        self._wrong_stop_count = 0
+        self._cjk_character_count = 0
+
+    @property
+    def ratio(self) -> float:
+        if self._cjk_character_count < 16:
+            return 0.
+        return self._wrong_stop_count / self._cjk_character_count
 
 
 class ArchaicUpperLowerPlugin(MessDetectorPlugin):
