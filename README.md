@@ -46,9 +46,11 @@ This project offers you an alternative to **Universal Charset Encoding Detector*
 
 | Package       | Accuracy       | Mean per file (ns) | File per sec (est) |
 | ------------- | :-------------: | :------------------: | :------------------: |
-|      [chardet](https://github.com/chardet/chardet)       |     93.5 %     |     126 081 168 ns      |       7.93 file/sec        |
-|      [cchardet](https://github.com/PyYoshi/cChardet)      |     97.0 %     |      1 668 145 ns       |      **599.47 file/sec**      |
-| charset-normalizer |    **97.25 %**     |     90 903 100 ns      |       11.11 file/sec    |
+|      [chardet](https://github.com/chardet/chardet)        |     93.0 %     |     67 ms      |       15.38 file/sec        |
+|      [cchardet](https://github.com/PyYoshi/cChardet)      |     97.0 %     |      2 ms       |      **599.47 file/sec**      |
+| charset-normalizer |    **95.0 %**     |     37 ms      |       27.77 file/sec    |
+
+> Stats are generated using 400+ files using default parameters.
 
 <p align="center">
 <img src="https://i.imgflip.com/373iay.gif" alt="Reading Normalized Text" width="226"/><img src="https://media.tenor.com/images/c0180f70732a18b4965448d33adba3d0/tenor.gif" alt="Cat Reading Text" width="200"/>
