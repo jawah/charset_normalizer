@@ -79,6 +79,6 @@ def cli_coverage(arguments: List[str]):
 if __name__ == "__main__":
     exit(
         cli_coverage(
-            argv[1:] + ["--with-preemptive"]
+            argv[1:]
         )
     )
