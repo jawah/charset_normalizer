@@ -147,15 +147,15 @@ normalizer ./data/sample.1.fr.srt
 ### Python
 *Just print out normalized text*
 ```python
-from charset_normalizer import CharsetNormalizerMatches as CnM
-print(CnM.from_path('./my_subtitle.srt').best().first())
+from charset_normalizer import from_path
+print(from_path('./my_subtitle.srt').best())
 ```
 
 *Normalize any text file*
 ```python
-from charset_normalizer import CharsetNormalizerMatches as CnM
+from charset_normalizer import normalize
 try:
-    CnM.normalize('./my_subtitle.srt') # should write to disk my_subtitle-***.srt
+    normalize('./my_subtitle.srt') # should write to disk my_subtitle-***.srt
 except IOError as e:
     print('Sadly, we are unable to perform charset normalization.', str(e))
 ```
@@ -165,7 +165,7 @@ except IOError as e:
 from charset_normalizer import detect
 ```
 
-The above code will behave the same as **chardet**.
+The above code will behave the same as **chardet**. We ensure that we offer the best (reasonable) BC result possible.
 
 See the docs for advanced usage : [readthedocs.io](https://charset-normalizer.readthedocs.io/en/latest/)
 
@@ -201,9 +201,8 @@ that intel is worth something here. So I use those records against decoded text 
 
 ## ⚡ Known limitations
 
-  - Not intended to work on non (human) speakable language text content. eg. crypted text.
-  - Language detection is unreliable when text contains two or more languages sharing identical letters.
-  - Not well tested with tiny content.
+  - Language detection is unreliable when text contains two or more languages sharing identical letters. (eg. HTML (english tags) + Turkish content (Sharing Latin characters))
+  - Every charset detector heavily depends on sufficient content. In common cases, do not bother run detection on very tiny content.
 
 ## 👤 Contributing
 
