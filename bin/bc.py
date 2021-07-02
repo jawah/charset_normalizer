@@ -57,7 +57,7 @@ def cli_bc(arguments: List[str]):
             print("⚡⚡ '{}' (BC-Break) New('{}') vs Legacy('{}')".format(tbt_path, charset_normalizer_encoding, chardet_encoding))
             continue
 
-        if charset_normalizer_encoding == "utf_8_sig" and chardet_encoding == "UTF-8-SIG":
+        if charset_normalizer_encoding == chardet_encoding:
             success_count += 1
             print("✅✅ '{}' (BC)".format(tbt_path))
             continue

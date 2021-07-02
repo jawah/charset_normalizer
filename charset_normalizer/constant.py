@@ -305,3 +305,39 @@ IANA_SUPPORTED_SIMILAR = {
         "iso8859_11"
     ]
 }  # type: Dict[str, List[str]]
+
+
+CHARDET_CORRESPONDENCE = {
+    'iso2022_kr': 'ISO-2022-KR',
+    'iso2022_jp': 'ISO-2022-JP',
+    'euc_kr': 'EUC-KR',
+    'tis_620': 'TIS-620',
+    'utf_32': 'UTF-32',
+    'euc_jp': 'EUC-JP',
+    'koi8_r': 'KOI8-R',
+    'iso8859_1': 'ISO-8859-1',
+    'iso8859_2': 'ISO-8859-2',
+    'iso8859_5': 'ISO-8859-5',
+    'iso8859_6': 'ISO-8859-6',
+    'iso8859_7': 'ISO-8859-7',
+    'iso8859_8': 'ISO-8859-8',
+    'utf_16': 'UTF-16',
+    'cp855': 'IBM855',
+    'mac_cyrillic': 'MacCyrillic',
+    'gb2312': 'GB2312',
+    'gb18030': 'GB18030',
+    'cp932': 'CP932',
+    'cp866': 'IBM866',
+    'utf_8': 'utf-8',
+    'utf_8_sig': 'UTF-8-SIG',
+    'shift_jis': 'SHIFT_JIS',
+    'big5': 'Big5',
+    'cp1250': 'windows-1250',
+    'cp1251': 'windows-1251',
+    'cp1252': 'Windows-1252',
+    'cp1253': 'windows-1253',
+    'cp1255': 'windows-1255',
+    'cp1256': 'windows-1256',
+    'cp1254': 'Windows-1254',
+    'cp949': 'CP949'
+}  # type: Dict[str, str]

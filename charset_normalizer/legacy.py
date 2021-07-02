@@ -1,4 +1,5 @@
 from charset_normalizer.api import from_bytes
+from charset_normalizer.constant import CHARDET_CORRESPONDENCE
 from typing import Dict, Optional, Union
 
 
@@ -6,10 +7,11 @@ def detect(byte_str: bytes) -> Dict[str, Optional[Union[str, float]]]:
     """
     chardet legacy method
     Detect the encoding of the given byte string. It should be mostly backward-compatible.
+    Encoding name will match Chardet own writing whenever possible. (Not on encoding name unsupported by it)
+    This function is deprecated and should be used to migrate your project easily, consult the documentation for
+    further information. Not planned for removal.
 
     :param byte_str:     The byte sequence to examine.
-    :type byte_str:      ``bytes`` or ``bytearray``
-    :rtype: dict
     """
     if not isinstance(byte_str, (bytearray, bytes)):
         raise TypeError('Expected object of type bytes or bytearray, got: '
@@ -30,7 +32,7 @@ def detect(byte_str: bytes) -> Dict[str, Optional[Union[str, float]]]:
         encoding += '_sig'
 
     return {
-        'encoding': encoding,
+        'encoding': encoding if encoding not in CHARDET_CORRESPONDENCE else CHARDET_CORRESPONDENCE[encoding],
         'language': language,
         'confidence': confidence
     }
