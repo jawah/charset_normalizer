@@ -2,11 +2,13 @@ import warnings
 from encodings.aliases import aliases
 from hashlib import sha256
 from json import dumps
-from typing import Optional, List, Tuple, Dict
+from typing import Optional, List, Tuple, Set
 from collections import Counter
 from re import sub, compile
 
+from charset_normalizer.constant import TOO_BIG_SEQUENCE
 from charset_normalizer.md import mess_ratio
+from charset_normalizer.utils import iana_name, is_multi_byte_encoding, unicode_range
 
 
 class CharsetMatch:
@@ -17,7 +19,6 @@ class CharsetMatch:
             mean_mess_ratio: float,
             has_sig_or_bom: bool,
             languages: "CoherenceMatches",
-            unicode_ranges: List[str],
             decoded_payload: Optional[str] = None
     ):
         self._payload = payload  # type: bytes
@@ -26,7 +27,7 @@ class CharsetMatch:
         self._mean_mess_ratio = mean_mess_ratio  # type: float
         self._languages = languages  # type: CoherenceMatches
         self._has_sig_or_bom = has_sig_or_bom  # type: bool
-        self._unicode_ranges = unicode_ranges  # type: List[str]
+        self._unicode_ranges = None  # type: Optional[List[str]]
 
         self._leaves = []  # type: List[CharsetMatch]
         self._mean_coherence_ratio = 0.  # type: float
@@ -34,7 +35,7 @@ class CharsetMatch:
         self._output_payload = None  # type: Optional[bytes]
         self._output_encoding = None  # type: Optional[str]
 
-        self._string = str(self._payload, self._encoding, "strict") if decoded_payload is None else decoded_payload  # type: str
+        self._string = decoded_payload  # type: Optional[str]
 
     def __eq__(self, other) -> bool:
         if not isinstance(other, CharsetMatch):
@@ -65,7 +66,7 @@ class CharsetMatch:
         """
         warnings.warn("chaos_secondary_pass is deprecated and will be removed in 3.0", DeprecationWarning)
         return mess_ratio(
-            self._string,
+            str(self),
             1.
         )
 
@@ -86,11 +87,14 @@ class CharsetMatch:
         """
         warnings.warn("w_counter is deprecated and will be removed in 3.0", DeprecationWarning)
         not_printable_pattern = compile(r'[0-9\W\n\r\t]+')
-        string_printable_only = sub(not_printable_pattern, ' ', self._string.lower())
+        string_printable_only = sub(not_printable_pattern, ' ', str(self).lower())
 
         return Counter(string_printable_only.split())
 
     def __str__(self) -> str:
+        # Lazy Str Loading
+        if self._string is None:
+            self._string = str(self._payload, self._encoding, "strict")
         return self._string
 
     def __repr__(self) -> str:
@@ -100,6 +104,7 @@ class CharsetMatch:
         if not isinstance(other, CharsetMatch) or other == self:
             raise ValueError("Unable to add instance <{}> as a submatch of a CharsetMatch".format(other.__class__))
 
+        other._string = None  # Unload RAM usage; dirty trick.
         self._leaves.append(other)
 
     @property
@@ -131,7 +136,7 @@ class CharsetMatch:
     def languages(self) -> List[str]:
         """
         Return the complete list of possible languages found in decoded sequence.
-        Usually not really useful.
+        Usually not really useful. Returned list may be empty even if 'language' property return something != 'Unknown'.
         """
         return [e[0] for e in self._languages]
 
@@ -142,7 +147,21 @@ class CharsetMatch:
         "Unknown".
         """
         if not self._languages:
-            return "Unknown"
+            # Trying to infer the language based on the given encoding
+            # Its either English or we should not pronounce ourselves in certain cases.
+            if "ascii" in self.could_be_from_charset:
+                return "English"
+
+            # doing it there to avoid circular import
+            from charset_normalizer.cd import mb_encoding_languages, encoding_languages
+
+            languages = mb_encoding_languages(self.encoding) if is_multi_byte_encoding(self.encoding) else encoding_languages(self.encoding)
+
+            if len(languages) == 0 or "Latin Based" in languages:
+                return "Unknown"
+
+            return languages[0]
+
         return self._languages[0][0]
 
     @property
@@ -180,6 +199,14 @@ class CharsetMatch:
 
     @property
     def alphabets(self) -> List[str]:
+        if self._unicode_ranges is not None:
+            return self._unicode_ranges
+        detected_ranges = set()  # type: Set[str]
+        for character in str(self):
+            detected_ranges.add(
+                unicode_range(character)
+            )
+        self._unicode_ranges = sorted(list(detected_ranges))
         return self._unicode_ranges
 
     @property
@@ -225,7 +252,7 @@ class CharsetMatch:
 class CharsetMatches:
     """
     Container with every CharsetMatch items ordered by default from most probable to the less one.
-    Act like a list(iterable)
+    Act like a list(iterable) but does not implements all related methods.
     """
     def __init__(self, results: List[CharsetMatch] = None):
         self._results = sorted(results) if results else []  # type: List[CharsetMatch]
@@ -234,10 +261,14 @@ class CharsetMatches:
         for result in self._results:
             yield result
 
-    def __getitem__(self, item):
+    def __getitem__(self, item) -> CharsetMatch:
+        """
+        Retrieve a single item either by its position or encoding name (alias may be used here).
+        """
         if isinstance(item, int):
             return self._results[item]
         if isinstance(item, str):
+            item = iana_name(item)
             for result in self._results:
                 if item in result.could_be_from_charset:
                     return result
@@ -246,25 +277,19 @@ class CharsetMatches:
     def __len__(self) -> int:
         return len(self._results)
 
-    def __contains__(self, item):
-        if not isinstance(item, str):
-            raise TypeError
-        for result in self._results:
-            if item in result.could_be_from_charset:
-                return True
-        return False
-
-    def add(self, item: CharsetMatch) -> None:
+    def append(self, item: CharsetMatch) -> None:
         """
         Insert a single match. Will be inserted accordingly to preserve sort.
         Can be inserted as a submatch.
         """
         if not isinstance(item, CharsetMatch):
-            raise ValueError
-        for match in self._results:
-            if match.fingerprint == item.fingerprint:
-                match.add_submatch(item)
-                return
+            raise ValueError("Cannot append instance '{}' to CharsetMatches".format(str(item.__class__)))
+        # We should disable the submatch factoring when the input file is too heavy (conserve RAM usage)
+        if len(item.raw) <= TOO_BIG_SEQUENCE:
+            for match in self._results:
+                if match.fingerprint == item.fingerprint:
+                    match.add_submatch(item)
+                    return
         self._results.append(item)
         self._results = sorted(self._results)
 

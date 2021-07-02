@@ -54,7 +54,6 @@ def from_bytes(
                     0.,
                     False,
                     [],
-                    [],
                     ""
                 )
             ]
@@ -158,7 +157,7 @@ def from_bytes(
                     encoding=encoding_iana
                 )
         except UnicodeDecodeError as e:
-            logger.debug('Code page %s does not fit given bytes sequence at ALL. %s', encoding_iana, str(e))
+            logger.warning('Code page %s does not fit given bytes sequence at ALL. %s', encoding_iana, str(e))
             tested_but_hard_failure.append(encoding_iana)
             if not is_multi_byte_decoder:
                 single_byte_hard_failure_count += 1
@@ -266,16 +265,15 @@ def from_bytes(
         cd_ratios_merged = merge_coherence_ratios(cd_ratios)
 
         if cd_ratios_merged:
-            logger.debug("We detected language {} using {}".format(cd_ratios_merged, encoding_iana))
+            logger.info("We detected language {} using {}".format(cd_ratios_merged, encoding_iana))
 
-        results.add(
+        results.append(
             CharsetMatch(
                 sequences,
                 encoding_iana,
                 mean_mess_ratio,
                 bom_or_sig_available,
                 cd_ratios_merged,
-                [],
                 decoded_payload
             )
         )
