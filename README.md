@@ -44,18 +44,31 @@ This project offers you an alternative to **Universal Charset Encoding Detector*
 | `Detect spoken language` | ❌ | :heavy_check_mark: | N/A |
 | `Supported Encoding` | 30 | :tada: [92](https://charset-normalizer.readthedocs.io/en/latest/support.html)  | 40
 
-| Package       | Accuracy       | Mean per file (ns) | File per sec (est) |
-| ------------- | :-------------: | :------------------: | :------------------: |
-|      [chardet](https://github.com/chardet/chardet)        |     93.0 %     |     67 ms      |       15.38 file/sec        |
-|      [cchardet](https://github.com/PyYoshi/cChardet)      |     97.0 %     |      2 ms       |      **599.47 file/sec**      |
-| charset-normalizer |    **95.0 %**     |     37 ms      |       27.77 file/sec    |
-
-> Stats are generated using 400+ files using default parameters.
-
 <p align="center">
 <img src="https://i.imgflip.com/373iay.gif" alt="Reading Normalized Text" width="226"/><img src="https://media.tenor.com/images/c0180f70732a18b4965448d33adba3d0/tenor.gif" alt="Cat Reading Text" width="200"/>
 
 *\*\* : They are clearly using specific code for a specific encoding even if covering most of used one*<br> 
+
+## ⚡ Performance
+
+This package offer better performance than its counterpart Chardet. Here are some numbers.
+
+| Package       | Accuracy       | Mean per file (ns) | File per sec (est) |
+| ------------- | :-------------: | :------------------: | :------------------: |
+|      [chardet](https://github.com/chardet/chardet)        |     93.0 %     |     67 ms      |       15.38 file/sec        |
+| charset-normalizer |    **95.0 %**     |     **37 ms**      |       27.77 file/sec    |
+
+| Package       | 99th percentile       | 95th percentile | 50th percentile |
+| ------------- | :-------------: | :------------------: | :------------------: |
+|      [chardet](https://github.com/chardet/chardet)        |     424 ms     |     234 ms      |       26 ms        |
+| charset-normalizer |    335 ms     |     186 ms      |       17 ms    |
+
+Chardet's performance on larger file (1MB+) are very poor. Expect huge difference on large payload.
+
+> Stats are generated using 400+ files using default parameters. More details on used files, see GHA workflows.
+
+[cchardet](https://github.com/PyYoshi/cChardet) is a non-native (cpp binding) faster alternative. If speed is the most important factor,
+you should try it.
 
 ## Your support
 
@@ -85,7 +98,7 @@ The Real First Universal Charset Detector. Discover originating encoding used
 on text file. Normalize text to unicode.
 
 positional arguments:
-  file                  Filename
+  files                 File(s) to be analysed
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -105,6 +118,7 @@ optional arguments:
   -t THRESHOLD, --threshold THRESHOLD
                         Define a custom maximum amount of chaos allowed in
                         decoded content. 0. <= chaos <= 1.
+  --version             Show version information and exit.
 ```
 
 ```bash
@@ -115,7 +129,7 @@ normalizer ./data/sample.1.fr.srt
 
 ```json
 {
-    "path": "./data/sample.1.fr.srt",
+    "path": "/home/default/projects/charset_normalizer/data/sample.1.fr.srt",
     "encoding": "cp1252",
     "encoding_aliases": [
         "1252",
@@ -187,7 +201,7 @@ Don't confuse package **ftfy** with charset-normalizer or chardet. ftfy goal is 
 ## 🍰 How
 
   - Discard all charset encoding table that could not fit the binary content.
-  - Measure chaos, or the mess once opened with a corresponding charset encoding.
+  - Measure chaos, or the mess once opened (by chunks) with a corresponding charset encoding.
   - Extract matches with the lowest mess detected.
   - Finally, if there is too much match left, we measure coherence.
 
