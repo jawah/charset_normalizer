@@ -72,15 +72,14 @@ def cli_detect(argv=None):
                         help='Replace file without asking if you are sure, use this flag with caution.')
     parser.add_argument('-t', '--threshold', action="store", default=0.1, type=float, dest='threshold',
                         help="Define a custom maximum amount of chaos allowed in decoded content. 0. <= chaos <= 1.")
-    parser.add_argument("--version", action="store_true", default=False, dest='show_version',
-                        help="Show version information and exit.")
+    parser.add_argument(
+        "--version",
+        action="version",
+        version="Charset-Normalizer {} - Python {}".format(__version__, python_version()),
+        help="Show version information and exit."
+    )
 
     args = parser.parse_args(argv)
-
-    if args.show_version is True:
-        print("Charset-Normalizer {}".format(__version__))
-        print("Python {}".format(python_version))
-        return 0
 
     if len(args.files) == 0:
         print('This command purpose is to analyse text-based file. Please specify any file path.', file=sys.stderr)
