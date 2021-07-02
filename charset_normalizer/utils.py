@@ -9,12 +9,15 @@ from encodings.aliases import aliases
 from functools import lru_cache
 
 from charset_normalizer.constant import UNICODE_RANGES_COMBINED, UNICODE_SECONDARY_RANGE_KEYWORD, \
-    RE_POSSIBLE_ENCODING_INDICATION, ENCODING_MARKS, UTF8_MAXIMAL_ALLOCATION, IANA_SUPPORTED, IANA_SUPPORTED_SIMILAR
+    RE_POSSIBLE_ENCODING_INDICATION, ENCODING_MARKS, UTF8_MAXIMAL_ALLOCATION, IANA_SUPPORTED_SIMILAR
 
 
 @lru_cache(maxsize=UTF8_MAXIMAL_ALLOCATION)
 def is_accentuated(character: str) -> bool:
-    description = unicodedata.name(character)  # type: str
+    try:
+        description = unicodedata.name(character)  # type: str
+    except ValueError:
+        return False
     return "WITH GRAVE" in description or "WITH ACUTE" in description or "WITH CEDILLA" in description
 
 
