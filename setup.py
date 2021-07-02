@@ -3,9 +3,9 @@
 
 import io
 import os
+from re import search
 
 from setuptools import find_packages, setup
-from re import search
 
 
 def get_version():
@@ -13,23 +13,21 @@ def get_version():
         return search(r"""__version__\s+=\s+(['"])(?P<version>.+?)\1""",
                       version_file.read()).group('version')
 
+
 # Package meta-data.
 NAME = 'charset-normalizer'
-DESCRIPTION = 'The Real First Universal Charset Detector. No Cpp Bindings, Using Voodoo and Magical Artifacts.'
+DESCRIPTION = 'The Real First Universal Charset Detector. Open, modern and actively maintained alternative to Chardet.'
 URL = 'https://github.com/ousret/charset_normalizer'
 EMAIL = 'ahmed.tahri@cloudnursery.dev'
 AUTHOR = 'Ahmed TAHRI @Ousret'
 REQUIRES_PYTHON = '>=3.5.0'
 VERSION = get_version()
 
-REQUIRED = [
-    'cached_property>=1.3,<=1.5.2; python_version < "3.6"'
-]
+REQUIRED = []
 
 EXTRAS = {
-    'UnicodeDataBackport': ['unicodedata2']
+    'unicode_backport': ['unicodedata2']
 }
-
 
 here = os.path.abspath(os.path.dirname(__file__))
 

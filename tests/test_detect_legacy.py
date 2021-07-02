@@ -60,7 +60,7 @@ class TestDetectLegacy(unittest.TestCase):
         with self.subTest('encoding is equal to utf_32'):
             self.assertEqual(
                 r['encoding'],
-                'utf_32'
+                'UTF-32'
             )
 
     def test_utf8_sig_not_striped(self):
@@ -71,5 +71,5 @@ class TestDetectLegacy(unittest.TestCase):
         with self.subTest("Verify that UTF-8-SIG is returned when using legacy detect"):
             self.assertEqual(
                 r['encoding'],
-                "utf_8_sig"
+                "UTF-8-SIG"
             )

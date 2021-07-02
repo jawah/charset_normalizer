@@ -22,6 +22,7 @@ If applicable, add console outputs to help explain your problem.
 **Desktop (please complete the following information):**
  - OS: [e.g. Linux, Windows or Mac]
  - Python version [e.g. 3.5]
+ - Package version [eg. 2.0.0]
 
 **Additional context**
 Add any other context about the problem here.

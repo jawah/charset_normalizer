@@ -1,5 +1,5 @@
 import unittest
-from charset_normalizer.normalizer import CharsetNormalizerMatches as CnM
+from charset_normalizer.api import from_path
 from glob import glob
 from os.path import basename
 
@@ -36,7 +36,7 @@ class TestLanguageDetection(unittest.TestCase):
 
         for path_name in glob('./data/*.srt') + glob('./data/*.txt'):
             with self.subTest(path_name+' WRITTEN IN '+TestLanguageDetection.SHOULD_BE[basename(path_name)]):
-                r_ = CnM.from_path(path_name).best().first()
+                r_ = from_path(path_name).best().first()
 
                 self.assertEqual(
                     TestLanguageDetection.SHOULD_BE[basename(path_name)],

@@ -1,47 +1,13 @@
 import argparse
 import sys
+from os.path import abspath
 from json import dumps
 
-from charset_normalizer import CharsetNormalizerMatches
+from charset_normalizer import from_fp
+from charset_normalizer.models import CliDetectionResult
+from charset_normalizer.version import __version__
 
-
-class DetectionResult:
-    # 'Filename', 'Encoding', 'Language', 'Alphabets', 'Chaos', 'Coherence'
-    def __init__(self, path, encoding, encoding_aliases, alternative_encodings, language, alphabets, has_sig_or_bom, chaos, coherence, unicode_path, is_preferred):
-        self.path = path
-        self.unicode_path = unicode_path
-        self.encoding = encoding
-        self.encoding_aliases = encoding_aliases
-        self.alternative_encodings = alternative_encodings
-        self.language = language
-        self.alphabets = alphabets
-        self.has_sig_or_bom = has_sig_or_bom
-        self.chaos = chaos
-        self.coherence = coherence
-        self.is_preferred = is_preferred
-
-    @property
-    def __dict__(self):
-        return {
-            'path': self.path,
-            'encoding': self.encoding,
-            'encoding_aliases': self.encoding_aliases,
-            'alternative_encodings': self.alternative_encodings,
-            'language': self.language,
-            'alphabets': self.alphabets,
-            'has_sig_or_bom': self.has_sig_or_bom,
-            'chaos': self.chaos,
-            'coherence': self.coherence,
-            'unicode_path': self.unicode_path,
-            'is_preferred': self.is_preferred
-        }
-
-    def to_json(self):
-        return dumps(
-            self.__dict__,
-            ensure_ascii=True,
-            indent=4
-        )
+from platform import python_version
 
 
 def query_yes_no(question, default="yes"):
@@ -91,7 +57,7 @@ def cli_detect(argv=None):
                     "Normalize text to unicode."
     )
 
-    parser.add_argument('file', type=argparse.FileType('rb'), nargs='+', help='Filename')
+    parser.add_argument('files', type=argparse.FileType('rb'), nargs='+', help='File(s) to be analysed')
     parser.add_argument('-v', '--verbose', action="store_true", default=False, dest='verbose',
                         help='Display complementary information about file if any. Stdout will contain logs about the detection process.')
     parser.add_argument('-a', '--with-alternative', action="store_true", default=False, dest='alternatives',
@@ -104,13 +70,19 @@ def cli_detect(argv=None):
                         help='Replace file when trying to normalize it instead of creating a new one.')
     parser.add_argument('-f', '--force', action="store_true", default=False, dest='force',
                         help='Replace file without asking if you are sure, use this flag with caution.')
-    parser.add_argument('-t', '--threshold', action="store", default=0.2, type=float, dest='threshold',
+    parser.add_argument('-t', '--threshold', action="store", default=0.1, type=float, dest='threshold',
                         help="Define a custom maximum amount of chaos allowed in decoded content. 0. <= chaos <= 1.")
+    parser.add_argument(
+        "--version",
+        action="version",
+        version="Charset-Normalizer {} - Python {}".format(__version__, python_version()),
+        help="Show version information and exit."
+    )
 
     args = parser.parse_args(argv)
 
-    if len(args.file) == 0:
-        print('This command purpose is to analyse text file. Please specify any filename.', file=sys.stderr)
+    if len(args.files) == 0:
+        print('This command purpose is to analyse text-based file. Please specify any file path.', file=sys.stderr)
         parser.print_help(file=sys.stderr)
         return 1
 
@@ -126,9 +98,9 @@ def cli_detect(argv=None):
         print('--threshold VALUE should be between 0. AND 1.', file=sys.stderr)
         return 1
 
-    for my_file in args.file:
+    for my_file in args.files:
 
-        matches = CharsetNormalizerMatches.from_fp(
+        matches = from_fp(
             my_file,
             threshold=args.threshold,
             explain=args.verbose
@@ -146,8 +118,8 @@ def cli_detect(argv=None):
         p_ = r_.first()
 
         x_.append(
-            DetectionResult(
-                my_file.name,
+            CliDetectionResult(
+                abspath(my_file.name),
                 p_.encoding,
                 p_.encoding_aliases,
                 [cp for cp in p_.could_be_from_charset if cp != p_.encoding],
@@ -165,8 +137,8 @@ def cli_detect(argv=None):
             for el in matches:
                 if el != p_:
                     x_.append(
-                        DetectionResult(
-                            my_file.name,
+                        CliDetectionResult(
+                            abspath(my_file.name),
                             el.encoding,
                             el.encoding_aliases,
                             [cp for cp in el.could_be_from_charset if cp != el.encoding],
@@ -216,7 +188,6 @@ def cli_detect(argv=None):
 
         if my_file.closed is False:
             my_file.close()
-
 
     if args.minimal is False:
         print(

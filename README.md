@@ -27,7 +27,7 @@
 > All IANA character set names for which the Python core library provides codecs are supported.
 
 <p align="center">
-  >>>>> <a href="https://charsetnormalizerweb.ousret.now.sh" target="_blank">❤️ Try Me Online Now, Then Adopt Me ❤️ </a> <<<<<
+  >>>>> <a href="https://charsetnormalizerweb.ousret.now.sh" target="_blank">👉 Try Me Online Now, Then Adopt Me 👈 </a> <<<<<
 </p>
 
 This project offers you an alternative to **Universal Charset Encoding Detector**, also known as **Chardet**.
@@ -44,16 +44,31 @@ This project offers you an alternative to **Universal Charset Encoding Detector*
 | `Detect spoken language` | ❌ | :heavy_check_mark: | N/A |
 | `Supported Encoding` | 30 | :tada: [92](https://charset-normalizer.readthedocs.io/en/latest/support.html)  | 40
 
-| Package       | Accuracy       | Mean per file (ns) | File per sec (est) |
-| ------------- | :-------------: | :------------------: | :------------------: |
-|      [chardet](https://github.com/chardet/chardet)       |     93.5 %     |     126 081 168 ns      |       7.931 file/sec        |
-|      [cchardet](https://github.com/PyYoshi/cChardet)      |     97.0 %     |      1 668 145 ns       |      **599.468 file/sec**      |
-| charset-normalizer |    **97.25 %**     |     209 503 253 ns      |       4.773 file/sec    |
-
 <p align="center">
 <img src="https://i.imgflip.com/373iay.gif" alt="Reading Normalized Text" width="226"/><img src="https://media.tenor.com/images/c0180f70732a18b4965448d33adba3d0/tenor.gif" alt="Cat Reading Text" width="200"/>
 
 *\*\* : They are clearly using specific code for a specific encoding even if covering most of used one*<br> 
+
+## ⚡ Performance
+
+This package offer better performance than its counterpart Chardet. Here are some numbers.
+
+| Package       | Accuracy       | Mean per file (ns) | File per sec (est) |
+| ------------- | :-------------: | :------------------: | :------------------: |
+|      [chardet](https://github.com/chardet/chardet)        |     93.0 %     |     67 ms      |       15.38 file/sec        |
+| charset-normalizer |    **95.0 %**     |     **37 ms**      |       27.77 file/sec    |
+
+| Package       | 99th percentile       | 95th percentile | 50th percentile |
+| ------------- | :-------------: | :------------------: | :------------------: |
+|      [chardet](https://github.com/chardet/chardet)        |     424 ms     |     234 ms      |       26 ms        |
+| charset-normalizer |    335 ms     |     186 ms      |       17 ms    |
+
+Chardet's performance on larger file (1MB+) are very poor. Expect huge difference on large payload.
+
+> Stats are generated using 400+ files using default parameters. More details on used files, see GHA workflows.
+
+[cchardet](https://github.com/PyYoshi/cChardet) is a non-native (cpp binding) faster alternative. If speed is the most important factor,
+you should try it.
 
 ## Your support
 
@@ -83,7 +98,7 @@ The Real First Universal Charset Detector. Discover originating encoding used
 on text file. Normalize text to unicode.
 
 positional arguments:
-  file                  Filename
+  files                 File(s) to be analysed
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -103,6 +118,7 @@ optional arguments:
   -t THRESHOLD, --threshold THRESHOLD
                         Define a custom maximum amount of chaos allowed in
                         decoded content. 0. <= chaos <= 1.
+  --version             Show version information and exit.
 ```
 
 ```bash
@@ -113,7 +129,7 @@ normalizer ./data/sample.1.fr.srt
 
 ```json
 {
-    "path": "./data/sample.1.fr.srt",
+    "path": "/home/default/projects/charset_normalizer/data/sample.1.fr.srt",
     "encoding": "cp1252",
     "encoding_aliases": [
         "1252",
@@ -147,15 +163,15 @@ normalizer ./data/sample.1.fr.srt
 ### Python
 *Just print out normalized text*
 ```python
-from charset_normalizer import CharsetNormalizerMatches as CnM
-print(CnM.from_path('./my_subtitle.srt').best().first())
+from charset_normalizer import from_path
+print(from_path('./my_subtitle.srt').best())
 ```
 
 *Normalize any text file*
 ```python
-from charset_normalizer import CharsetNormalizerMatches as CnM
+from charset_normalizer import normalize
 try:
-    CnM.normalize('./my_subtitle.srt') # should write to disk my_subtitle-***.srt
+    normalize('./my_subtitle.srt') # should write to disk my_subtitle-***.srt
 except IOError as e:
     print('Sadly, we are unable to perform charset normalization.', str(e))
 ```
@@ -165,7 +181,7 @@ except IOError as e:
 from charset_normalizer import detect
 ```
 
-The above code will behave the same as **chardet**.
+The above code will behave the same as **chardet**. We ensure that we offer the best (reasonable) BC result possible.
 
 See the docs for advanced usage : [readthedocs.io](https://charset-normalizer.readthedocs.io/en/latest/)
 
@@ -185,7 +201,7 @@ Don't confuse package **ftfy** with charset-normalizer or chardet. ftfy goal is 
 ## 🍰 How
 
   - Discard all charset encoding table that could not fit the binary content.
-  - Measure chaos, or the mess once opened with a corresponding charset encoding.
+  - Measure chaos, or the mess once opened (by chunks) with a corresponding charset encoding.
   - Extract matches with the lowest mess detected.
   - Finally, if there is too much match left, we measure coherence.
 
@@ -201,9 +217,8 @@ that intel is worth something here. So I use those records against decoded text 
 
 ## ⚡ Known limitations
 
-  - Not intended to work on non (human) speakable language text content. eg. crypted text.
-  - Language detection is unreliable when text contains two or more languages sharing identical letters.
-  - Not well tested with tiny content.
+  - Language detection is unreliable when text contains two or more languages sharing identical letters. (eg. HTML (english tags) + Turkish content (Sharing Latin characters))
+  - Every charset detector heavily depends on sufficient content. In common cases, do not bother run detection on very tiny content.
 
 ## 👤 Contributing
 
@@ -215,4 +230,4 @@ Feel free to check [issues page](https://github.com/ousret/charset_normalizer/is
 Copyright © 2019 [Ahmed TAHRI @Ousret](https://github.com/Ousret).<br />
 This project is [MIT](https://github.com/Ousret/charset_normalizer/blob/master/LICENSE) licensed.
 
-Letter appearances frequencies used in this project © 2012 [Denny Vrandečić](http://denny.vrandecic.de)
+Characters frequencies used in this project © 2012 [Denny Vrandečić](http://denny.vrandecic.de)
