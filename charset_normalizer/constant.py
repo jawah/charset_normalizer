@@ -14,7 +14,7 @@ ENCODING_MARKS = OrderedDict([
         b'\x2b\x2f\x76\x2f',
         b'\x2b\x2f\x76\x38\x2d'
     ]),
-    ('gb18030', b'\x84\x31\x95'),
+    ('gb18030', b'\x84\x31\x95\x33'),
     ('utf_32', [
         BOM_UTF32_BE,
         BOM_UTF32_LE
