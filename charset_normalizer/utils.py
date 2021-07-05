@@ -186,14 +186,17 @@ def should_strip_sig_or_bom(iana_encoding: str) -> bool:
     return iana_encoding not in {"utf_16", "utf_32"}
 
 
-def iana_name(cp_name: str) -> str:
+def iana_name(cp_name: str, strict: bool = True) -> str:
     cp_name = cp_name.lower().replace('-', '_')
 
     for encoding_alias, encoding_iana in aliases.items():
         if cp_name == encoding_alias or cp_name == encoding_iana:
             return encoding_iana
 
-    raise ValueError("Unable to retrieve IANA for '{}'".format(cp_name))
+    if strict:
+        raise ValueError("Unable to retrieve IANA for '{}'".format(cp_name))
+
+    return cp_name
 
 
 def range_scan(decoded_sequence: str) -> List[str]:

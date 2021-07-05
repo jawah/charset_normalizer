@@ -13,7 +13,7 @@ from warnings import warn
 import logging
 
 from charset_normalizer.utils import any_specified_encoding, is_multi_byte_encoding, identify_sig_or_bom, \
-    should_strip_sig_or_bom, is_cp_similar
+    should_strip_sig_or_bom, is_cp_similar, iana_name
 from charset_normalizer.cd import coherence_ratio, encoding_languages, mb_encoding_languages, merge_coherence_ratios
 
 logger = logging.getLogger("charset_normalizer")
@@ -41,6 +41,8 @@ def from_bytes(
 
     if not explain:
         logger.setLevel(logging.CRITICAL)
+    else:
+        logger.setLevel(logging.INFO)
 
     length = len(sequences)  # type: int
 
@@ -63,6 +65,7 @@ def from_bytes(
         logger.warning('cp_isolation is set. use this flag for debugging purpose. '
                        'limited list of encoding allowed : %s.',
                        ', '.join(cp_isolation))
+        cp_isolation = [iana_name(cp, False) for cp in cp_isolation]
     else:
         cp_isolation = []
 
@@ -71,6 +74,7 @@ def from_bytes(
             'cp_exclusion is set. use this flag for debugging purpose. '
             'limited list of encoding excluded : %s.',
             ', '.join(cp_exclusion))
+        cp_exclusion = [iana_name(cp, False) for cp in cp_exclusion]
     else:
         cp_exclusion = []
 
@@ -251,7 +255,7 @@ def from_bytes(
             target_languages = mb_encoding_languages(encoding_iana)
 
         if target_languages:
-            logger.debug("{} should target any language(s) of {}".format(encoding_iana, str(target_languages)))
+            logger.info("{} should target any language(s) of {}".format(encoding_iana, str(target_languages)))
 
         cd_ratios = []
 

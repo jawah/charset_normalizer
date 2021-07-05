@@ -1,5 +1,4 @@
 #!/bin/python
-from os import sep
 from glob import glob
 from sys import argv
 from typing import List
@@ -15,7 +14,7 @@ def calc_equivalence(content: bytes, cp_a: str, cp_b: str):
     try:
         str_a = content.decode(cp_a)
         str_b = content.decode(cp_b)
-    except:
+    except UnicodeDecodeError:
         return 0.
 
     character_count = len(str_a)
