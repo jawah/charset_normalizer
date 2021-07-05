@@ -6,11 +6,11 @@ optional parameters that can be tweaked.
 
 As follow ::
 
-    from charset_normalizer import CharsetNormalizerMatches as CnM
+    from charset_normalizer import from_bytes
 
     my_byte_str = '我没有埋怨，磋砣的只是一些时间。'.encode('gb18030')
 
-    results = CnM.from_bytes(
+    results = from_bytes(
         my_byte_str,
         steps=10,  # Number of steps/block to extract from my_byte_str
         chunk_size=512,  # Set block size of each extraction
@@ -22,19 +22,19 @@ As follow ::
     )
 
 
-Using CharsetNormalizerMatches
+Using CharsetMatches
 ------------------------------
 
-Here, ``results`` is a ``CharsetNormalizerMatches`` object. It behave like a list.
-Initially it is not sorted. Be cautious when extracting ``first()`` result without calling method ``best()``.
+Here, ``results`` is a ``CharsetMatches`` object. It behave like a list but does not implements all related methods.
+Initially, it is sorted. Calling ``best()`` is sufficient to extract the most probable result.
 
-.. autoclass:: charset_normalizer.CharsetNormalizerMatches
+.. autoclass:: charset_normalizer.CharsetMatches
     :members:
 
 List behaviour
 --------------
 
-Like said earlier, ``CharsetNormalizerMatches`` object behave like a list.
+Like said earlier, ``CharsetMatches`` object behave like a list.
 
   ::
 
@@ -53,26 +53,25 @@ Like said earlier, ``CharsetNormalizerMatches`` object behave like a list.
 Using best()
 ------------
 
-Like said above, ``CharsetNormalizerMatches`` object behave like a list and it is not sorted after calling
+Like said above, ``CharsetMatches`` object behave like a list and it is sorted by default after getting results from
 ``from_bytes``, ``from_fp`` or ``from_path``.
 
-Using ``best()`` keep only the lowest chaotic results and in it the best coherent result if necessary.
-It produce also a ``CharsetNormalizerMatches`` object as return value.
+Using ``best()`` return the most probable result, the first entry of the list. Eg. idx 0.
+It return a ``CharsetMatch`` object as return value or None if there is not results inside it.
 
  ::
 
-    results = results.best()
+    result = results.best()
 
 Calling first()
 ---------------
 
-This method is callable from a ``CharsetNormalizerMatches`` object. It extract the first match in list.
-This method return a ``CharsetNormalizerMatch`` object. See Handling result section.
+The very same thing than calling the method ``best()``.
 
 Class aliases
 -------------
 
-``CharsetNormalizerMatches`` is also known as ``CharsetDetector``, ``CharsetDoctor`` and ``EncodingDetector``.
+``CharsetMatches`` is also known as ``CharsetDetector``, ``CharsetDoctor`` and ``CharsetNormalizerMatches``.
 It is useful if you prefer short class name.
 
 Verbose output

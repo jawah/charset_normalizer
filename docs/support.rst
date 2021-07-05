@@ -9,7 +9,8 @@ may change depending of your python version.
 Supported Encodings
 -------------------
 
-Charset Normalizer is able to detect any of those encoding.
+Charset Normalizer is able to detect any of those encoding. This list is NOT static and depends heavily on what your
+current cPython version is shipped with. See https://docs.python.org/3/library/codecs.html#standard-encodings
 
 ===============  ===============================================================================================================================
 IANA Code Page   Aliases
@@ -127,7 +128,6 @@ Japanese,
 Portuguese,
 Swedish,
 Chinese,
-Catalan,
 Ukrainian,
 Norwegian,
 Finnish,
@@ -141,7 +141,6 @@ Romanian,
 Farsi,
 Arabic,
 Danish,
-Esperanto,
 Serbian,
 Lithuanian,
 Slovene,
@@ -149,19 +148,11 @@ Slovak,
 Malay,
 Hebrew,
 Bulgarian,
-Kazakh,
-Baque,
-Volapük,
 Croatian,
 Hindi,
 Estonian,
-Azeri,
-Galician,
 Simple English,
-Nynorsk,
 Thai,
 Greek,
-Macedonian,
-Serbocroatian,
 Tamil,
 Classical Chinese.

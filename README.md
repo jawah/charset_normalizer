@@ -85,6 +85,11 @@ Or directly from dev-master for latest preview
 pip install git+https://github.com/Ousret/charset_normalizer.git
 ```
 
+If you want a more up-to-date `unicodedata` than the one available in your Python setup.
+```sh
+pip install charset-normalizer[unicode_backport]
+```
+
 ## 🚀 Basic Usage
 
 ### CLI
