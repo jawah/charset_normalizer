@@ -1,5 +1,4 @@
 #!/bin/python
-from os import sep
 from glob import glob
 from sys import argv
 from typing import List
