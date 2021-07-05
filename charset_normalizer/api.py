@@ -255,7 +255,7 @@ def from_bytes(
             target_languages = mb_encoding_languages(encoding_iana)
 
         if target_languages:
-            logger.debug("{} should target any language(s) of {}".format(encoding_iana, str(target_languages)))
+            logger.info("{} should target any language(s) of {}".format(encoding_iana, str(target_languages)))
 
         cd_ratios = []
 
