@@ -313,6 +313,10 @@ def from_fp(
         preemptive_behaviour: bool = True,
         explain: bool = False
 ) -> CharsetMatches:
+    """
+    Same thing than the function from_bytes but using a file pointer that is already ready.
+    Will not close the file pointer.
+    """
     return from_bytes(
         fp.read(),
         steps,
@@ -335,6 +339,10 @@ def from_path(
         preemptive_behaviour: bool = True,
         explain: bool = False
 ) -> CharsetMatches:
+    """
+    Same thing than the function from_bytes but with one extra step. Opening and reading given file path in binary mode.
+    Can raise IOError.
+    """
     with open(path, 'rb') as fp:
         return from_fp(fp, steps, chunk_size, threshold, cp_isolation, cp_exclusion, preemptive_behaviour, explain)
 

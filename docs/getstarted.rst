@@ -11,9 +11,9 @@ Charset Normalizer can be installed from pip::
 
     pip install charset-normalizer
 
-You may enable extra feature unicode data v12 backport as follow::
+You may retrieve the latest unicodedata backport as follow::
 
-    pip install charset-normalizer[UnicodeDataBackport]
+    pip install charset-normalizer[unicode_backport]
 
 From git via master
 -----------------------
@@ -31,20 +31,20 @@ The new way
 
 You may want to get right to it. ::
 
-    from charset_normalizer import CharsetNormalizerMatches as CnM
+    from charset_normalizer import from_bytes, from_path
 
     # This is going to print out your sequence once properly decoded
     print(
-        CnM.from_bytes(
+        from_bytes(
             my_byte_str
-        ).best().first()
+        ).best()
     )
 
     # You could also want the same from a file
     print(
-        CnM.from_path(
+        from_path(
             './data/sample.1.ar.srt'
-        ).best().first()
+        ).best()
     )
 
 
@@ -52,6 +52,7 @@ Backward compatibility
 ----------------------
 
 If you were used to python chardet, we are providing the very same ``detect()`` method as chardet.
+This function is mostly backward-compatible with Chardet. The migration should be painless.
 
  ::
 
