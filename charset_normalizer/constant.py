@@ -1,7 +1,7 @@
 from codecs import BOM_UTF8, BOM_UTF16_BE, BOM_UTF16_LE, BOM_UTF32_BE, BOM_UTF32_LE
 from typing import Dict, List, Union
 from encodings.aliases import aliases
-from re import compile, IGNORECASE
+from re import compile as re_compile, IGNORECASE
 from collections import OrderedDict
 
 # Contain for each eligible encoding a list of/item bytes SIG/BOM
@@ -50,7 +50,7 @@ UNICODE_SECONDARY_RANGE_KEYWORD = [
     'Tags'
 ]  # type: List[str]
 
-RE_POSSIBLE_ENCODING_INDICATION = compile(
+RE_POSSIBLE_ENCODING_INDICATION = re_compile(
     r'(?:(?:encoding)|(?:charset)|(?:coding))(?:[\:= ]{1,10})(?:[\"\']?)([a-zA-Z0-9\-_]+)(?:[\"\']?)',
     IGNORECASE
 )
