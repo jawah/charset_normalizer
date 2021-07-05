@@ -41,6 +41,8 @@ def from_bytes(
 
     if not explain:
         logger.setLevel(logging.CRITICAL)
+    else:
+        logger.setLevel(logging.INFO)
 
     length = len(sequences)  # type: int
 
