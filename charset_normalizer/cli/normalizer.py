@@ -81,11 +81,6 @@ def cli_detect(argv=None):
 
     args = parser.parse_args(argv)
 
-    if len(args.files) == 0:
-        print('This command purpose is to analyse text-based file. Please specify any file path.', file=sys.stderr)
-        parser.print_help(file=sys.stderr)
-        return 1
-
     if args.replace is True and args.normalize is False:
         print('Use --replace in addition of --normalize only.', file=sys.stderr)
         return 1
@@ -126,8 +121,8 @@ def cli_detect(argv=None):
                 p_.language,
                 p_.alphabets,
                 p_.bom,
-                round(p_.chaos * 100., ndigits=3),
-                round(100. - p_.coherence * 100., ndigits=3),
+                p_.percent_chaos,
+                p_.percent_coherence,
                 None,
                 True
             )
@@ -145,8 +140,8 @@ def cli_detect(argv=None):
                             el.language,
                             el.alphabets,
                             el.bom,
-                            round(el.chaos * 100., ndigits=3),
-                            round(100. - el.coherence * 100., ndigits=3),
+                            el.percent_chaos,
+                            el.percent_coherence,
                             None,
                             False
                         )
