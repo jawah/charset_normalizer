@@ -106,7 +106,8 @@ utf_16_le        unicodelittleunmarked, utf_16le
 utf_32           u32, utf32
 utf_32_be        utf_32be
 utf_32_le        utf_32le
-utf_8            u8, utf, utf8, utf8_ucs2, utf8_ucs4
+utf_8            u8, utf, utf8, utf8_ucs2, utf8_ucs4 (+utf_8_sig)
+utf_7            u7, unicode-1-1-utf-7
 ===============  ===============================================================================================================================
 
 -------------------
