@@ -81,11 +81,6 @@ def cli_detect(argv=None):
 
     args = parser.parse_args(argv)
 
-    if len(args.files) == 0:
-        print('This command purpose is to analyse text-based file. Please specify any file path.', file=sys.stderr)
-        parser.print_help(file=sys.stderr)
-        return 1
-
     if args.replace is True and args.normalize is False:
         print('Use --replace in addition of --normalize only.', file=sys.stderr)
         return 1
