@@ -121,8 +121,8 @@ def cli_detect(argv=None):
                 p_.language,
                 p_.alphabets,
                 p_.bom,
-                round(p_.chaos * 100., ndigits=3),
-                round(100. - p_.coherence * 100., ndigits=3),
+                p_.percent_chaos,
+                p_.percent_coherence,
                 None,
                 True
             )
@@ -140,8 +140,8 @@ def cli_detect(argv=None):
                             el.language,
                             el.alphabets,
                             el.bom,
-                            round(el.chaos * 100., ndigits=3),
-                            round(100. - el.coherence * 100., ndigits=3),
+                            el.percent_chaos,
+                            el.percent_coherence,
                             None,
                             False
                         )
