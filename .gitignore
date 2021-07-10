@@ -123,4 +123,5 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-data/from_chardet/
+.idea/
+char-dataset/
