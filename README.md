@@ -66,6 +66,7 @@ This package offer better performance than its counterpart Chardet. Here are som
 Chardet's performance on larger file (1MB+) are very poor. Expect huge difference on large payload.
 
 > Stats are generated using 400+ files using default parameters. More details on used files, see GHA workflows.
+> And yes, these results might change at any time. The dataset can be updated to include more files.
 
 [cchardet](https://github.com/PyYoshi/cChardet) is a non-native (cpp binding) faster alternative. If speed is the most important factor,
 you should try it.
@@ -169,7 +170,10 @@ normalizer ./data/sample.1.fr.srt
 *Just print out normalized text*
 ```python
 from charset_normalizer import from_path
-print(from_path('./my_subtitle.srt').best())
+
+results = from_path('./my_subtitle.srt')
+
+print(str(results.best()))
 ```
 
 *Normalize any text file*
