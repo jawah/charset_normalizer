@@ -55,15 +55,15 @@ the backward-compatibility.
 
 ## What PR may be doomed?
 
-- Dropping EOL Python 3.5
+  - Dropping EOL Python 3.5
 > We are waiting upon the right moment to drop it. Hint, wait for requests to drop it first.
 
-- Add support for a Python unsupported charset/encoding
+  - Add support for a Python unsupported charset/encoding
 > If you looked carefully at the project, you would see that it aims to be generic whenever possible. So adding a specific prober is out of the question.
 
-- Of course, if the CI/CD are failing
+  - Of course, if the CI/CD are failing
 > Getting the discussion started often mean doing the minimum effort to get it Green! (Be reassured, maintainers will look into it, given a reasonable amount of time)
 
-- Submitting a PR without any description OR viable commit description
+  - Submitting a PR without any description OR viable commit description
 > This is obvious, maintainers need to understand as fast as possible what are you trying to submit without putting too much effort.
 

@@ -5,9 +5,11 @@
 Overview
 ========
 
-Library that help you read text from unknown charset encoding.
-Project motivated by chardet, I'm trying to resolve the issue by taking another approach.
+A Library that helps you read text from unknown charset encoding.
+This project is motivated by chardet, I'm trying to resolve the issue by taking another approach.
 All IANA character set names for which the Python core library provides codecs are supported.
+
+It aims to be as generic as possible.
 
 .. image:: https://repository-images.githubusercontent.com/200259335/d3da9600-dedc-11e9-83e8-081f597505df
    :width: 500px
@@ -46,9 +48,10 @@ This is where this library differ from others. There's not specific probe per en
 Features
 ========
 
-- Encoding detection on a stream, bytes or file.
+- Encoding detection on a fp (file pointer), bytes or PathLike.
 - Transpose any encoded content to Unicode the best we can.
 - Detect spoken language in text.
+- Ship with a great CLI.
 
 Contents:
 
@@ -60,6 +63,7 @@ Contents:
     advanced_search
     handling_result
     miscellaneous
+    why_migrate
 
 Indices and tables
 ==================

@@ -35,16 +35,20 @@ You may want to get right to it. ::
 
     # This is going to print out your sequence once properly decoded
     print(
-        from_bytes(
-            my_byte_str
-        ).best()
+        str(
+            from_bytes(
+                my_byte_str
+            ).best()
+        )
     )
 
     # You could also want the same from a file
     print(
-        from_path(
-            './data/sample.1.ar.srt'
-        ).best()
+        str(
+            from_path(
+                './data/sample.1.ar.srt'
+            ).best()
+        )
     )
 
 
