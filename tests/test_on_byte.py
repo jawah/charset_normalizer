@@ -27,6 +27,40 @@ class TestBytes(unittest.TestCase):
             len(r.alphabets)
         )
 
+    def test_empty_str_with_sig_gb18030(self):
+        r = from_bytes('\uFEFF'.encode('gb18030')).best()
+
+        self.assertIsNotNone(r)
+        self.assertEqual(
+            "",
+            str(r)
+        )
+        self.assertEqual(
+            "gb18030",
+            r.encoding
+        )
+        self.assertEqual(
+            0,
+            len(r.raw)
+        )
+
+    def test_empty_str_with_sig_utf8(self):
+        r = from_bytes(b'\xef\xbb\xbf').best()
+
+        self.assertIsNotNone(r)
+        self.assertEqual(
+            "",
+            str(r)
+        )
+        self.assertEqual(
+            "utf_8",
+            r.encoding
+        )
+        self.assertEqual(
+            0,
+            len(r.raw)
+        )
+
     def test_bom_detection(self):
         with self.subTest('GB18030 UNAVAILABLE SIG'):
             self.assertFalse(
