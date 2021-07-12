@@ -264,11 +264,12 @@ class CharsetMatches:
     def __getitem__(self, item) -> CharsetMatch:
         """
         Retrieve a single item either by its position or encoding name (alias may be used here).
+        Raise KeyError upon invalid index or encoding not present in results.
         """
         if isinstance(item, int):
             return self._results[item]
         if isinstance(item, str):
-            item = iana_name(item)
+            item = iana_name(item, False)
             for result in self._results:
                 if item in result.could_be_from_charset:
                     return result
