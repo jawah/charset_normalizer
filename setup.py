@@ -52,9 +52,6 @@ setup(
     install_requires=REQUIRED,
     extras_require=EXTRAS,
     include_package_data=True,
-    package_data={
-        'charset_normalizer': ['assets/frequencies.json', ],
-    },
     license='MIT',
     entry_points={
         'console_scripts':
