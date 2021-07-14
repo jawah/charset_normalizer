@@ -25,9 +25,6 @@ from charset_normalizer.legacy import detect
 from charset_normalizer.version import __version__, VERSION
 from charset_normalizer.models import CharsetMatch, CharsetMatches
 
-# Load backport unicodedata2 if available
-import charset_normalizer.hook
-
 # Backward-compatible v1 imports
 from charset_normalizer.models import CharsetNormalizerMatch
 import charset_normalizer.api as CharsetDetector
