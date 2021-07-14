@@ -56,7 +56,7 @@ class TooManySymbolOrPunctuationPlugin(MessDetectorPlugin):
     def feed(self, character: str) -> None:
         self._character_count += 1
 
-        if character != self._last_printable_char and character not in ["<", ">", "=", ":", "/", "&", ";"]:
+        if character != self._last_printable_char and character not in ["<", ">", "=", ":", "/", "&", ";", "{", "}", "[", "]"]:
             if is_punctuation(character):
                 self._punctuation_count += 1
             elif character.isdigit() is False and is_symbol(character):
