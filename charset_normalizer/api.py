@@ -361,7 +361,7 @@ def from_path(
         return from_fp(fp, steps, chunk_size, threshold, cp_isolation, cp_exclusion, preemptive_behaviour, explain)
 
 
-def normalize(path: PathLike, steps: int = 10, chunk_size: int = 512, threshold: float = 0.20, cp_isolation: List[str] = None, cp_exclusion: List[str] = None, preemptive_behaviour: bool = True) -> CharsetMatch:
+def normalize(path: PathLike, steps: int = 5, chunk_size: int = 512, threshold: float = 0.20, cp_isolation: List[str] = None, cp_exclusion: List[str] = None, preemptive_behaviour: bool = True) -> CharsetMatch:
     """
     Take a (text-based) file path and try to create another file next to it, this time using UTF-8.
     """

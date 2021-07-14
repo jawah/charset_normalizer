@@ -1,4 +1,8 @@
-import unicodedata
+try:
+    import unicodedata2 as unicodedata
+except ImportError:
+    import unicodedata
+
 from codecs import IncrementalDecoder
 from re import findall
 from typing import Optional, Tuple, Union, List, Set
