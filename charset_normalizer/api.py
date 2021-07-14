@@ -283,7 +283,7 @@ def from_bytes(
 
         results.append(
             CharsetMatch(
-                sequences if strip_sig_or_bom is False else sequences[len(sig_payload):],
+                sequences,
                 encoding_iana,
                 mean_mess_ratio,
                 bom_or_sig_available,

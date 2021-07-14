@@ -40,7 +40,7 @@ class TestBytes(unittest.TestCase):
             r.encoding
         )
         self.assertEqual(
-            0,
+            4,
             len(r.raw)
         )
 
@@ -57,7 +57,7 @@ class TestBytes(unittest.TestCase):
             r.encoding
         )
         self.assertEqual(
-            0,
+            3,
             len(r.raw)
         )
 
