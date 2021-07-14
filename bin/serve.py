@@ -6,14 +6,14 @@ app = Flask(__name__)
 
 @app.route('/raw/<path:path>')
 def read_file(path):
-    return send_from_directory('char-dataset', path, as_attachment=True), 200, {"Content-Type": "text/plain"}
+    return send_from_directory('../char-dataset', path, as_attachment=True), 200, {"Content-Type": "text/plain"}
 
 
 @app.route("/")
 def read_targets():
     return jsonify(
         [
-            el.replace("./char-dataset", "/raw") for el in glob("./char-dataset/**/*")
+            el.replace("./char-dataset", "/raw").replace("\\", "/") for el in glob("./char-dataset/**/*")
         ]
     )
 
