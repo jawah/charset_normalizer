@@ -27,6 +27,18 @@ class TestBytes(unittest.TestCase):
             len(r.alphabets)
         )
 
+    def test_on_empty_json(self):
+
+        with self.subTest("Detecting empty JSON as ASCII"):
+            results = from_bytes(b"{}").best()
+            self.assertIsNotNone(
+                results.best()
+            )
+            self.assertEqual(
+                results.best().encoding,
+                "ascii"
+            )
+
     def test_bom_detection(self):
         with self.subTest('GB18030 UNAVAILABLE SIG'):
             self.assertFalse(
