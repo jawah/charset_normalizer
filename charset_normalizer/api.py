@@ -37,6 +37,16 @@ def from_bytes(
     """
     Given a raw bytes sequence, return the best possibles charset usable to render str objects.
     If there is no results, it is a strong indicator that the source is binary/not text.
+    By default, the process will extract 5 blocs of 512o each to assess the mess and coherence of a given sequence.
+    And will give up a particular code page after 20% of measured mess. Those criteria are customizable at will.
+
+    The preemptive behavior DOES NOT replace the traditional detection workflow, it prioritize a particular code page
+    but never take it for granted. Can improve the performance.
+
+    You may want to focus your attention to some code page or/and not others, use cp_isolation and cp_exclusion for that
+    purpose.
+
+    This function will strip the SIG in the payload/sequence every time except on UTF-16, UTF-32.
     """
 
     if not explain:
@@ -152,7 +162,7 @@ def from_bytes(
         try:
             if is_too_large_sequence and is_multi_byte_decoder is False:
                 str(
-                    sequences[:int(50e4)],
+                    sequences[:int(50e4)] if strip_sig_or_bom is False else sequences[len(sig_payload):int(50e4)],
                     encoding=encoding_iana
                 )
             else:

@@ -15,7 +15,7 @@ When initiating search upon a buffer, bytes or file you can assign the return va
 
     print(result.encoding)  # gb18030
 
-Using CharsetNormalizerMatch
+Using CharsetMatch
 ----------------------------
 
 Here, ``result`` is a ``CharsetMatch`` object or ``None``.

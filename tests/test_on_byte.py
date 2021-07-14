@@ -1,6 +1,7 @@
 import unittest
 
 from charset_normalizer.api import from_bytes
+from charset_normalizer.constant import TOO_BIG_SEQUENCE
 
 
 class TestBytes(unittest.TestCase):
@@ -25,6 +26,57 @@ class TestBytes(unittest.TestCase):
         self.assertEqual(
             0,
             len(r.alphabets)
+        )
+
+    def test_empty_str_with_sig_gb18030(self):
+        r = from_bytes('\uFEFF'.encode('gb18030')).best()
+
+        self.assertIsNotNone(r)
+        self.assertEqual(
+            "",
+            str(r)
+        )
+        self.assertEqual(
+            "gb18030",
+            r.encoding
+        )
+        self.assertEqual(
+            4,
+            len(r.raw)
+        )
+
+    def test_empty_str_with_sig_utf8(self):
+        r = from_bytes(b'\xef\xbb\xbf').best()
+
+        self.assertIsNotNone(r)
+        self.assertEqual(
+            "",
+            str(r)
+        )
+        self.assertEqual(
+            "utf_8",
+            r.encoding
+        )
+        self.assertEqual(
+            3,
+            len(r.raw)
+        )
+
+    def test_empty_str_with_large_sig_utf8(self):
+        r = from_bytes(b'\xef\xbb\xbf' + (b'0' * TOO_BIG_SEQUENCE)).best()
+
+        self.assertIsNotNone(r)
+        self.assertEqual(
+            '0' * TOO_BIG_SEQUENCE,
+            str(r)
+        )
+        self.assertEqual(
+            "utf_8",
+            r.encoding
+        )
+        self.assertEqual(
+            TOO_BIG_SEQUENCE + 3,
+            len(r.raw)
         )
 
     def test_on_empty_json(self):
