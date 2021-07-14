@@ -9,6 +9,8 @@ if __name__ == "__main__":
 
     files: List[str] = get("http://127.0.0.1:8080/").json()
 
+    print("## Testing with actual files")
+
     for file in files:
         r = get(
             "http://127.0.0.1:8080/" + file
@@ -25,5 +27,28 @@ if __name__ == "__main__":
             exit(1)
 
         print(f"✅✅ '{file}' OK")
+
+    print("## Testing with edge cases")
+
+    # Should NOT crash
+    get("http://127.0.0.1:8080/edge/empty/json").json()
+
+    print("✅✅ Empty JSON OK")
+
+    if get("http://127.0.0.1:8080/edge/empty/plain").apparent_encoding != "utf-8":
+        print("Empty payload SHOULD not return apparent_encoding != UTF-8")
+        exit(1)
+
+    print("✅✅ Empty Plain Text OK")
+
+    r = get("http://127.0.0.1:8080/edge/gb18030/json")
+
+    if r.apparent_encoding != "GB18030":
+        print("JSON Basic Detection FAILURE (/edge/gb18030/json)")
+        exit(1)
+
+    r.json()
+
+    print("✅✅ GB18030 JSON Encoded OK")
 
     print("Integration tests passed!")
