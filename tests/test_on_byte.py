@@ -28,6 +28,21 @@ class TestBytes(unittest.TestCase):
             len(r.alphabets)
         )
 
+    def test_ensure_ascii_fallback(self):
+        payload = b"AbAdZ pOoooOlDl mmlDoDkA lldDkeEkddA mpAlkDF"
+        r = from_bytes(payload).best()
+
+        self.assertIsNotNone(
+            r,
+            msg="Fallback ASCII detection has failed. You clearly have tempered with it. Testing with {}".format(payload)
+        )
+
+        self.assertEqual(
+            r.encoding,
+            "ascii",
+            msg="Fallback ASCII miss-detection. You clearly have tempered with it. Testing with {}".format(payload)
+        )
+
     def test_ensure_ascii(self):
 
         for payload in [
