@@ -116,6 +116,9 @@ def from_bytes(
     tested_but_hard_failure = []  # type: List[str]
     tested_but_soft_failure = []  # type: List[str]
 
+    fallback_ascii = None  # type: Optional[CharsetMatch]
+    fallback_u8 = None  # type: Optional[CharsetMatch]
+
     single_byte_hard_failure_count = 0  # type: int
     single_byte_soft_failure_count = 0  # type: int
 
@@ -251,6 +254,20 @@ def from_bytes(
                            encoding_iana,
                            early_stop_count,
                            round(mean_mess_ratio * 100, ndigits=3))
+            # Preparing those fallbacks in case we got nothing.
+            if encoding_iana in ["ascii", "utf_8"]:
+                fallback_entry = CharsetMatch(
+                    sequences,
+                    encoding_iana,
+                    threshold,
+                    False,
+                    [],
+                    decoded_payload
+                )
+                if encoding_iana == "ascii":
+                    fallback_ascii = fallback_entry
+                else:
+                    fallback_u8 = fallback_entry
             continue
 
         logger.info(
@@ -313,6 +330,17 @@ def from_bytes(
                 encoding_iana,
                 results[-1]._languages
             )
+
+    if len(results) == 0:
+        if fallback_u8 or fallback_ascii:
+            logger.warning("Nothing got out of the detection process. Using ASCII/UTF-8 fallback.")
+
+        if fallback_u8 and fallback_u8.fingerprint != fallback_ascii.fingerprint:
+            logger.warning("utf_8 will be used as a fallback match")
+            results.append(fallback_u8)
+        elif fallback_ascii:
+            logger.warning("ascii will be used as a fallback match")
+            results.append(fallback_ascii)
 
     return results
 
