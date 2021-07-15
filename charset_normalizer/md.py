@@ -304,7 +304,12 @@ class ArchaicUpperLowerPlugin(MessDetectorPlugin):
 
     def __init__(self):
         self._buf = False  # type: bool
+
+        self._character_count_since_last_sep = 0  # type: int
+
         self._successive_upper_lower_count = 0  # type: int
+        self._successive_upper_lower_count_final = 0  # type: int
+
         self._character_count = 0  # type: int
 
         self._last_alpha_seen = None  # type: Optional[str]
@@ -313,6 +318,12 @@ class ArchaicUpperLowerPlugin(MessDetectorPlugin):
         return character.isspace() or character.isalpha()
 
     def feed(self, character: str) -> None:
+        if is_separator(character):
+            if self._character_count_since_last_sep < 24:
+                self._successive_upper_lower_count_final += self._successive_upper_lower_count
+            self._successive_upper_lower_count = 0
+            self._character_count_since_last_sep = 0
+
         if self._last_alpha_seen is not None:
             if (character.isupper() and self._last_alpha_seen.islower()) or (character.islower() and self._last_alpha_seen.isupper()):
                 if self._buf is True:
@@ -327,7 +338,9 @@ class ArchaicUpperLowerPlugin(MessDetectorPlugin):
 
     def reset(self) -> None:
         self._character_count = 0
+        self._character_count_since_last_sep = 0
         self._successive_upper_lower_count = 0
+        self._successive_upper_lower_count_final = 0
         self._last_alpha_seen = None
 
     @property
@@ -335,7 +348,7 @@ class ArchaicUpperLowerPlugin(MessDetectorPlugin):
         if self._character_count == 0:
             return 0.
 
-        return (self._successive_upper_lower_count * 2) / self._character_count
+        return (self._successive_upper_lower_count_final * 2) / self._character_count
 
 
 def is_suspiciously_successive_range(unicode_range_a: Optional[str], unicode_range_b: Optional[str]) -> bool:
