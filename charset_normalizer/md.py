@@ -16,20 +16,20 @@ class MessDetectorPlugin:
         """
         Determine if given character should be fed in.
         """
-        raise NotImplementedError
+        raise NotImplementedError  # pragma: nocover
 
     def feed(self, character: str) -> None:
         """
         The main routine to be executed upon character.
         Insert the logic in witch the text would be considered chaotic.
         """
-        raise NotImplementedError
+        raise NotImplementedError  # pragma: nocover
 
     def reset(self) -> None:
         """
         Permit to reset the plugin to the initial state.
         """
-        raise NotImplementedError
+        raise NotImplementedError  # pragma: nocover
 
     @property
     def ratio(self) -> float:
@@ -37,7 +37,7 @@ class MessDetectorPlugin:
         Compute the chaos ratio based on what your feed() has seen.
         Must NOT be lower than 0.; No restriction gt 0.
         """
-        raise NotImplementedError
+        raise NotImplementedError  # pragma: nocover
 
 
 class TooManySymbolOrPunctuationPlugin(MessDetectorPlugin):
@@ -438,7 +438,7 @@ def mess_ratio(decoded_sequence: str, maximum_threshold: float = 0.2, debug: boo
                 break
 
     if debug:
-        for dt in detectors:
+        for dt in detectors:  # pragma: nocover
             print(
                 dt.__class__,
                 dt.ratio
