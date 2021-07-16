@@ -23,8 +23,10 @@ jobs:
         pip install -U pip setuptools
         pip install -r requirements.txt
         pip install -r ./bin/requirements.txt
-    - name: Remove Chardet
-      run: pip uninstall -y chardet
+    - name: Remove Chardet & Charset-Normalizer
+      run: |
+        pip uninstall -y chardet
+        pip uninstall -y charset-normalizer
     - name: Install the package
       run: |
         python setup.py install
