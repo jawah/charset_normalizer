@@ -43,6 +43,21 @@ class TestBytes(unittest.TestCase):
             msg="Fallback ASCII miss-detection. You clearly have tempered with it. Testing with {}".format(payload)
         )
 
+    def test_ensure_u8_fallback(self):
+        payload = '\u020d\x1b'.encode('utf-8')
+        r = from_bytes(payload).best()
+
+        self.assertIsNotNone(
+            r,
+            msg="Fallback UTF-8 detection has failed. You clearly have tempered with it. Testing with {}".format(payload)
+        )
+
+        self.assertEqual(
+            r.encoding,
+            "utf_8",
+            msg="Fallback UTF-8 miss-detection. You clearly have tempered with it. Testing with {}".format(payload)
+        )
+
     def test_ensure_ascii(self):
 
         for payload in [
