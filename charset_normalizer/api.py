@@ -335,10 +335,13 @@ def from_bytes(
             )
 
     if len(results) == 0:
-        if fallback_u8 or fallback_ascii:
-            logger.warning("Nothing got out of the detection process. Using ASCII/UTF-8 fallback.")
+        if fallback_u8 or fallback_ascii or fallback_specified:
+            logger.warning("Nothing got out of the detection process. Using ASCII/UTF-8/Specified fallback.")
 
-        if (fallback_u8 and fallback_ascii is None) or (fallback_u8 and fallback_u8.fingerprint != fallback_ascii.fingerprint):
+        if fallback_specified:
+            logger.warning("%s will be used as a fallback match", fallback_specified.encoding)
+            results.append(fallback_specified)
+        elif (fallback_u8 and fallback_ascii is None) or (fallback_u8 and fallback_u8.fingerprint != fallback_ascii.fingerprint):
             logger.warning("utf_8 will be used as a fallback match")
             results.append(fallback_u8)
         elif fallback_ascii:
