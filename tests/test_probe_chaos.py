@@ -40,7 +40,7 @@ class TestProbeChaos(unittest.TestCase):
 
         self.assertGreater(
             mess_ratio("´Á¥½³ø§i --  ±i®Ìºû, ³¯·Ø©v"),
-            0.8
+            0.7
         )
 
         self.assertGreater(
