@@ -1,7 +1,6 @@
 import argparse
 import sys
 from os.path import abspath
-from os import sep
 from json import dumps
 
 from charset_normalizer import from_fp
