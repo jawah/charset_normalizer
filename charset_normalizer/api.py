@@ -118,6 +118,7 @@ def from_bytes(
 
     fallback_ascii = None  # type: Optional[CharsetMatch]
     fallback_u8 = None  # type: Optional[CharsetMatch]
+    fallback_specified = None  # type: Optional[CharsetMatch]
 
     single_byte_hard_failure_count = 0  # type: int
     single_byte_soft_failure_count = 0  # type: int
@@ -255,7 +256,7 @@ def from_bytes(
                            early_stop_count,
                            round(mean_mess_ratio * 100, ndigits=3))
             # Preparing those fallbacks in case we got nothing.
-            if encoding_iana in ["ascii", "utf_8"]:
+            if encoding_iana in ["ascii", "utf_8", fallback_specified]:
                 fallback_entry = CharsetMatch(
                     sequences,
                     encoding_iana,
@@ -264,7 +265,9 @@ def from_bytes(
                     [],
                     decoded_payload
                 )
-                if encoding_iana == "ascii":
+                if encoding_iana == fallback_specified:
+                    fallback_specified = fallback_entry
+                elif encoding_iana == "ascii":
                     fallback_ascii = fallback_entry
                 else:
                     fallback_u8 = fallback_entry
