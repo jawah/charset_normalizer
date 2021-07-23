@@ -116,7 +116,7 @@ class UnprintablePlugin(MessDetectorPlugin):
         return True
 
     def feed(self, character: str) -> None:
-        if character not in {'\n', '\t', '\r', '\t'} and character.isprintable() is False:
+        if character not in {'\n', '\t', '\r', '\v'} and character.isprintable() is False:
             self._unprintable_count += 1
         self._character_count += 1
 
