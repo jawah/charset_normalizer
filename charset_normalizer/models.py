@@ -203,9 +203,11 @@ class CharsetMatch:
             return self._unicode_ranges
         detected_ranges = set()  # type: Set[str]
         for character in str(self):
-            detected_ranges.add(
-                unicode_range(character)
-            )
+            detected_range = unicode_range(character)  # type: Optional[str]
+            if detected_range:
+                detected_ranges.add(
+                    unicode_range(character)
+                )
         self._unicode_ranges = sorted(list(detected_ranges))
         return self._unicode_ranges
 

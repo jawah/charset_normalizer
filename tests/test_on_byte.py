@@ -58,6 +58,21 @@ class TestBytes(unittest.TestCase):
             msg="Fallback UTF-8 miss-detection. You clearly have tempered with it. Testing with {}".format(payload)
         )
 
+    def test_alphabets_property_undefined_range(self):
+        payload = b'\xef\xbb\xbf\xf0\x9f\xa9\xb3'
+
+        r = from_bytes(payload)
+
+        self.assertEqual(
+            r.best().encoding,
+            "utf_8"
+        )
+
+        self.assertEqual(
+            r.best().alphabets,
+            []
+        )
+
     def test_ensure_ascii(self):
 
         for payload in [
