@@ -23,6 +23,7 @@ jobs:
         pip install -U pip setuptools
         pip install -r requirements.txt
         pip install -r ./bin/requirements.txt
+        pip uninstall -y charset-normalizer
     - name: Install the package
       run: |
         python setup.py install
