@@ -303,7 +303,7 @@ class CjkInvalidStopPlugin(MessDetectorPlugin):
 class ArchaicUpperLowerPlugin(MessDetectorPlugin):
 
     def __init__(self):
-        self._buf = False  # type: bool
+        self._check_count = 0  # type: int
 
         self._character_count_since_last_sep = 0  # type: int
 
@@ -323,15 +323,14 @@ class ArchaicUpperLowerPlugin(MessDetectorPlugin):
                 self._successive_upper_lower_count_final += self._successive_upper_lower_count
             self._successive_upper_lower_count = 0
             self._character_count_since_last_sep = 0
-
-        if self._last_alpha_seen is not None:
+        elif self._last_alpha_seen is not None:
             if (character.isupper() and self._last_alpha_seen.islower()) or (character.islower() and self._last_alpha_seen.isupper()):
-                if self._buf is True:
+                if self._check_count >= 3:
                     self._successive_upper_lower_count += 1
                 else:
-                    self._buf = True
+                    self._check_count += 1
             else:
-                self._buf = False
+                self._check_count = 0
 
         self._character_count += 1
         self._last_alpha_seen = character
@@ -342,6 +341,7 @@ class ArchaicUpperLowerPlugin(MessDetectorPlugin):
         self._successive_upper_lower_count = 0
         self._successive_upper_lower_count_final = 0
         self._last_alpha_seen = None
+        self._check_count = 0
 
     @property
     def ratio(self) -> float:
