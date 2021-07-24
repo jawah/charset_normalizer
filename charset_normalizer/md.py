@@ -315,24 +315,32 @@ class ArchaicUpperLowerPlugin(MessDetectorPlugin):
         self._last_alpha_seen = None  # type: Optional[str]
 
     def eligible(self, character: str) -> bool:
-        return character.isspace() or character.isalpha()
+        return character.isalpha() or is_separator(character)
 
     def feed(self, character: str) -> None:
         if is_separator(character):
-            if self._character_count_since_last_sep < 24:
-                self._successive_upper_lower_count_final += self._successive_upper_lower_count
+            if 0 < self._character_count_since_last_sep < 24:
+                if self._successive_upper_lower_count / self._character_count_since_last_sep >= 0.15:
+                    self._successive_upper_lower_count_final += self._successive_upper_lower_count
             self._successive_upper_lower_count = 0
             self._character_count_since_last_sep = 0
+            self._check_count = 0
+            self._last_alpha_seen = None
+            return
         elif self._last_alpha_seen is not None:
-            if (character.isupper() and self._last_alpha_seen.islower()) or (character.islower() and self._last_alpha_seen.isupper()):
-                if self._check_count >= 3:
+            current_isupper = character.isupper()
+            previous_isupper = self._last_alpha_seen.isupper()
+            if (current_isupper and previous_isupper is False) or (current_isupper is False and previous_isupper):
+                if self._check_count >= 1:
                     self._successive_upper_lower_count += 1
+                    self._check_count = 0
                 else:
                     self._check_count += 1
             else:
                 self._check_count = 0
 
         self._character_count += 1
+        self._character_count_since_last_sep += 1
         self._last_alpha_seen = character
 
     def reset(self) -> None:

@@ -96,7 +96,7 @@ def is_symbol(character: str) -> bool:
 
 @lru_cache(maxsize=UTF8_MAXIMAL_ALLOCATION)
 def is_separator(character: str) -> bool:
-    if character.isspace() or character in ["｜", "+"]:
+    if character.isspace() or character in ["｜", "+", "|", ";", ","]:
         return True
 
     character_category = unicodedata.category(character)  # type: str
