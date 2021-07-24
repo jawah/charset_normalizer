@@ -320,7 +320,7 @@ class ArchaicUpperLowerPlugin(MessDetectorPlugin):
     def feed(self, character: str) -> None:
         if is_separator(character):
             if 0 < self._character_count_since_last_sep < 24:
-                if self._successive_upper_lower_count / self._character_count_since_last_sep >= 0.15:
+                if self._successive_upper_lower_count / self._character_count_since_last_sep >= 0.16:
                     self._successive_upper_lower_count_final += self._successive_upper_lower_count
             self._successive_upper_lower_count = 0
             self._character_count_since_last_sep = 0
