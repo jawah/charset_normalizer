@@ -328,13 +328,19 @@ class ArchaicUpperLowerPlugin(MessDetectorPlugin):
             return
         elif self._last_alpha_seen is not None:
             current_isupper = character.isupper()
-            previous_isupper = self._last_alpha_seen.isupper()
-            if (current_isupper and previous_isupper is False) or (current_isupper is False and previous_isupper):
-                if self._check_count >= 1:
-                    self._successive_upper_lower_count += 1
-                    self._check_count = 0
+            current_islower = character.islower()
+
+            # Some character are neither upper or lower! (eg. CJK, Hangul, Hiragana, etc..)
+            if current_islower != current_isupper:
+                previous_isupper = self._last_alpha_seen.isupper()
+                if (current_isupper and previous_isupper is False) or (current_islower and previous_isupper):
+                    if self._check_count >= 1:
+                        self._successive_upper_lower_count += 1
+                        self._check_count = 0
+                    else:
+                        self._check_count += 1
                 else:
-                    self._check_count += 1
+                    self._check_count = 0
             else:
                 self._check_count = 0
 
