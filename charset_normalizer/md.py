@@ -3,7 +3,7 @@ from typing import Optional, List
 
 from charset_normalizer.constant import UNICODE_SECONDARY_RANGE_KEYWORD
 from charset_normalizer.utils import is_punctuation, is_symbol, unicode_range, is_accentuated, is_latin, \
-    remove_accent, is_separator, is_cjk
+    remove_accent, is_separator, is_cjk, is_case_variable
 
 
 class MessDetectorPlugin:
@@ -145,6 +145,8 @@ class SuspiciousDuplicateAccentPlugin(MessDetectorPlugin):
     def feed(self, character: str) -> None:
         if self._last_latin_character is not None:
             if is_accentuated(character) and is_accentuated(self._last_latin_character):
+                self._successive_count += 1
+                # Worse if its the same char duplicated with different accent.
                 if remove_accent(character) == remove_accent(self._last_latin_character):
                     self._successive_count += 1
         self._last_latin_character = character
@@ -315,25 +317,37 @@ class ArchaicUpperLowerPlugin(MessDetectorPlugin):
         self._last_alpha_seen = None  # type: Optional[str]
 
     def eligible(self, character: str) -> bool:
-        return character.isspace() or character.isalpha()
+        return True
 
     def feed(self, character: str) -> None:
-        if is_separator(character):
-            if self._character_count_since_last_sep < 24:
+        is_concerned = character.isalpha() and is_case_variable(character)
+        chunk_sep = is_concerned is False
+
+        if chunk_sep and self._character_count_since_last_sep > 0:
+            if self._character_count_since_last_sep <= 64:
                 self._successive_upper_lower_count_final += self._successive_upper_lower_count
+
             self._successive_upper_lower_count = 0
             self._character_count_since_last_sep = 0
+            self._last_alpha_seen = None
+            self._buf = False
+            self._character_count += 1
+
+            return
 
         if self._last_alpha_seen is not None:
             if (character.isupper() and self._last_alpha_seen.islower()) or (character.islower() and self._last_alpha_seen.isupper()):
                 if self._buf is True:
-                    self._successive_upper_lower_count += 1
+                    self._successive_upper_lower_count += 2
+                    self._buf = False
                 else:
                     self._buf = True
             else:
                 self._buf = False
+                self._last_alpha_seen = None
 
         self._character_count += 1
+        self._character_count_since_last_sep += 1
         self._last_alpha_seen = character
 
     def reset(self) -> None:
@@ -342,13 +356,14 @@ class ArchaicUpperLowerPlugin(MessDetectorPlugin):
         self._successive_upper_lower_count = 0
         self._successive_upper_lower_count_final = 0
         self._last_alpha_seen = None
+        self._buf = False
 
     @property
     def ratio(self) -> float:
         if self._character_count == 0:
             return 0.
 
-        return (self._successive_upper_lower_count_final * 2) / self._character_count
+        return self._successive_upper_lower_count_final / self._character_count
 
 
 def is_suspiciously_successive_range(unicode_range_a: Optional[str], unicode_range_b: Optional[str]) -> bool:
