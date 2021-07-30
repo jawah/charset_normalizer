@@ -93,6 +93,8 @@ def cli_detect(argv=None):
         print('--threshold VALUE should be between 0. AND 1.', file=sys.stderr)
         return 1
 
+    x_ = []
+
     for my_file in args.files:
 
         matches = from_fp(
@@ -100,8 +102,6 @@ def cli_detect(argv=None):
             threshold=args.threshold,
             explain=args.verbose
         )
-
-        x_ = []
 
         if len(matches) == 0:
             print('Unable to identify originating encoding for "{}". {}'.format(my_file.name, 'Maybe try increasing maximum amount of chaos.' if args.threshold < 1. else ''), file=sys.stderr)
@@ -202,7 +202,7 @@ def cli_detect(argv=None):
             dumps(
                 [
                     el.__dict__ for el in x_
-                ] if args.alternatives else x_[0].__dict__,
+                ] if len(x_) > 1 else x_[0].__dict__,
                 ensure_ascii=True,
                 indent=4
             )
