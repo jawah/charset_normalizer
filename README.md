@@ -55,13 +55,13 @@ This package offer better performance than its counterpart Chardet. Here are som
 
 | Package       | Accuracy       | Mean per file (ns) | File per sec (est) |
 | ------------- | :-------------: | :------------------: | :------------------: |
-|      [chardet](https://github.com/chardet/chardet)        |     93.0 %     |     67 ms      |       15.38 file/sec        |
-| charset-normalizer |    **95.0 %**     |     **37 ms**      |       27.77 file/sec    |
+|      [chardet](https://github.com/chardet/chardet)        |     93.0 %     |     150 ms      |       7 file/sec        |
+| charset-normalizer |    **95.0 %**     |     **36 ms**      |       28 file/sec    |
 
 | Package       | 99th percentile       | 95th percentile | 50th percentile |
 | ------------- | :-------------: | :------------------: | :------------------: |
-|      [chardet](https://github.com/chardet/chardet)        |     424 ms     |     234 ms      |       26 ms        |
-| charset-normalizer |    335 ms     |     186 ms      |       17 ms    |
+|      [chardet](https://github.com/chardet/chardet)        |     647 ms     |     250 ms      |       24 ms        |
+| charset-normalizer |    354 ms     |     202 ms      |       16 ms    |
 
 Chardet's performance on larger file (1MB+) are very poor. Expect huge difference on large payload.
 

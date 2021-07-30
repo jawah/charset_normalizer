@@ -206,7 +206,7 @@ def from_bytes(
         multi_byte_bonus = is_multi_byte_decoder and decoded_payload is not None and len(decoded_payload) < length  # type: bool
 
         if multi_byte_bonus:
-            logger.info('Code page %s is a multi byte encoding table and it appear that at least one character was encoded using n-bytes. Should not be a coincidence. Priority +1 given.', encoding_iana)
+            logger.info('Code page %s is a multi byte encoding table and it appear that at least one character was encoded using n-bytes.', encoding_iana)
 
         max_chunk_gave_up = int(len(r_) / 4)  # type: int
 
@@ -331,7 +331,7 @@ def from_bytes(
             logger.info(
                 "Using %s code page we detected the following languages: %s",
                 encoding_iana,
-                results[-1]._languages
+                results[encoding_iana]._languages
             )
 
     if len(results) == 0:

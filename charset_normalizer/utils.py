@@ -22,7 +22,7 @@ def is_accentuated(character: str) -> bool:
         description = unicodedata.name(character)  # type: str
     except ValueError:
         return False
-    return "WITH GRAVE" in description or "WITH ACUTE" in description or "WITH CEDILLA" in description
+    return "WITH GRAVE" in description or "WITH ACUTE" in description or "WITH CEDILLA" in description or "WITH DIAERESIS" in description or "WITH CIRCUMFLEX" in description
 
 
 @lru_cache(maxsize=UTF8_MAXIMAL_ALLOCATION)
@@ -64,6 +64,13 @@ def is_latin(character: str) -> bool:
     return "LATIN" in description
 
 
+def is_ascii(character: str) -> bool:
+    try:
+        character.encode("ascii")
+    except UnicodeEncodeError:
+        return False
+    return True
+
 @lru_cache(maxsize=UTF8_MAXIMAL_ALLOCATION)
 def is_punctuation(character: str) -> bool:
     character_category = unicodedata.category(character)  # type: str
@@ -96,12 +103,17 @@ def is_symbol(character: str) -> bool:
 
 @lru_cache(maxsize=UTF8_MAXIMAL_ALLOCATION)
 def is_separator(character: str) -> bool:
-    if character.isspace() or character in ["｜", "+"]:
+    if character.isspace() or character in ["｜", "+", ",", ";", "<", ">"]:
         return True
 
     character_category = unicodedata.category(character)  # type: str
 
     return "Z" in character_category
+
+
+@lru_cache(maxsize=UTF8_MAXIMAL_ALLOCATION)
+def is_case_variable(character: str) -> bool:
+    return character.islower() != character.isupper()
 
 
 def is_private_use_only(character: str) -> bool:
@@ -110,6 +122,7 @@ def is_private_use_only(character: str) -> bool:
     return "Co" == character_category
 
 
+@lru_cache(maxsize=UTF8_MAXIMAL_ALLOCATION)
 def is_cjk(character: str) -> bool:
     try:
         character_name = unicodedata.name(character)
@@ -117,6 +130,46 @@ def is_cjk(character: str) -> bool:
         return False
 
     return "CJK" in character_name
+
+
+@lru_cache(maxsize=UTF8_MAXIMAL_ALLOCATION)
+def is_hiragana(character: str) -> bool:
+    try:
+        character_name = unicodedata.name(character)
+    except ValueError:
+        return False
+
+    return "HIRAGANA" in character_name
+
+
+@lru_cache(maxsize=UTF8_MAXIMAL_ALLOCATION)
+def is_katakana(character: str) -> bool:
+    try:
+        character_name = unicodedata.name(character)
+    except ValueError:
+        return False
+
+    return "KATAKANA" in character_name
+
+
+@lru_cache(maxsize=UTF8_MAXIMAL_ALLOCATION)
+def is_hangul(character: str) -> bool:
+    try:
+        character_name = unicodedata.name(character)
+    except ValueError:
+        return False
+
+    return "HANGUL" in character_name
+
+
+@lru_cache(maxsize=UTF8_MAXIMAL_ALLOCATION)
+def is_thai(character: str) -> bool:
+    try:
+        character_name = unicodedata.name(character)
+    except ValueError:
+        return False
+
+    return "THAI" in character_name
 
 
 @lru_cache(maxsize=len(UNICODE_RANGES_COMBINED))
