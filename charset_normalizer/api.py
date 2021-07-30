@@ -328,7 +328,7 @@ def from_bytes(
             logger.info(
                 "Using %s code page we detected the following languages: %s",
                 encoding_iana,
-                results[-1]._languages
+                results[encoding_iana]._languages
             )
 
     if len(results) == 0:
