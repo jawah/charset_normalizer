@@ -2,9 +2,6 @@
 
 <p align="center">
   <sup>The Real First Universal Charset Detector</sup><br>
-  <a href="https://travis-ci.org/Ousret/charset_normalizer">
-    <img src="https://travis-ci.org/Ousret/charset_normalizer.svg?branch=master"/>
-  </a>
   <a href="https://pypi.org/project/charset-normalizer">
     <img src="https://img.shields.io/pypi/pyversions/charset_normalizer.svg?orange=blue" />
   </a>
@@ -13,9 +10,6 @@
   </a>
   <a href="https://codecov.io/gh/Ousret/charset_normalizer">
       <img src="https://codecov.io/gh/Ousret/charset_normalizer/branch/master/graph/badge.svg" />
-  </a>
-  <a href='https://charset-normalizer.readthedocs.io/en/latest/?badge=latest'>
-    <img src='https://readthedocs.org/projects/charset-normalizer/badge/?version=latest' alt='Documentation Status' />
   </a>
   <a href="https://pepy.tech/project/charset-normalizer/">
     <img alt="Download Count Total" src="https://pepy.tech/badge/charset-normalizer" />
@@ -49,6 +43,10 @@ This project offers you an alternative to **Universal Charset Encoding Detector*
 
 *\*\* : They are clearly using specific code for a specific encoding even if covering most of used one*<br> 
 
+## ⭐ Your support
+
+*Fork, test-it, star-it, submit your ideas! We do listen.*
+  
 ## ⚡ Performance
 
 This package offer better performance than its counterpart Chardet. Here are some numbers.
@@ -71,24 +69,16 @@ Chardet's performance on larger file (1MB+) are very poor. Expect huge differenc
 [cchardet](https://github.com/PyYoshi/cChardet) is a non-native (cpp binding) faster alternative. If speed is the most important factor,
 you should try it.
 
-## Your support
-
-Please ⭐ this repository if this project helped you!
-
 ## ✨ Installation
 
 Using PyPi for latest stable
 ```sh
-pip install charset-normalizer
-```
-Or directly from dev-master for latest preview
-```sh
-pip install git+https://github.com/Ousret/charset_normalizer.git
+pip install charset-normalizer -U
 ```
 
 If you want a more up-to-date `unicodedata` than the one available in your Python setup.
 ```sh
-pip install charset-normalizer[unicode_backport]
+pip install charset-normalizer[unicode_backport] -U
 ```
 
 ## 🚀 Basic Usage
@@ -212,7 +202,7 @@ Don't confuse package **ftfy** with charset-normalizer or chardet. ftfy goal is 
   - Discard all charset encoding table that could not fit the binary content.
   - Measure chaos, or the mess once opened (by chunks) with a corresponding charset encoding.
   - Extract matches with the lowest mess detected.
-  - Finally, if there is too much match left, we measure coherence.
+  - Finally, we measure coherence / probe for a language.
 
 **Wait a minute**, what is chaos/mess and coherence according to **YOU ?**
 
