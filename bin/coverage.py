@@ -49,6 +49,11 @@ def cli_coverage(arguments: List[str]):
             preemptive_behaviour=args.preemptive
         )
 
+        if expected_encoding == "None" and len(results) == 0:
+            print("✅✅ '{}'".format(tbt_path))
+            success_count += 1
+            continue
+
         if len(results) == 0:
             print("⚡⚡ '{}' (nothing)".format(tbt_path))
             continue
