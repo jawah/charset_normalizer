@@ -1,5 +1,5 @@
-include LICENSE
-include README.md
+include LICENSE README.md charset_normalizer/py.typed
 recursive-include data *.srt
 recursive-include data *.txt
-include charset_normalizer/py.typed
+recursive-include docs *
+recursive-include tests *
