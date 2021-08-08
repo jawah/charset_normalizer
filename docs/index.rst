@@ -63,6 +63,7 @@ Contents:
     advanced_search
     handling_result
     miscellaneous
+    faq
     why_migrate
 
 Indices and tables
