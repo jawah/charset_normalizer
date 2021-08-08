@@ -2,5 +2,5 @@ pytest
 pytest-cov
 codecov
 chardet==4.0.*
-Flask>=2.0,<3.0
-requests>=2.26,<3.0
+Flask>=1.0,<3.0
+requests>=2.25,<3.0
