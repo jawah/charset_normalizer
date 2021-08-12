@@ -3,7 +3,7 @@ name: Detection Coverage
 on: [push, pull_request]
 
 jobs:
-  build:
+  detection_coverage:
     runs-on: ${{ matrix.os }}
 
     strategy:

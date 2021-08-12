@@ -3,7 +3,7 @@ name: Performance Check
 on: [push, pull_request]
 
 jobs:
-  build:
+  performance:
     runs-on: ${{ matrix.os }}
 
     strategy:
