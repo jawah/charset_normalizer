@@ -4,3 +4,7 @@ codecov
 chardet==4.0.*
 Flask>=1.0,<3.0
 requests>=2.25,<3.0
+black<=21.7b0
+flake8<=3.9.2
+mypy<=0.910
+isort
