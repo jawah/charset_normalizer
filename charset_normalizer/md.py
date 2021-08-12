@@ -1,8 +1,8 @@
 from functools import lru_cache
 from typing import List, Optional
 
-from charset_normalizer.constant import UNICODE_SECONDARY_RANGE_KEYWORD
-from charset_normalizer.utils import (
+from .constant import UNICODE_SECONDARY_RANGE_KEYWORD
+from .utils import (
     is_accentuated,
     is_ascii,
     is_case_variable,

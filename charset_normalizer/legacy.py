@@ -1,7 +1,7 @@
 from typing import Dict, Optional, Union
 
-from charset_normalizer.api import from_bytes
-from charset_normalizer.constant import CHARDET_CORRESPONDENCE
+from .api import from_bytes
+from .constant import CHARDET_CORRESPONDENCE
 
 
 def detect(byte_str: bytes) -> Dict[str, Optional[Union[str, float]]]:

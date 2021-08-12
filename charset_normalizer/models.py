@@ -6,9 +6,9 @@ from json import dumps
 from re import compile as re_compile, sub
 from typing import Any, Dict, Iterator, List, Optional, Set, Tuple, Union
 
-from charset_normalizer.constant import TOO_BIG_SEQUENCE
-from charset_normalizer.md import mess_ratio
-from charset_normalizer.utils import iana_name, is_multi_byte_encoding, unicode_range
+from .constant import TOO_BIG_SEQUENCE
+from .md import mess_ratio
+from .utils import iana_name, is_multi_byte_encoding, unicode_range
 
 
 class CharsetMatch:

@@ -12,7 +12,7 @@ from typing import List, Optional, Set, Tuple, Union
 
 from _multibytecodec import MultibyteIncrementalDecoder  # type: ignore
 
-from charset_normalizer.constant import (
+from .constant import (
     ENCODING_MARKS,
     IANA_SUPPORTED_SIMILAR,
     RE_POSSIBLE_ENCODING_INDICATION,

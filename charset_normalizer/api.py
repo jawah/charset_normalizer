@@ -11,20 +11,16 @@ except ImportError:
 import logging
 from warnings import warn
 
-from charset_normalizer.cd import (
+from .cd import (
     coherence_ratio,
     encoding_languages,
     mb_encoding_languages,
     merge_coherence_ratios,
 )
-from charset_normalizer.constant import (
-    IANA_SUPPORTED,
-    TOO_BIG_SEQUENCE,
-    TOO_SMALL_SEQUENCE,
-)
-from charset_normalizer.md import mess_ratio
-from charset_normalizer.models import CharsetMatch, CharsetMatches
-from charset_normalizer.utils import (
+from .constant import IANA_SUPPORTED, TOO_BIG_SEQUENCE, TOO_SMALL_SEQUENCE
+from .md import mess_ratio
+from .models import CharsetMatch, CharsetMatches
+from .utils import (
     any_specified_encoding,
     iana_name,
     identify_sig_or_bom,

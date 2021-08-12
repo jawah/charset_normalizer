@@ -4,14 +4,10 @@ from collections import Counter
 from functools import lru_cache
 from typing import Dict, List, Optional, Set, Tuple
 
-from charset_normalizer.assets import FREQUENCIES
-from charset_normalizer.md import is_suspiciously_successive_range
-from charset_normalizer.models import CoherenceMatches
-from charset_normalizer.utils import (
-    is_multi_byte_encoding,
-    is_unicode_range_secondary,
-    unicode_range,
-)
+from .assets import FREQUENCIES
+from .md import is_suspiciously_successive_range
+from .models import CoherenceMatches
+from .utils import is_multi_byte_encoding, is_unicode_range_secondary, unicode_range
 
 
 def encoding_unicode_range(iana_name: str) -> List[str]:
