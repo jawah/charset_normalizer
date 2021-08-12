@@ -3,7 +3,7 @@ name: Chardet BC Coverage
 on: [push, pull_request]
 
 jobs:
-  build:
+  chardet_bc:
     runs-on: ${{ matrix.os }}
 
     strategy:
