@@ -8,24 +8,38 @@ All IANA character set names for which the Python core library provides codecs a
 
 Basic usage:
    >>> from charset_normalizer import from_bytes
-   >>> results = from_bytes('Bсеки човек има право на образование. Oбразованието трябва да бъде безплатно, поне що се отнася до началното и основното образование.'.encode('utf_8'))
-   >>> "utf_8" in results
-   True
-   >>> best_result = results.best()
-   >>> str(best_result)
-   'Bсеки човек има право на образование. Oбразованието трябва да бъде безплатно, поне що се отнася до началното и основното образование.'
+   >>> results = from_bytes('Bсеки човек има право на образование. Oбразованието!'.encode('utf_8'))
+   >>> best_guess = results.best()
+   >>> str(best_guess)
+   'Bсеки човек има право на образование. Oбразованието!'
 
 Others methods and usages are available - see the full documentation
 at <https://github.com/Ousret/charset_normalizer>.
 :copyright: (c) 2021 by Ahmed TAHRI
 :license: MIT, see LICENSE for more details.
 """
-from charset_normalizer.api import from_fp, from_path, from_bytes, normalize
-from charset_normalizer.legacy import detect
-from charset_normalizer.version import __version__, VERSION
-from charset_normalizer.models import CharsetMatch, CharsetMatches
+import charset_normalizer.api as CharsetDetector
+
+from .api import from_bytes, from_fp, from_path, normalize
+from .legacy import detect
 
 # Backward-compatible v1 imports
-from charset_normalizer.models import CharsetNormalizerMatch
-import charset_normalizer.api as CharsetDetector
+from .models import CharsetMatch, CharsetMatches, CharsetNormalizerMatch
+from .version import VERSION, __version__
+
 CharsetNormalizerMatches = CharsetDetector
+
+
+__all__ = (
+    "from_fp",
+    "from_path",
+    "from_bytes",
+    "normalize",
+    "detect",
+    "CharsetMatch",
+    "CharsetMatches",
+    "CharsetNormalizerMatch",
+    "CharsetNormalizerMatches",
+    "__version__",
+    "VERSION",
+)

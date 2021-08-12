@@ -1,13 +1,13 @@
-from codecs import IncrementalDecoder
-from functools import lru_cache
-from typing import List, Set, Optional, Tuple, Dict
 import importlib
-
-from charset_normalizer.models import CoherenceMatches
-from charset_normalizer.utils import unicode_range, is_unicode_range_secondary, is_multi_byte_encoding
-from charset_normalizer.md import is_suspiciously_successive_range
-from charset_normalizer.assets import FREQUENCIES
+from codecs import IncrementalDecoder
 from collections import Counter
+from functools import lru_cache
+from typing import Dict, List, Optional, Set, Tuple
+
+from .assets import FREQUENCIES
+from .md import is_suspiciously_successive_range
+from .models import CoherenceMatches
+from .utils import is_multi_byte_encoding, is_unicode_range_secondary, unicode_range
 
 
 def encoding_unicode_range(iana_name: str) -> List[str]:
@@ -17,15 +17,13 @@ def encoding_unicode_range(iana_name: str) -> List[str]:
     if is_multi_byte_encoding(iana_name):
         raise IOError("Function not supported on multi-byte code page")
 
-    decoder = importlib.import_module('encodings.{}'.format(iana_name)).IncrementalDecoder  # type: ignore
+    decoder = importlib.import_module("encodings.{}".format(iana_name)).IncrementalDecoder  # type: ignore
 
     p = decoder(errors="ignore")  # type: IncrementalDecoder
     seen_ranges = set()  # type: Set[str]
 
     for i in range(48, 255):
-        chunk = p.decode(
-            bytes([i])
-        )  # type: str
+        chunk = p.decode(bytes([i]))  # type: str
 
         if chunk:
             character_range = unicode_range(chunk)  # type: Optional[str]
@@ -79,7 +77,12 @@ def mb_encoding_languages(iana_name: str) -> List[str]:
     Multi-byte encoding language association. Some code page are heavily linked to particular language(s).
     This function does the correspondence.
     """
-    if iana_name.startswith("shift_") or iana_name.startswith("iso2022_jp") or iana_name.startswith("euc_j") or iana_name in {"cp932"}:
+    if (
+        iana_name.startswith("shift_")
+        or iana_name.startswith("iso2022_jp")
+        or iana_name.startswith("euc_j")
+        or iana_name in {"cp932"}
+    ):
         return ["Japanese"]
     if iana_name.startswith("gb") or iana_name in {"big5", "cp950", "big5hkscs"}:
         return ["Chinese", "Classical Chinese"]
@@ -109,7 +112,9 @@ def alphabet_languages(characters: List[str]) -> List[str]:
     return languages
 
 
-def characters_popularity_compare(language: str, ordered_characters: List[str]) -> float:
+def characters_popularity_compare(
+    language: str, ordered_characters: List[str]
+) -> float:
     """
     Determine if a ordered characters list (by occurrence from most appearance to rarest) match a particular language.
     The result is a ratio between 0. (absolutely no correspondence) and 1. (near perfect fit).
@@ -124,14 +129,30 @@ def characters_popularity_compare(language: str, ordered_characters: List[str]) 
         if character not in FREQUENCIES[language]:
             continue
 
-        characters_before_source = FREQUENCIES[language][0:FREQUENCIES[language].index(character)]  # type: List[str]
-        characters_after_source = FREQUENCIES[language][FREQUENCIES[language].index(character):]  # type: List[str]
+        characters_before_source = FREQUENCIES[language][
+            0 : FREQUENCIES[language].index(character)
+        ]  # type: List[str]
+        characters_after_source = FREQUENCIES[language][
+            FREQUENCIES[language].index(character) :
+        ]  # type: List[str]
 
-        characters_before = ordered_characters[0:ordered_characters.index(character)]  # type: List[str]
-        characters_after = ordered_characters[ordered_characters.index(character):]  # type: List[str]
+        characters_before = ordered_characters[
+            0 : ordered_characters.index(character)
+        ]  # type: List[str]
+        characters_after = ordered_characters[
+            ordered_characters.index(character) :
+        ]  # type: List[str]
 
-        before_match_count = [e in characters_before for e in characters_before_source].count(True)  # type: int
-        after_match_count = [e in characters_after for e in characters_after_source].count(True)  # type: int
+        before_match_count = [
+            e in characters_before for e in characters_before_source
+        ].count(
+            True
+        )  # type: int
+        after_match_count = [
+            e in characters_after for e in characters_after_source
+        ].count(
+            True
+        )  # type: int
 
         if len(characters_before_source) == 0 and before_match_count <= 4:
             character_approved_count += 1
@@ -141,7 +162,10 @@ def characters_popularity_compare(language: str, ordered_characters: List[str]) 
             character_approved_count += 1
             continue
 
-        if before_match_count / len(characters_before_source) >= 0.4 or after_match_count / len(characters_after_source) >= 0.4:
+        if (
+            before_match_count / len(characters_before_source) >= 0.4
+            or after_match_count / len(characters_after_source) >= 0.4
+        ):
             character_approved_count += 1
             continue
 
@@ -160,12 +184,18 @@ def alpha_unicode_split(decoded_sequence: str) -> List[str]:
         if character.isalpha() is False:
             continue
 
-        character_range = unicode_range(character)  # type: str
+        character_range = unicode_range(character)  # type: Optional[str]
+
+        if character_range is None:
+            continue
 
         layer_target_range = None  # type: Optional[str]
 
         for discovered_range in layers:
-            if is_suspiciously_successive_range(discovered_range, character_range) is False:
+            if (
+                is_suspiciously_successive_range(discovered_range, character_range)
+                is False
+            ):
                 layer_target_range = discovered_range
                 break
 
@@ -195,20 +225,17 @@ def merge_coherence_ratios(results: List[CoherenceMatches]) -> CoherenceMatches:
             if language not in per_language_ratios:
                 per_language_ratios[language] = [ratio]
                 continue
-            per_language_ratios[language].append(
-                ratio
-            )
+            per_language_ratios[language].append(ratio)
 
     for language in per_language_ratios:
         merge.append(
             (
                 language,
                 round(
-                    sum(
-                        per_language_ratios[language]
-                    ) / len(per_language_ratios[language]),
-                    4
-                )
+                    sum(per_language_ratios[language])
+                    / len(per_language_ratios[language]),
+                    4,
+                ),
             )
         )
 
@@ -216,21 +243,24 @@ def merge_coherence_ratios(results: List[CoherenceMatches]) -> CoherenceMatches:
 
 
 @lru_cache(maxsize=2048)
-def coherence_ratio(decoded_sequence: str, threshold: float = 0.1, lg_inclusion: Optional[str] = None) -> CoherenceMatches:
+def coherence_ratio(
+    decoded_sequence: str, threshold: float = 0.1, lg_inclusion: Optional[str] = None
+) -> CoherenceMatches:
     """
     Detect ANY language that can be identified in given sequence. The sequence will be analysed by layers.
     A layer = Character extraction by alphabets/ranges.
     """
 
     results = []  # type: List[Tuple[str, float]]
+    lg_inclusion_list = []  # type: List[str]
 
     sufficient_match_count = 0  # type: int
 
     if lg_inclusion is not None:
-        lg_inclusion = lg_inclusion.split(",")
+        lg_inclusion_list = lg_inclusion.split(",")
 
-    if lg_inclusion is not None and "Latin Based" in lg_inclusion:
-        lg_inclusion.remove("Latin Based")
+    if "Latin Based" in lg_inclusion_list:
+        lg_inclusion_list.remove("Latin Based")
 
     for layer in alpha_unicode_split(decoded_sequence):
         sequence_frequencies = Counter(layer)  # type: Counter
@@ -243,17 +273,19 @@ def coherence_ratio(decoded_sequence: str, threshold: float = 0.1, lg_inclusion:
 
         popular_character_ordered = [c for c, o in most_common]  # type: List[str]
 
-        for language in lg_inclusion or alphabet_languages(popular_character_ordered):
-            ratio = characters_popularity_compare(language, popular_character_ordered)  # type: float
+        for language in lg_inclusion_list or alphabet_languages(
+            popular_character_ordered
+        ):
+            ratio = characters_popularity_compare(
+                language, popular_character_ordered
+            )  # type: float
 
             if ratio < threshold:
                 continue
             elif ratio >= 0.8:
                 sufficient_match_count += 1
 
-            results.append(
-                (language, round(ratio, 4))
-            )
+            results.append((language, round(ratio, 4)))
 
             if sufficient_match_count >= 3:
                 break

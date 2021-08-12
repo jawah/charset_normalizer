@@ -1,15 +1,15 @@
-name: Tests
+name: 🎨 Linters
 
 on: [push, pull_request]
 
 jobs:
-  tests:
+  lint:
     runs-on: ${{ matrix.os }}
 
     strategy:
       fail-fast: false
       matrix:
-        python-version: [3.5, 3.6, 3.7, 3.8, 3.9, "3.10.0-rc.1"]
+        python-version: [3.8]
         os: [ubuntu-latest]
 
     steps:
@@ -26,7 +26,15 @@ jobs:
     - name: Install the package
       run: |
         python setup.py install
-    - name: Run tests
+    - name: Type checking (Mypy)
       run: |
-        pytest
-    - uses: codecov/codecov-action@v1
+        mypy charset_normalizer
+    - name: Import sorting check (isort)
+      run: |
+        isort --check charset_normalizer
+    - name: Code format (Black)
+      run: |
+        black --check --diff --target-version=py35 charset_normalizer
+    - name: Style guide enforcement (Flake8)
+      run: |
+        flake8 charset_normalizer
