@@ -38,6 +38,7 @@ __all__ = (
     "CharsetMatches",
     "CharsetNormalizerMatch",
     "CharsetNormalizerMatches",
+    "CharsetDetector",
     "__version__",
     "VERSION",
 )
