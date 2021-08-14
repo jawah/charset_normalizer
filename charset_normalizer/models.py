@@ -380,6 +380,3 @@ class CliDetectionResult:
 
     def to_json(self) -> str:
         return dumps(self.__dict__, ensure_ascii=True, indent=4)
-
-
-CharsetNormalizerMatch = CharsetMatch

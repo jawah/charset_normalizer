@@ -18,17 +18,16 @@ at <https://github.com/Ousret/charset_normalizer>.
 :copyright: (c) 2021 by Ahmed TAHRI
 :license: MIT, see LICENSE for more details.
 """
-import charset_normalizer.api as CharsetDetector
-
 from .api import from_bytes, from_fp, from_path, normalize
-from .legacy import detect
-
-# Backward-compatible v1 imports
-from .models import CharsetMatch, CharsetMatches, CharsetNormalizerMatch
+from .legacy import (
+    CharsetDetector,
+    CharsetDoctor,
+    CharsetNormalizerMatch,
+    CharsetNormalizerMatches,
+    detect,
+)
+from .models import CharsetMatch, CharsetMatches
 from .version import VERSION, __version__
-
-CharsetNormalizerMatches = CharsetDetector
-
 
 __all__ = (
     "from_fp",
@@ -40,6 +39,8 @@ __all__ = (
     "CharsetMatches",
     "CharsetNormalizerMatch",
     "CharsetNormalizerMatches",
+    "CharsetDetector",
+    "CharsetDoctor",
     "__version__",
     "VERSION",
 )
