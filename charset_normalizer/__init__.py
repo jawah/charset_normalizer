@@ -21,6 +21,7 @@ at <https://github.com/Ousret/charset_normalizer>.
 from .api import from_bytes, from_fp, from_path, normalize
 from .legacy import (
     CharsetDetector,
+    CharsetDoctor,
     CharsetNormalizerMatch,
     CharsetNormalizerMatches,
     detect,
@@ -39,6 +40,7 @@ __all__ = (
     "CharsetNormalizerMatch",
     "CharsetNormalizerMatches",
     "CharsetDetector",
+    "CharsetDoctor",
     "__version__",
     "VERSION",
 )

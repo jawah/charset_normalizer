@@ -89,3 +89,7 @@ class CharsetNormalizerMatches(CharsetMatches):
 
 class CharsetDetector(CharsetNormalizerMatches):
     pass
+
+
+class CharsetDoctor(CharsetNormalizerMatches):
+    pass
