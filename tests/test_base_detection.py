@@ -1,7 +1,4 @@
-import unittest
-
 from charset_normalizer.api import from_bytes
-from charset_normalizer.constant import TOO_BIG_SEQUENCE
 
 import pytest
 
@@ -39,7 +36,6 @@ def test_empty_but_with_bom_or_sig(payload, expected_encoding):
         ((u'\uFEFF' + '我没有埋怨，磋砣的只是一些时间。').encode('gb18030'), "gb18030",),
         ('我没有埋怨，磋砣的只是一些时间。'.encode('utf_32'), "utf_32",),
         ('我没有埋怨，磋砣的只是一些时间。'.encode('utf_8_sig'), "utf_8",),
-
     ]
 )
 def test_content_with_bom_or_sig(payload, expected_encoding):
@@ -86,38 +82,3 @@ def test_obviously_utf8_content(payload):
 
     assert best_guess is not None, "Dead-simple UTF-8 detection has failed!"
     assert best_guess.encoding == "utf_8", "Dead-simple UTF-8 detection is wrongly detected!"
-
-
-class TestBytes(unittest.TestCase):
-
-    def test_alphabets_property_undefined_range(self):
-        payload = b'\xef\xbb\xbf\xf0\x9f\xa9\xb3'
-
-        r = from_bytes(payload)
-
-        self.assertEqual(
-            r.best().encoding,
-            "utf_8"
-        )
-
-        self.assertEqual(
-            r.best().alphabets,
-            []
-        )
-
-    def test_empty_str_with_large_sig_utf8(self):
-        r = from_bytes(b'\xef\xbb\xbf' + (b'0' * TOO_BIG_SEQUENCE)).best()
-
-        self.assertIsNotNone(r)
-        self.assertEqual(
-            '0' * TOO_BIG_SEQUENCE,
-            str(r)
-        )
-        self.assertEqual(
-            "utf_8",
-            r.encoding
-        )
-        self.assertEqual(
-            TOO_BIG_SEQUENCE + 3,
-            len(r.raw)
-        )
