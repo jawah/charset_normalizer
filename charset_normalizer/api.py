@@ -64,8 +64,7 @@ def from_bytes(
 
     if not isinstance(sequences, bytes):
         raise TypeError(
-            "Expected object of type bytes, got: "
-            "{0}".format(type(sequences))
+            "Expected object of type bytes, got: {0}".format(type(sequences))
         )
 
     if not explain:
