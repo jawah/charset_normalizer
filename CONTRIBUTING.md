@@ -67,3 +67,7 @@ the backward-compatibility.
   - Submitting a PR without any description OR viable commit description
 > This is obvious, maintainers need to understand as fast as possible what are you trying to submit without putting too much effort.
 
+## How to run tests locally?
+
+It is essential that you run, prior to any submissions the mandatory checks.
+Run the script `./bin/run_checks.sh` to verify that your modification are not breaking anything.
