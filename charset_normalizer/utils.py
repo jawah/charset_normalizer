@@ -34,6 +34,7 @@ def is_accentuated(character: str) -> bool:
         or "WITH CEDILLA" in description
         or "WITH DIAERESIS" in description
         or "WITH CIRCUMFLEX" in description
+        or "WITH TILDE" in description
     )
 
 
