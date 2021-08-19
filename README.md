@@ -5,9 +5,6 @@
   <a href="https://pypi.org/project/charset-normalizer">
     <img src="https://img.shields.io/pypi/pyversions/charset_normalizer.svg?orange=blue" />
   </a>
-  <a href="https://app.codacy.com/project/Ousret/charset_normalizer/dashboard">
-    <img alt="Code Quality Badge" src="https://api.codacy.com/project/badge/Grade/a0c85b7f56dd4f628dc022763f82762c"/>
-  </a>
   <a href="https://codecov.io/gh/Ousret/charset_normalizer">
       <img src="https://codecov.io/gh/Ousret/charset_normalizer/branch/master/graph/badge.svg" />
   </a>
