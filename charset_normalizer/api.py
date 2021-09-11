@@ -62,9 +62,11 @@ def from_bytes(
     This function will strip the SIG in the payload/sequence every time except on UTF-16, UTF-32.
     """
 
-    if not isinstance(sequences, bytes):
+    if not isinstance(sequences, (bytearray, bytes)):
         raise TypeError(
-            "Expected object of type bytes, got: {0}".format(type(sequences))
+            "Expected object of type bytes or bytearray, got: {0}".format(
+                type(sequences)
+            )
         )
 
     if not explain:
