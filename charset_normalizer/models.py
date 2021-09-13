@@ -296,6 +296,9 @@ class CharsetMatches:
     def __len__(self) -> int:
         return len(self._results)
 
+    def __bool__(self) -> bool:
+        return len(self._results) > 0
+
     def append(self, item: CharsetMatch) -> None:
         """
         Insert a single match. Will be inserted accordingly to preserve sort.
