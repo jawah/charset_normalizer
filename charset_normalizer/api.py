@@ -9,7 +9,6 @@ except ImportError:
     PathLike = Union[str, "os.PathLike[str]"]  # type: ignore
 
 import logging
-from warnings import warn
 
 from .cd import (
     coherence_ratio,
@@ -119,8 +118,14 @@ def from_bytes(
     is_too_large_sequence = len(sequences) >= TOO_BIG_SEQUENCE  # type: bool
 
     if is_too_small_sequence:
-        warn(
+        logger.warning(
             "Trying to detect encoding from a tiny portion of ({}) byte(s).".format(
+                length
+            )
+        )
+    elif is_too_large_sequence:
+        logger.info(
+            "Using lazy str decoding because the payload is quite large, ({}) byte(s).".format(
                 length
             )
         )
