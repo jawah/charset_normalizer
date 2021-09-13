@@ -39,7 +39,7 @@ Like said earlier, ``CharsetMatches`` object behave like a list.
   ::
 
     # Call len on results also work
-    if len(results) == 0:
+    if not results:
         print('No match for your sequence')
 
     # Iterate over results like a list
@@ -47,7 +47,7 @@ Like said earlier, ``CharsetMatches`` object behave like a list.
         print(match.encoding, 'can decode properly your sequence using', match.alphabets, 'and language', match.language)
 
     # Using index to access results
-    if len(results) > 0:
+    if results:
         print(str(results[0]))
 
 Using best()
