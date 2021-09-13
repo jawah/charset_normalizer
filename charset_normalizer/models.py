@@ -57,9 +57,16 @@ class CharsetMatch:
 
         # Bellow 1% difference --> Use Coherence
         if chaos_difference < 0.01:
+            # When having a tough decision, use the result that decoded as many multi-byte as possible.
+            if chaos_difference == 0.0 and self.coherence == other.coherence:
+                return self.multi_byte_usage > other.multi_byte_usage
             return self.coherence > other.coherence
 
         return self.chaos < other.chaos
+
+    @property
+    def multi_byte_usage(self) -> float:
+        return 1.0 - len(str(self)) / len(self.raw)
 
     @property
     def chaos_secondary_pass(self) -> float:

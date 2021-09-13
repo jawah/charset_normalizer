@@ -111,6 +111,16 @@ def is_symbol(character: str) -> bool:
 
 
 @lru_cache(maxsize=UTF8_MAXIMAL_ALLOCATION)
+def is_emoticon(character: str) -> bool:
+    character_range = unicode_range(character)  # type: Optional[str]
+
+    if character_range is None:
+        return False
+
+    return "Emoticons" in character_range
+
+
+@lru_cache(maxsize=UTF8_MAXIMAL_ALLOCATION)
 def is_separator(character: str) -> bool:
     if character.isspace() or character in ["｜", "+", ",", ";", "<", ">"]:
         return True
