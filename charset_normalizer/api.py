@@ -276,7 +276,17 @@ def from_bytes(
         md_ratios = []
 
         for i in r_:
-            cut_sequence = sequences[i : i + chunk_size]
+            # If current encoding support multi-byte character, we want to adjust the initial
+            # index cutting. The end does not matter. Remember that there is no reliable method
+            # to find high byte for every conceivable code page. We do our best.
+            if is_multi_byte_decoder and i > 0 and sequences[i] > 128:
+                adjusted_offset, max_value = i, sequences[i]
+                for y in range(i, i - 4):
+                    if sequences[y] > max_value:
+                        adjusted_offset, max_value = y, sequences[y]
+                cut_sequence = sequences[adjusted_offset : i + chunk_size]
+            else:
+                cut_sequence = sequences[i : i + chunk_size]
 
             if bom_or_sig_available and strip_sig_or_bom is False:
                 cut_sequence = sig_payload + cut_sequence
