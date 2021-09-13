@@ -38,5 +38,5 @@ def test_elementary_detection(
     best_guess = from_path("./data/{}".format(input_data_file)).best()
 
     assert best_guess is not None, "Elementary detection has failed upon '{}'".format(input_data_file)
-    assert best_guess.language == expected_language, "Elementary charset detection has failed upon '{}'".format(input_data_file)
+    assert best_guess.encoding == expected_charset, "Elementary charset detection has failed upon '{}'".format(input_data_file)
     assert best_guess.language == expected_language, "Elementary language detection has failed upon '{}'".format(input_data_file)
