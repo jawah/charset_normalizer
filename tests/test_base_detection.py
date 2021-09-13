@@ -83,7 +83,8 @@ def test_obviously_ascii_content(payload):
         "(° ͜ʖ °), creepy face, smiley 😀".encode("utf_8"),
         """["Financiën", "La France"]""".encode("utf_8"),
         "Qu'est ce que une étoile?".encode("utf_8"),
-        """<?xml ?><c>Financiën</c>""".encode("utf_8")
+        """<?xml ?><c>Financiën</c>""".encode("utf_8"),
+        "😀".encode("utf_8")
     ]
 )
 def test_obviously_utf8_content(payload):

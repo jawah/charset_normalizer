@@ -7,6 +7,7 @@ from .utils import (
     is_ascii,
     is_case_variable,
     is_cjk,
+    is_emoticon,
     is_hangul,
     is_hiragana,
     is_katakana,
@@ -87,7 +88,11 @@ class TooManySymbolOrPunctuationPlugin(MessDetectorPlugin):
         ]:
             if is_punctuation(character):
                 self._punctuation_count += 1
-            elif character.isdigit() is False and is_symbol(character):
+            elif (
+                character.isdigit() is False
+                and is_symbol(character)
+                and is_emoticon(character) is False
+            ):
                 self._symbol_count += 2
 
         self._last_printable_char = character
