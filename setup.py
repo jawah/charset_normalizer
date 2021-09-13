@@ -75,6 +75,7 @@ setup(
         'Programming Language :: Python :: 3.10',
         'Topic :: Text Processing :: Linguistic',
         'Topic :: Utilities',
-        'Programming Language :: Python :: Implementation :: PyPy'
+        'Programming Language :: Python :: Implementation :: PyPy',
+        'Typing :: Typed'
     ],
 )
