@@ -92,3 +92,16 @@ def test_obviously_utf8_content(payload):
 
     assert best_guess is not None, "Dead-simple UTF-8 detection has failed!"
     assert best_guess.encoding == "utf_8", "Dead-simple UTF-8 detection is wrongly detected!"
+
+
+def test_mb_cutting_chk():
+    # This payload should be wrongfully split and the autofix should ran automatically
+    # on chunks extraction.
+    payload = b"\xbf\xaa\xbb\xe7\xc0\xfb    \xbf\xb9\xbc\xf6 " \
+              b"   \xbf\xac\xb1\xb8\xc0\xda\xb5\xe9\xc0\xba  \xba\xb9\xc0\xbd\xbc\xad\xb3\xaa " * 128
+
+    guesses = from_bytes(payload, cp_isolation=["cp949"])
+    best_guess = guesses.best()
+
+    assert len(guesses) == 1, "cp isolation is set and given seq should be clear CP949!"
+    assert best_guess.encoding == "cp949"
