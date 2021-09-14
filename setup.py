@@ -78,4 +78,8 @@ setup(
         'Programming Language :: Python :: Implementation :: PyPy',
         'Typing :: Typed'
     ],
+    project_urls={
+        'Bug Reports': 'https://github.com/Ousret/charset_normalizer/issues',
+        'Documentation': 'https://charset-normalizer.readthedocs.io/en/latest',
+    },
 )
