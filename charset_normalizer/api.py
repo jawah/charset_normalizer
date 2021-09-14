@@ -292,9 +292,14 @@ def from_bytes(
             # not the cleanest way to perform that fix but clever enough for now.
             if is_multi_byte_decoder and i > 0 and sequences[i] >= 0x80:
 
-                chunk_partial_size_chk = 16 if chunk_size > 16 else chunk_size  # type: int
+                chunk_partial_size_chk = (
+                    16 if chunk_size > 16 else chunk_size
+                )  # type: int
 
-                if decoded_payload and chunk[:chunk_partial_size_chk] not in decoded_payload:
+                if (
+                    decoded_payload
+                    and chunk[:chunk_partial_size_chk] not in decoded_payload
+                ):
                     for j in range(i, i - 4, -1):
                         cut_sequence = sequences[j : i + chunk_size]
 
