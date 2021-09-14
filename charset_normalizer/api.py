@@ -288,6 +288,24 @@ def from_bytes(
 
             chunk = cut_sequence.decode(encoding_iana, errors="ignore")  # type: str
 
+            # multi-byte bad cutting detector and adjustment
+            # not the cleanest way to perform that fix but clever enough for now.
+            if is_multi_byte_decoder and i > 0 and sequences[i] >= 0x80:
+
+                chunk_partial_size_chk = 16 if chunk_size > 16 else chunk_size  # type: int
+
+                if decoded_payload and chunk[:chunk_partial_size_chk] not in decoded_payload:
+                    for j in range(i, i - 4, -1):
+                        cut_sequence = sequences[j : i + chunk_size]
+
+                        if bom_or_sig_available and strip_sig_or_bom is False:
+                            cut_sequence = sig_payload + cut_sequence
+
+                        chunk = cut_sequence.decode(encoding_iana, errors="ignore")
+
+                        if chunk[:chunk_partial_size_chk] in decoded_payload:
+                            break
+
             md_chunks.append(chunk)
 
             md_ratios.append(mess_ratio(chunk, threshold))
