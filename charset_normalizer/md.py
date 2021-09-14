@@ -154,6 +154,7 @@ class UnprintablePlugin(MessDetectorPlugin):
         if (
             character not in {"\n", "\t", "\r", "\v"}
             and character.isprintable() is False
+            and character.isspace() is False
         ):
             self._unprintable_count += 1
         self._character_count += 1
