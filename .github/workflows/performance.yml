@@ -1,6 +1,6 @@
 name: Performance Check
 
-on: [push, pull_request]
+on: [pull_request]
 
 jobs:
   performance:
@@ -34,7 +34,7 @@ jobs:
         python ./bin/performance.py
     - name: Performance (Medium)
       run: |
-        python ./bin/performance.py --size-increase 16
+        python ./bin/performance.py --size-increase 2
     - name: Performance (Big)
       run: |
-        python ./bin/performance.py --size-increase 32
+        python ./bin/performance.py --size-increase 4
