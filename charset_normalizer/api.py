@@ -3,7 +3,7 @@ from typing import BinaryIO, List, Optional, Set
 
 try:
     from os import PathLike
-except ImportError:
+except ImportError:  # pragma: no cover
     PathLike = str  # type: ignore
 
 import logging
