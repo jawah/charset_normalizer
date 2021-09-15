@@ -1,12 +1,10 @@
 from os.path import basename, splitext
-from typing import BinaryIO, List, Optional, Set, Union
+from typing import BinaryIO, List, Optional, Set
 
 try:
     from os import PathLike
 except ImportError:
-    import os
-
-    PathLike = Union[str, "os.PathLike[str]"]  # type: ignore
+    PathLike = str  # type: ignore
 
 import logging
 
