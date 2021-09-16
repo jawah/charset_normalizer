@@ -65,6 +65,46 @@ class TestCommandLineInterface(unittest.TestCase):
             )
         )
 
+    def test_with_alternative(self):
+        self.assertEqual(
+            0,
+            cli_detect(
+                [
+                    '-a',
+                    './data/sample.1.ar.srt',
+                    './data/sample.1.he.srt',
+                    './data/sample-chinese.txt'
+                ]
+            )
+        )
+
+    def test_with_minimal_output(self):
+        self.assertEqual(
+            0,
+            cli_detect(
+                [
+                    '-m',
+                    './data/sample.1.ar.srt',
+                    './data/sample.1.he.srt',
+                    './data/sample-chinese.txt'
+                ]
+            )
+        )
+
+    def test_with_minimal_and_alt(self):
+        self.assertEqual(
+            0,
+            cli_detect(
+                [
+                    '-m',
+                    '-a',
+                    './data/sample.1.ar.srt',
+                    './data/sample.1.he.srt',
+                    './data/sample-chinese.txt'
+                ]
+            )
+        )
+
     def test_non_existent_file(self):
 
         with self.assertRaises(SystemExit) as cm:
