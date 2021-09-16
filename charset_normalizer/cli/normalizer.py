@@ -195,7 +195,7 @@ def cli_detect(argv: List[str] = None) -> int:
 
             if len(matches) > 1 and args.alternatives:
                 for el in matches:
-                    if el != matches:
+                    if el != best_guess:
                         x_.append(
                             CliDetectionResult(
                                 abspath(my_file.name),
@@ -273,7 +273,16 @@ def cli_detect(argv: List[str] = None) -> int:
             )
         )
     else:
-        print(", ".join([el.encoding if el.encoding else "undefined" for el in x_]))
+        for my_file in args.files:
+            print(
+                ", ".join(
+                    [
+                        el.encoding if el.encoding else "undefined"
+                        for el in x_
+                        if el.path == abspath(my_file.name)
+                    ]
+                )
+            )
 
     return 0
 
