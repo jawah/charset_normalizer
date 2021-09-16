@@ -155,6 +155,7 @@ class UnprintablePlugin(MessDetectorPlugin):
             character not in {"\n", "\t", "\r", "\v"}
             and character.isprintable() is False
             and character.isspace() is False
+            and ord(character) != 0x1A  # Why? Its the ASCII substitute character.
         ):
             self._unprintable_count += 1
         self._character_count += 1
