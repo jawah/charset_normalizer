@@ -219,7 +219,22 @@ class SuspiciousRange(MessDetectorPlugin):
     def feed(self, character: str) -> None:
         self._character_count += 1
 
-        if character.isspace() or is_punctuation(character):
+        if character.isspace() or is_punctuation(character) or character in [
+            "<",
+            ">",
+            "=",
+            ":",
+            "/",
+            "&",
+            ";",
+            "{",
+            "}",
+            "[",
+            "]",
+            ",",
+            "|",
+            '"',
+        ]:
             self._last_printable_seen = None
             return
 
