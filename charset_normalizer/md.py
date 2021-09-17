@@ -85,7 +85,7 @@ class TooManySymbolOrPunctuationPlugin(MessDetectorPlugin):
             ",",
             "|",
             '"',
-            "-"
+            "-",
         ]:
             if is_punctuation(character):
                 self._punctuation_count += 1
