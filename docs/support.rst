@@ -114,7 +114,7 @@ utf_7            u7, unicode-1-1-utf-7
 Supported Languages
 -------------------
 
-Those language can be detected inside your content. All of these are specified in ./charset_normalizer/assets/frequencies.json .
+Those language can be detected inside your content. All of these are specified in ./charset_normalizer/assets/__init__.py .
 
 
 English,
