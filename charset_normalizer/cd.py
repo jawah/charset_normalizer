@@ -2,7 +2,7 @@ import importlib
 from codecs import IncrementalDecoder
 from collections import Counter
 from functools import lru_cache
-from typing import Dict, List, Optional, Set, Tuple
+from typing import Dict, List, Optional, Tuple
 
 from .assets import FREQUENCIES
 from .md import is_suspiciously_successive_range
@@ -20,9 +20,10 @@ def encoding_unicode_range(iana_name: str) -> List[str]:
     decoder = importlib.import_module("encodings.{}".format(iana_name)).IncrementalDecoder  # type: ignore
 
     p = decoder(errors="ignore")  # type: IncrementalDecoder
-    seen_ranges = set()  # type: Set[str]
+    seen_ranges = {}  # type: Dict[str, int]
+    character_count = 0  # type: int
 
-    for i in range(48, 255):
+    for i in range(0x40, 0xFF):
         chunk = p.decode(bytes([i]))  # type: str
 
         if chunk:
@@ -32,9 +33,18 @@ def encoding_unicode_range(iana_name: str) -> List[str]:
                 continue
 
             if is_unicode_range_secondary(character_range) is False:
-                seen_ranges.add(character_range)
+                if character_range not in seen_ranges:
+                    seen_ranges[character_range] = 0
+                seen_ranges[character_range] += 1
+                character_count += 1
 
-    return sorted(list(seen_ranges))
+    return sorted(
+        [
+            character_range
+            for character_range in seen_ranges
+            if seen_ranges[character_range] / character_count >= 0.15
+        ]
+    )
 
 
 def unicode_range_languages(primary_range: str) -> List[str]:
@@ -81,10 +91,10 @@ def mb_encoding_languages(iana_name: str) -> List[str]:
         iana_name.startswith("shift_")
         or iana_name.startswith("iso2022_jp")
         or iana_name.startswith("euc_j")
-        or iana_name in {"cp932"}
+        or iana_name == "cp932"
     ):
         return ["Japanese"]
-    if iana_name.startswith("gb") or iana_name in {"big5", "cp950", "big5hkscs"}:
+    if iana_name.startswith("gb") or iana_name in {"big5", "cp950", "big5hkscs", "hz"}:
         return ["Chinese", "Classical Chinese"]
     if iana_name.startswith("iso2022_kr") or iana_name in {"johab", "cp949", "euc_kr"}:
         return ["Korean"]
