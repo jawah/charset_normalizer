@@ -21,6 +21,25 @@ from .utils import (
 )
 
 
+SUSPICIOUS = {
+                "<",
+                ">",
+                "=",
+                ":",
+                "/",
+                "&",
+                ";",
+                "{",
+                "}",
+                "[",
+                "]",
+                ",",
+                "|",
+                '"',
+                "-",
+}
+
+
 class MessDetectorPlugin:
     """
     Base abstract class used for mess detection plugins.
@@ -70,23 +89,7 @@ class TooManySymbolOrPunctuationPlugin(MessDetectorPlugin):
     def feed(self, character: str) -> None:
         self._character_count += 1
 
-        if character != self._last_printable_char and character not in [
-            "<",
-            ">",
-            "=",
-            ":",
-            "/",
-            "&",
-            ";",
-            "{",
-            "}",
-            "[",
-            "]",
-            ",",
-            "|",
-            '"',
-            "-",
-        ]:
+        if character != self._last_printable_char and character not in SUSPICIOUS:
             if is_punctuation(character):
                 self._punctuation_count += 1
             elif (
@@ -153,9 +156,8 @@ class UnprintablePlugin(MessDetectorPlugin):
 
     def feed(self, character: str) -> None:
         if (
-            character not in {"\n", "\t", "\r", "\v"}
+            character.isspace() is False  # includes \n \t \r \v
             and character.isprintable() is False
-            and character.isspace() is False
             and ord(character) != 0x1A  # Why? Its the ASCII substitute character.
         ):
             self._unprintable_count += 1
@@ -223,24 +225,7 @@ class SuspiciousRange(MessDetectorPlugin):
         if (
             character.isspace()
             or is_punctuation(character)
-            or character
-            in [
-                "<",
-                ">",
-                "=",
-                ":",
-                "/",
-                "&",
-                ";",
-                "{",
-                "}",
-                "[",
-                "]",
-                ",",
-                "|",
-                '"',
-                "-",
-            ]
+            or character in SUSPICIOUS
         ):
             self._last_printable_seen = None
             return
@@ -495,17 +480,16 @@ def is_suspiciously_successive_range(
             return False
 
     # Japanese Exception
-    if unicode_range_a in ["Katakana", "Hiragana"] and unicode_range_b in [
-        "Katakana",
-        "Hiragana",
-    ]:
-        return False
-
     if unicode_range_a in ["Katakana", "Hiragana"] or unicode_range_b in [
         "Katakana",
         "Hiragana",
     ]:
         if "CJK" in unicode_range_a or "CJK" in unicode_range_b:
+            return False
+        if unicode_range_a in ["Katakana", "Hiragana"] and unicode_range_b in [
+            "Katakana",
+            "Hiragana",
+        ]:
             return False
 
     if "Hangul" in unicode_range_a or "Hangul" in unicode_range_b:
@@ -533,11 +517,9 @@ def mess_ratio(
 ) -> float:
     """
     Compute a mess ratio given a decoded bytes sequence. The maximum threshold does stop the computation earlier.
-    """
-    detectors = []  # type: List[MessDetectorPlugin]
+    """ 
 
-    for md_class in MessDetectorPlugin.__subclasses__():
-        detectors.append(md_class())
+    detectors = [md_class() for md_class in MessDetectorPlugin.__subclasses__()]  # type: List[MessDetectorPlugin]
 
     length = len(decoded_sequence)  # type: int
 
