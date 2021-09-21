@@ -114,12 +114,10 @@ def alphabet_languages(characters: List[str]) -> List[str]:
     languages = []  # type: List[str]
 
     for language, language_characters in FREQUENCIES.items():
-        character_match_count = 0  # type: int
         character_count = len(language_characters)  # type: int
 
-        for character in language_characters:
-            if character in characters:
-                character_match_count += 1
+        # type: int
+        character_match_count = len([c for c in language_characters if c in characters])
 
         if character_match_count / character_count >= 0.2:
             languages.append(language)
