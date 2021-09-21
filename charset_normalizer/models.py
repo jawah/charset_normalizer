@@ -225,12 +225,10 @@ class CharsetMatch:
     def alphabets(self) -> List[str]:
         if self._unicode_ranges is not None:
             return self._unicode_ranges
-        detected_ranges = set()  # type: Set[str]
-        for character in str(self):
-            detected_range = unicode_range(character)  # type: Optional[str]
-            if detected_range:
-                detected_ranges.add(detected_range)
-        self._unicode_ranges = sorted(list(detected_ranges))
+        # list detected ranges
+        detected_ranges = [unicode_range(char) for char in str(self)]
+        # filter and sort
+        self._unicode_ranges = sorted(filter(None.__ne__, detected_ranges))
         return self._unicode_ranges
 
     @property
