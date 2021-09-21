@@ -62,7 +62,7 @@ def unicode_range_languages(primary_range: str) -> List[str]:
     return languages
 
 
-@lru_cache()
+@lru_cache(maxsize=4096) # up to 2999 IANA char sets
 def encoding_languages(iana_name: str) -> List[str]:
     """
     Single-byte encoding language association. Some code page are heavily linked to particular language(s).
@@ -82,11 +82,16 @@ def encoding_languages(iana_name: str) -> List[str]:
     return unicode_range_languages(primary_range)
 
 
+ZH_NAMES = {"big5", "cp950", "big5hkscs", "hz"}
+KO_NAMES = {"johab", "cp949", "euc_kr"}
+
+@lru_cache(maxsize=4096) # up to 2999 IANA char sets
 def mb_encoding_languages(iana_name: str) -> List[str]:
     """
     Multi-byte encoding language association. Some code page are heavily linked to particular language(s).
     This function does the correspondence.
     """
+    # todo: order conditions by general language/encoding frequency?
     if (
         iana_name.startswith("shift_")
         or iana_name.startswith("iso2022_jp")
@@ -94,9 +99,9 @@ def mb_encoding_languages(iana_name: str) -> List[str]:
         or iana_name == "cp932"
     ):
         return ["Japanese"]
-    if iana_name.startswith("gb") or iana_name in {"big5", "cp950", "big5hkscs", "hz"}:
+    if iana_name.startswith("gb") or iana_name in ZH_NAMES:
         return ["Chinese", "Classical Chinese"]
-    if iana_name.startswith("iso2022_kr") or iana_name in {"johab", "cp949", "euc_kr"}:
+    if iana_name.startswith("iso2022_kr") or iana_name in KO_NAMES:
         return ["Korean"]
 
     return []
