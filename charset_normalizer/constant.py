@@ -2,7 +2,7 @@ from codecs import BOM_UTF8, BOM_UTF16_BE, BOM_UTF16_LE, BOM_UTF32_BE, BOM_UTF32
 from collections import OrderedDict
 from encodings.aliases import aliases
 from re import IGNORECASE, compile as re_compile
-from typing import Dict, List, Union
+from typing import Dict, List, Set, Union
 
 # Contain for each eligible encoding a list of/item bytes SIG/BOM
 ENCODING_MARKS = OrderedDict(
