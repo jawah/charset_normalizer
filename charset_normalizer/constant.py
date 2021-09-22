@@ -492,3 +492,5 @@ COMMON_SAFE_ASCII_CHARACTERS = {
 
 KO_NAMES = {"johab", "cp949", "euc_kr"}  # type: Set[str]
 ZH_NAMES = {"big5", "cp950", "big5hkscs", "hz"}  # type: Set[str]
+
+NOT_PRINTABLE_PATTERN = re_compile(r"[0-9\W\n\r\t]+")
