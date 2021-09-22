@@ -184,10 +184,10 @@ See the docs for advanced usage : [readthedocs.io](https://charset-normalizer.re
 ## 😇 Why
 
 When I started using Chardet, I noticed that it was not suited to my expectations, and I wanted to propose a
-reliable alternative using a completely different method. Also! I never back down on a good challenge !
+reliable alternative using a completely different method. Also! I never back down on a good challenge!
 
 I **don't care** about the **originating charset** encoding, because **two different tables** can
-produce **two identical files.**
+produce **two identical rendered string.**
 What I want is to get readable text, the best I can. 
 
 In a way, **I'm brute forcing text decoding.** How cool is that ? 😎
@@ -199,7 +199,7 @@ Don't confuse package **ftfy** with charset-normalizer or chardet. ftfy goal is 
   - Discard all charset encoding table that could not fit the binary content.
   - Measure chaos, or the mess once opened (by chunks) with a corresponding charset encoding.
   - Extract matches with the lowest mess detected.
-  - Finally, we measure coherence / probe for a language.
+  - Additionally, we measure coherence / probe for a language.
 
 **Wait a minute**, what is chaos/mess and coherence according to **YOU ?**
 
