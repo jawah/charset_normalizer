@@ -5,6 +5,7 @@ from functools import lru_cache
 from typing import Dict, List, Optional, Tuple
 
 from .assets import FREQUENCIES
+from .constant import KO_NAMES, ZH_NAMES
 from .md import is_suspiciously_successive_range
 from .models import CoherenceMatches
 from .utils import is_multi_byte_encoding, is_unicode_range_secondary, unicode_range
@@ -62,7 +63,7 @@ def unicode_range_languages(primary_range: str) -> List[str]:
     return languages
 
 
-@lru_cache(maxsize=4096) # up to 2999 IANA char sets
+@lru_cache(maxsize=None)
 def encoding_languages(iana_name: str) -> List[str]:
     """
     Single-byte encoding language association. Some code page are heavily linked to particular language(s).
@@ -82,16 +83,12 @@ def encoding_languages(iana_name: str) -> List[str]:
     return unicode_range_languages(primary_range)
 
 
-ZH_NAMES = {"big5", "cp950", "big5hkscs", "hz"}
-KO_NAMES = {"johab", "cp949", "euc_kr"}
-
-@lru_cache(maxsize=4096) # up to 2999 IANA char sets
+@lru_cache(maxsize=None)
 def mb_encoding_languages(iana_name: str) -> List[str]:
     """
     Multi-byte encoding language association. Some code page are heavily linked to particular language(s).
     This function does the correspondence.
     """
-    # todo: order conditions by general language/encoding frequency?
     if (
         iana_name.startswith("shift_")
         or iana_name.startswith("iso2022_jp")
@@ -116,8 +113,7 @@ def alphabet_languages(characters: List[str]) -> List[str]:
     for language, language_characters in FREQUENCIES.items():
         character_count = len(language_characters)  # type: int
 
-        # type: int
-        character_match_count = len([c for c in language_characters if c in characters])
+        character_match_count = len([c for c in language_characters if c in characters])  # type: int
 
         if character_match_count / character_count >= 0.2:
             languages.append(language)

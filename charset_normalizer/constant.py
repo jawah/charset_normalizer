@@ -469,3 +469,26 @@ CHARDET_CORRESPONDENCE = {
     "cp1254": "Windows-1254",
     "cp949": "CP949",
 }  # type: Dict[str, str]
+
+
+COMMON_SAFE_ASCII_CHARACTERS = {
+    "<",
+    ">",
+    "=",
+    ":",
+    "/",
+    "&",
+    ";",
+    "{",
+    "}",
+    "[",
+    "]",
+    ",",
+    "|",
+    '"',
+    "-",
+}  # type: Set[str]
+
+
+KO_NAMES = {"johab", "cp949", "euc_kr"}  # type: Set[str]
+ZH_NAMES = {"big5", "cp950", "big5hkscs", "hz"}  # type: Set[str]

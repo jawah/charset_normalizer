@@ -1,7 +1,7 @@
 from functools import lru_cache
 from typing import List, Optional
 
-from .constant import UNICODE_SECONDARY_RANGE_KEYWORD
+from .constant import COMMON_SAFE_ASCII_CHARACTERS, UNICODE_SECONDARY_RANGE_KEYWORD
 from .utils import (
     is_accentuated,
     is_ascii,
@@ -19,25 +19,6 @@ from .utils import (
     remove_accent,
     unicode_range,
 )
-
-
-SUSPICIOUS = {
-                "<",
-                ">",
-                "=",
-                ":",
-                "/",
-                "&",
-                ";",
-                "{",
-                "}",
-                "[",
-                "]",
-                ",",
-                "|",
-                '"',
-                "-",
-}
 
 
 class MessDetectorPlugin:
@@ -89,7 +70,7 @@ class TooManySymbolOrPunctuationPlugin(MessDetectorPlugin):
     def feed(self, character: str) -> None:
         self._character_count += 1
 
-        if character != self._last_printable_char and character not in SUSPICIOUS:
+        if character != self._last_printable_char and character not in COMMON_SAFE_ASCII_CHARACTERS:
             if is_punctuation(character):
                 self._punctuation_count += 1
             elif (
@@ -225,7 +206,7 @@ class SuspiciousRange(MessDetectorPlugin):
         if (
             character.isspace()
             or is_punctuation(character)
-            or character in SUSPICIOUS
+            or character in COMMON_SAFE_ASCII_CHARACTERS
         ):
             self._last_printable_seen = None
             return
