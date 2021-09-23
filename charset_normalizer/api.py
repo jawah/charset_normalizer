@@ -413,13 +413,6 @@ def from_bytes(
             )
             return CharsetMatches([results[encoding_iana]])
 
-        if results[-1].languages:
-            logger.info(
-                "Using %s code page we detected the following languages: %s",
-                encoding_iana,
-                results[encoding_iana]._languages,
-            )
-
     if len(results) == 0:
         if fallback_u8 or fallback_ascii or fallback_specified:
             logger.warning(
