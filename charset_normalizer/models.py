@@ -228,7 +228,7 @@ class CharsetMatch:
         # list detected ranges
         detected_ranges = [unicode_range(char) for char in str(self)]  # type: List[str]
         # filter and sort
-        self._unicode_ranges = sorted([r for r in detected_ranges if r])
+        self._unicode_ranges = sorted([r for r in detected_ranges if r])  # type: ignore
         return self._unicode_ranges
 
     @property
