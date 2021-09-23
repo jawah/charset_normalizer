@@ -63,7 +63,7 @@ def unicode_range_languages(primary_range: str) -> List[str]:
     return languages
 
 
-@lru_cache(maxsize=None)
+@lru_cache()
 def encoding_languages(iana_name: str) -> List[str]:
     """
     Single-byte encoding language association. Some code page are heavily linked to particular language(s).
@@ -83,7 +83,7 @@ def encoding_languages(iana_name: str) -> List[str]:
     return unicode_range_languages(primary_range)
 
 
-@lru_cache(maxsize=None)
+@lru_cache()
 def mb_encoding_languages(iana_name: str) -> List[str]:
     """
     Multi-byte encoding language association. Some code page are heavily linked to particular language(s).
