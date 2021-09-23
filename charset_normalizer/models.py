@@ -226,7 +226,7 @@ class CharsetMatch:
         if self._unicode_ranges is not None:
             return self._unicode_ranges
         # list detected ranges
-        detected_ranges = [unicode_range(char) for char in str(self)]  # type: List[str]
+        detected_ranges = [unicode_range(char) for char in str(self)]  # type: List[Optional[str]]
         # filter and sort
         self._unicode_ranges = sorted([r for r in detected_ranges if r])  # type: ignore
         return self._unicode_ranges
