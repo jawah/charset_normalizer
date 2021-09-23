@@ -1,10 +1,4 @@
-"""
-This submodule purpose is to load attached JSON asset.
-Will be loaded once per package import / python init.
-
-The file 'frequencies.json' is mandatory for language/coherence detection. Not having it will weaker considerably
-the core detection.
-"""
+# -*- coding: utf_8 -*-
 from collections import OrderedDict
 
 FREQUENCIES = OrderedDict(
