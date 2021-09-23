@@ -461,16 +461,12 @@ def is_suspiciously_successive_range(
             return False
 
     # Japanese Exception
-    if unicode_range_a in ["Katakana", "Hiragana"] or unicode_range_b in [
-        "Katakana",
-        "Hiragana",
-    ]:
+    range_a_jp_chars, range_b_jp_chars = unicode_range_a in ("Hiragana", "Katakana"), \
+                                         unicode_range_b in ("Hiragana", "Katakana")
+    if range_a_jp_chars or range_b_jp_chars:
         if "CJK" in unicode_range_a or "CJK" in unicode_range_b:
             return False
-        if unicode_range_a in ["Katakana", "Hiragana"] and unicode_range_b in [
-            "Katakana",
-            "Hiragana",
-        ]:
+        if range_a_jp_chars and range_b_jp_chars:
             return False
 
     if "Hangul" in unicode_range_a or "Hangul" in unicode_range_b:
