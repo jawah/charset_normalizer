@@ -149,9 +149,6 @@ def from_bytes(
     fallback_u8 = None  # type: Optional[CharsetMatch]
     fallback_specified = None  # type: Optional[CharsetMatch]
 
-    single_byte_hard_failure_count = 0  # type: int
-    single_byte_soft_failure_count = 0  # type: int
-
     results = CharsetMatches()  # type: CharsetMatches
 
     sig_encoding, sig_payload = identify_sig_or_bom(sequences)
@@ -218,20 +215,14 @@ def from_bytes(
                     else sequences[len(sig_payload) :],
                     encoding=encoding_iana,
                 )
-        except UnicodeDecodeError as e:
-            logger.warning(
-                "Code page %s does not fit given bytes sequence at ALL. %s",
-                encoding_iana,
-                str(e),
-            )
+        except (UnicodeDecodeError, LookupError) as e:
+            if not isinstance(e, LookupError):
+                logger.warning(
+                    "Code page %s does not fit given bytes sequence at ALL. %s",
+                    encoding_iana,
+                    str(e),
+                )
             tested_but_hard_failure.append(encoding_iana)
-            if not is_multi_byte_decoder:
-                single_byte_hard_failure_count += 1
-            continue
-        except LookupError:
-            tested_but_hard_failure.append(encoding_iana)
-            if not is_multi_byte_decoder:
-                single_byte_hard_failure_count += 1
             continue
 
         similar_soft_failure_test = False  # type: bool
@@ -328,8 +319,6 @@ def from_bytes(
 
         if mean_mess_ratio >= threshold or early_stop_count >= max_chunk_gave_up:
             tested_but_soft_failure.append(encoding_iana)
-            if not is_multi_byte_decoder:
-                single_byte_soft_failure_count += 1
             logger.warning(
                 "%s was excluded because of initial chaos probing. Gave up %i time(s). "
                 "Computed mean chaos is %f %%.",
