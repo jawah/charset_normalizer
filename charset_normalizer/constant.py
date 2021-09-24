@@ -2,7 +2,7 @@ from codecs import BOM_UTF8, BOM_UTF16_BE, BOM_UTF16_LE, BOM_UTF32_BE, BOM_UTF32
 from collections import OrderedDict
 from encodings.aliases import aliases
 from re import IGNORECASE, compile as re_compile
-from typing import Dict, List, Union
+from typing import Dict, List, Set, Union
 
 # Contain for each eligible encoding a list of/item bytes SIG/BOM
 ENCODING_MARKS = OrderedDict(
@@ -469,3 +469,28 @@ CHARDET_CORRESPONDENCE = {
     "cp1254": "Windows-1254",
     "cp949": "CP949",
 }  # type: Dict[str, str]
+
+
+COMMON_SAFE_ASCII_CHARACTERS = {
+    "<",
+    ">",
+    "=",
+    ":",
+    "/",
+    "&",
+    ";",
+    "{",
+    "}",
+    "[",
+    "]",
+    ",",
+    "|",
+    '"',
+    "-",
+}  # type: Set[str]
+
+
+KO_NAMES = {"johab", "cp949", "euc_kr"}  # type: Set[str]
+ZH_NAMES = {"big5", "cp950", "big5hkscs", "hz"}  # type: Set[str]
+
+NOT_PRINTABLE_PATTERN = re_compile(r"[0-9\W\n\r\t]+")

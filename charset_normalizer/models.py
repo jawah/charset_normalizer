@@ -3,10 +3,10 @@ from collections import Counter
 from encodings.aliases import aliases
 from hashlib import sha256
 from json import dumps
-from re import compile as re_compile, sub
-from typing import Any, Dict, Iterator, List, Optional, Set, Tuple, Union
+from re import sub
+from typing import Any, Dict, Iterator, List, Optional, Tuple, Union
 
-from .constant import TOO_BIG_SEQUENCE
+from .constant import NOT_PRINTABLE_PATTERN, TOO_BIG_SEQUENCE
 from .md import mess_ratio
 from .utils import iana_name, is_multi_byte_encoding, unicode_range
 
@@ -102,8 +102,8 @@ class CharsetMatch:
         warnings.warn(
             "w_counter is deprecated and will be removed in 3.0", DeprecationWarning
         )
-        not_printable_pattern = re_compile(r"[0-9\W\n\r\t]+")
-        string_printable_only = sub(not_printable_pattern, " ", str(self).lower())
+
+        string_printable_only = sub(NOT_PRINTABLE_PATTERN, " ", str(self).lower())
 
         return Counter(string_printable_only.split())
 
@@ -225,12 +225,12 @@ class CharsetMatch:
     def alphabets(self) -> List[str]:
         if self._unicode_ranges is not None:
             return self._unicode_ranges
-        detected_ranges = set()  # type: Set[str]
-        for character in str(self):
-            detected_range = unicode_range(character)  # type: Optional[str]
-            if detected_range:
-                detected_ranges.add(detected_range)
-        self._unicode_ranges = sorted(list(detected_ranges))
+        # list detected ranges
+        detected_ranges = [
+            unicode_range(char) for char in str(self)
+        ]  # type: List[Optional[str]]
+        # filter and sort
+        self._unicode_ranges = sorted([r for r in detected_ranges if r])  # type: ignore
         return self._unicode_ranges
 
     @property
