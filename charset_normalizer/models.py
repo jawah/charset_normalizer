@@ -4,7 +4,7 @@ from encodings.aliases import aliases
 from hashlib import sha256
 from json import dumps
 from re import sub
-from typing import Any, Dict, Iterator, List, Optional, Set, Tuple, Union
+from typing import Any, Dict, Iterator, List, Optional, Tuple, Union
 
 from .constant import NOT_PRINTABLE_PATTERN, TOO_BIG_SEQUENCE
 from .md import mess_ratio
@@ -226,7 +226,9 @@ class CharsetMatch:
         if self._unicode_ranges is not None:
             return self._unicode_ranges
         # list detected ranges
-        detected_ranges = [unicode_range(char) for char in str(self)]  # type: List[Optional[str]]
+        detected_ranges = [
+            unicode_range(char) for char in str(self)
+        ]  # type: List[Optional[str]]
         # filter and sort
         self._unicode_ranges = sorted([r for r in detected_ranges if r])  # type: ignore
         return self._unicode_ranges

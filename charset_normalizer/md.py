@@ -70,7 +70,10 @@ class TooManySymbolOrPunctuationPlugin(MessDetectorPlugin):
     def feed(self, character: str) -> None:
         self._character_count += 1
 
-        if character != self._last_printable_char and character not in COMMON_SAFE_ASCII_CHARACTERS:
+        if (
+            character != self._last_printable_char
+            and character not in COMMON_SAFE_ASCII_CHARACTERS
+        ):
             if is_punctuation(character):
                 self._punctuation_count += 1
             elif (
@@ -461,8 +464,14 @@ def is_suspiciously_successive_range(
             return False
 
     # Japanese Exception
-    range_a_jp_chars, range_b_jp_chars = unicode_range_a in ("Hiragana", "Katakana"), \
-                                         unicode_range_b in ("Hiragana", "Katakana")
+    range_a_jp_chars, range_b_jp_chars = (
+        unicode_range_a
+        in (
+            "Hiragana",
+            "Katakana",
+        ),
+        unicode_range_b in ("Hiragana", "Katakana"),
+    )
     if range_a_jp_chars or range_b_jp_chars:
         if "CJK" in unicode_range_a or "CJK" in unicode_range_b:
             return False
@@ -494,9 +503,11 @@ def mess_ratio(
 ) -> float:
     """
     Compute a mess ratio given a decoded bytes sequence. The maximum threshold does stop the computation earlier.
-    """ 
+    """
 
-    detectors = [md_class() for md_class in MessDetectorPlugin.__subclasses__()]  # type: List[MessDetectorPlugin]
+    detectors = [
+        md_class() for md_class in MessDetectorPlugin.__subclasses__()
+    ]  # type: List[MessDetectorPlugin]
 
     length = len(decoded_sequence)  # type: int
 
