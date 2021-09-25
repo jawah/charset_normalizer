@@ -9,10 +9,10 @@ from .constant import KO_NAMES, ZH_NAMES
 from .md import is_suspiciously_successive_range
 from .models import CoherenceMatches
 from .utils import (
+    is_accentuated,
     is_multi_byte_encoding,
     is_unicode_range_secondary,
     unicode_range,
-    is_accentuated,
 )
 
 
