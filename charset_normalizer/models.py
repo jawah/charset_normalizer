@@ -54,9 +54,10 @@ class CharsetMatch:
             raise ValueError
 
         chaos_difference = abs(self.chaos - other.chaos)  # type: float
+        coherence_difference = abs(self.coherence - other.coherence)  # type: float
 
         # Bellow 1% difference --> Use Coherence
-        if chaos_difference < 0.01:
+        if chaos_difference < 0.01 and coherence_difference > 0.02:
             # When having a tough decision, use the result that decoded as many multi-byte as possible.
             if chaos_difference == 0.0 and self.coherence == other.coherence:
                 return self.multi_byte_usage > other.multi_byte_usage

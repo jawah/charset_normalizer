@@ -8,7 +8,12 @@ from .assets import FREQUENCIES
 from .constant import KO_NAMES, ZH_NAMES
 from .md import is_suspiciously_successive_range
 from .models import CoherenceMatches
-from .utils import is_multi_byte_encoding, is_unicode_range_secondary, unicode_range
+from .utils import (
+    is_multi_byte_encoding,
+    is_unicode_range_secondary,
+    unicode_range,
+    is_accentuated,
+)
 
 
 def encoding_unicode_range(iana_name: str) -> List[str]:
@@ -108,19 +113,39 @@ def alphabet_languages(characters: List[str]) -> List[str]:
     """
     Return associated languages associated to given characters.
     """
-    languages = []  # type: List[str]
+    languages = {}  # type: Dict[str, float]
+
+    source_have_accents = False  # type: bool
+
+    for character in characters:
+        if is_accentuated(character):
+            source_have_accents = True
+            break
 
     for language, language_characters in FREQUENCIES.items():
+
+        target_have_accents = False  # type: bool
+
+        for language_character in language_characters:
+            if is_accentuated(language_character):
+                target_have_accents = True
+                break
+
+        if target_have_accents is False and source_have_accents:
+            continue
+
         character_count = len(language_characters)  # type: int
 
         character_match_count = len(
             [c for c in language_characters if c in characters]
         )  # type: int
 
-        if character_match_count / character_count >= 0.2:
-            languages.append(language)
+        ratio = character_match_count / character_count  # type: float
 
-    return languages
+        if ratio >= 0.2:
+            languages[language] = ratio
+
+    return sorted(list(languages.keys()), key=lambda x: languages[x], reverse=True)
 
 
 def characters_popularity_compare(
