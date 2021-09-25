@@ -1,6 +1,6 @@
 import importlib
 from codecs import IncrementalDecoder
-from collections import Counter
+from collections import Counter, OrderedDict
 from functools import lru_cache
 from typing import Dict, List, Optional, Tuple
 
@@ -113,7 +113,7 @@ def alphabet_languages(characters: List[str]) -> List[str]:
     """
     Return associated languages associated to given characters.
     """
-    languages = {}  # type: Dict[str, float]
+    languages = OrderedDict()  # type: Dict[str, float]
 
     source_have_accents = False  # type: bool
 
