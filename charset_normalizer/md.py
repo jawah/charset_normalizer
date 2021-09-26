@@ -290,7 +290,7 @@ class SuperWeirdWordPlugin(MessDetectorPlugin):
 
             self._character_count += buffer_length
 
-            if buffer_length >= 4 and self._buffer_accent_count / buffer_length >= 0.3:
+            if buffer_length >= 4 and self._buffer_accent_count / buffer_length > 0.34:
                 self._is_current_word_bad = True
             if buffer_length >= 24 and self._foreign_long_watch:
                 self._is_current_word_bad = True
