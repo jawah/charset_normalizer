@@ -1,11 +1,11 @@
 import importlib
 from codecs import IncrementalDecoder
-from collections import Counter
+from collections import Counter, OrderedDict
 from functools import lru_cache
 from typing import Dict, List, Optional, Tuple
 
 from .assets import FREQUENCIES
-from .constant import KO_NAMES, ZH_NAMES
+from .constant import KO_NAMES, TOO_SMALL_SEQUENCE, ZH_NAMES
 from .md import is_suspiciously_successive_range
 from .models import CoherenceMatches
 from .utils import (
@@ -224,7 +224,7 @@ def alpha_unicode_split(decoded_sequence: str) -> List[str]:
     Ex. a text containing English/Latin with a bit a Hebrew will return two items in the resulting list;
     One containing the latin letters and the other hebrew.
     """
-    layers = {}  # type: Dict[str, str]
+    layers = OrderedDict()  # type: Dict[str, str]
 
     for character in decoded_sequence:
         if character.isalpha() is False:
@@ -316,7 +316,7 @@ def coherence_ratio(
 
         character_count = sum([o for c, o in most_common])  # type: int
 
-        if character_count <= 32:
+        if character_count <= TOO_SMALL_SEQUENCE:
             continue
 
         popular_character_ordered = [c for c, o in most_common]  # type: List[str]
