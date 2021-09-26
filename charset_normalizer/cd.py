@@ -262,7 +262,7 @@ def merge_coherence_ratios(results: List[CoherenceMatches]) -> CoherenceMatches:
     This function merge results previously given by the function coherence_ratio.
     The return type is the same as coherence_ratio.
     """
-    per_language_ratios = {}  # type: Dict[str, List[float]]
+    per_language_ratios = OrderedDict()  # type: Dict[str, List[float]]
     merge = []  # type: CoherenceMatches
 
     for result in results:
