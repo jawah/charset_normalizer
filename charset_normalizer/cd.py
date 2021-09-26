@@ -10,6 +10,7 @@ from .md import is_suspiciously_successive_range
 from .models import CoherenceMatches
 from .utils import (
     is_accentuated,
+    is_latin,
     is_multi_byte_encoding,
     is_unicode_range_secondary,
     unicode_range,
@@ -109,7 +110,9 @@ def mb_encoding_languages(iana_name: str) -> List[str]:
     return []
 
 
-def alphabet_languages(characters: List[str]) -> List[str]:
+def alphabet_languages(
+    characters: List[str], ignore_non_latin: bool = False
+) -> List[str]:
     """
     Return associated languages associated to given characters.
     """
@@ -125,11 +128,16 @@ def alphabet_languages(characters: List[str]) -> List[str]:
     for language, language_characters in FREQUENCIES.items():
 
         target_have_accents = False  # type: bool
+        target_pure_latin = True  # type: bool
 
         for language_character in language_characters:
-            if is_accentuated(language_character):
+            if target_have_accents is False and is_accentuated(language_character):
                 target_have_accents = True
-                break
+            if target_pure_latin is True and is_latin(language_character) is False:
+                target_pure_latin = False
+
+        if ignore_non_latin and target_pure_latin is False:
+            continue
 
         if target_have_accents is False and source_have_accents:
             continue
@@ -145,7 +153,9 @@ def alphabet_languages(characters: List[str]) -> List[str]:
         if ratio >= 0.2:
             languages.append((language, ratio))
 
-    return [lang[0] for lang in sorted(languages, key=lambda x: x[1], reverse=True)]
+    languages = sorted(languages, key=lambda x: x[1], reverse=True)
+
+    return [compatible_language[0] for compatible_language in languages]
 
 
 def characters_popularity_compare(
@@ -289,6 +299,7 @@ def coherence_ratio(
 
     results = []  # type: List[Tuple[str, float]]
     lg_inclusion_list = []  # type: List[str]
+    ignore_non_latin = False  # type: bool
 
     sufficient_match_count = 0  # type: int
 
@@ -296,6 +307,7 @@ def coherence_ratio(
         lg_inclusion_list = lg_inclusion.split(",")
 
     if "Latin Based" in lg_inclusion_list:
+        ignore_non_latin = True
         lg_inclusion_list.remove("Latin Based")
 
     for layer in alpha_unicode_split(decoded_sequence):
@@ -310,7 +322,7 @@ def coherence_ratio(
         popular_character_ordered = [c for c, o in most_common]  # type: List[str]
 
         for language in lg_inclusion_list or alphabet_languages(
-            popular_character_ordered
+            popular_character_ordered, ignore_non_latin
         ):
             ratio = characters_popularity_compare(
                 language, popular_character_ordered
