@@ -105,3 +105,13 @@ def test_mb_cutting_chk():
 
     assert len(guesses) == 1, "cp isolation is set and given seq should be clear CP949!"
     assert best_guess.encoding == "cp949"
+
+
+def test_alphabets_property():
+    best_guess = from_bytes(
+        "😀 Hello World! How affairs are going? 😀".encode("utf_8")
+    ).best()
+
+    assert "Basic Latin" in best_guess.alphabets
+    assert "Emoticons range(Emoji)" in best_guess.alphabets
+    assert best_guess.alphabets.count("Basic Latin") == 1
