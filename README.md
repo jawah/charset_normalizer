@@ -48,7 +48,7 @@ This project offers you an alternative to **Universal Charset Encoding Detector*
 
 This package offer better performance than its counterpart Chardet. Here are some numbers.
 
-| Package       | Accuracy       | Mean per file (ns) | File per sec (est) |
+| Package       | Accuracy       | Mean per file (ms) | File per sec (est) |
 | ------------- | :-------------: | :------------------: | :------------------: |
 |      [chardet](https://github.com/chardet/chardet)        |     92 %     |     220 ms      |       5 file/sec        |
 | charset-normalizer |    **98 %**     |     **40 ms**      |       25 file/sec    |
