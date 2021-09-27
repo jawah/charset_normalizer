@@ -114,6 +114,29 @@ class TestCommandLineInterface(unittest.TestCase):
 
         self.assertEqual(cm.exception.code, 2)
 
+    def test_replace_without_normalize(self):
+
+        self.assertEqual(
+            cli_detect(
+                [
+                    './data/sample.1.ar.srt',
+                    '--replace'
+                ]
+            ),
+            1
+        )
+
+    def test_force_replace_without_replace(self):
+        self.assertEqual(
+            cli_detect(
+                [
+                    './data/sample.1.ar.srt',
+                    '--force'
+                ]
+            ),
+            1
+        )
+
 
 if __name__ == '__main__':
     unittest.main()
