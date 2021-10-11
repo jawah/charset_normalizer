@@ -64,8 +64,8 @@ Chardet's performance on larger file (1MB+) are very poor. Expect huge differenc
 > And yes, these results might change at any time. The dataset can be updated to include more files.
 > The actual delays heavily depends on your CPU capabilities. The factors should remain the same.
 
-[cchardet](https://github.com/PyYoshi/cChardet) is a non-native (cpp binding) faster alternative. If speed is the most important factor,
-you should try it.
+[cchardet](https://github.com/PyYoshi/cChardet) is a non-native (cpp binding) and unmaintained faster alternative with 
+a better accuracy than chardet but lower than this package. If speed is the most important factor, you should try it.
 
 ## ✨ Installation
 
