@@ -56,7 +56,7 @@ the backward-compatibility.
 ## What PR may be doomed?
 
   - Dropping EOL Python 3.5
-> We are waiting upon the right moment to drop it. Hint, wait for requests to drop it first.
+> Scheduled for the 3.0 milestone.
 
   - Add support for a Python unsupported charset/encoding
 > If you looked carefully at the project, you would see that it aims to be generic whenever possible. So adding a specific prober is out of the question.
@@ -71,3 +71,5 @@ the backward-compatibility.
 
 It is essential that you run, prior to any submissions the mandatory checks.
 Run the script `./bin/run_checks.sh` to verify that your modification are not breaking anything.
+
+Also, make sure to run the `./bin/run_autofix.sh` to comply with the style format and import sorting.

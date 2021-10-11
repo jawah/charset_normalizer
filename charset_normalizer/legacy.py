@@ -17,7 +17,7 @@ def detect(byte_str: bytes) -> Dict[str, Optional[Union[str, float]]]:
     :param byte_str:     The byte sequence to examine.
     """
     if not isinstance(byte_str, (bytearray, bytes)):
-        raise TypeError(
+        raise TypeError(  # pragma: nocover
             "Expected object of type bytes or bytearray, got: "
             "{0}".format(type(byte_str))
         )
@@ -52,39 +52,39 @@ class CharsetNormalizerMatch(CharsetMatch):
 class CharsetNormalizerMatches(CharsetMatches):
     @staticmethod
     def from_fp(*args, **kwargs):  # type: ignore
-        warnings.warn(
+        warnings.warn(  # pragma: nocover
             "staticmethod from_fp, from_bytes, from_path and normalize are deprecated "
             "and scheduled to be removed in 3.0",
             DeprecationWarning,
         )
-        return from_fp(*args, **kwargs)
+        return from_fp(*args, **kwargs)  # pragma: nocover
 
     @staticmethod
     def from_bytes(*args, **kwargs):  # type: ignore
-        warnings.warn(
+        warnings.warn(  # pragma: nocover
             "staticmethod from_fp, from_bytes, from_path and normalize are deprecated "
             "and scheduled to be removed in 3.0",
             DeprecationWarning,
         )
-        return from_bytes(*args, **kwargs)
+        return from_bytes(*args, **kwargs)  # pragma: nocover
 
     @staticmethod
     def from_path(*args, **kwargs):  # type: ignore
-        warnings.warn(
+        warnings.warn(  # pragma: nocover
             "staticmethod from_fp, from_bytes, from_path and normalize are deprecated "
             "and scheduled to be removed in 3.0",
             DeprecationWarning,
         )
-        return from_path(*args, **kwargs)
+        return from_path(*args, **kwargs)  # pragma: nocover
 
     @staticmethod
     def normalize(*args, **kwargs):  # type: ignore
-        warnings.warn(
+        warnings.warn(  # pragma: nocover
             "staticmethod from_fp, from_bytes, from_path and normalize are deprecated "
             "and scheduled to be removed in 3.0",
             DeprecationWarning,
         )
-        return normalize(*args, **kwargs)
+        return normalize(*args, **kwargs)  # pragma: nocover
 
 
 class CharsetDetector(CharsetNormalizerMatches):

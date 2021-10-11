@@ -48,20 +48,21 @@ This project offers you an alternative to **Universal Charset Encoding Detector*
 
 This package offer better performance than its counterpart Chardet. Here are some numbers.
 
-| Package       | Accuracy       | Mean per file (ns) | File per sec (est) |
+| Package       | Accuracy       | Mean per file (ms) | File per sec (est) |
 | ------------- | :-------------: | :------------------: | :------------------: |
-|      [chardet](https://github.com/chardet/chardet)        |     92.0 %     |     220 ms      |       5 file/sec        |
-| charset-normalizer |    **97.0 %**     |     **40 ms**      |       25 file/sec    |
+|      [chardet](https://github.com/chardet/chardet)        |     92 %     |     220 ms      |       5 file/sec        |
+| charset-normalizer |    **98 %**     |     **40 ms**      |       25 file/sec    |
 
 | Package       | 99th percentile       | 95th percentile | 50th percentile |
 | ------------- | :-------------: | :------------------: | :------------------: |
-|      [chardet](https://github.com/chardet/chardet)        |     888 ms     |     300 ms      |       27 ms        |
-| charset-normalizer |    430 ms     |     220 ms      |       18 ms    |
+|      [chardet](https://github.com/chardet/chardet)        |     1115 ms     |     300 ms      |       27 ms        |
+| charset-normalizer |    460 ms     |     240 ms      |       18 ms    |
 
 Chardet's performance on larger file (1MB+) are very poor. Expect huge difference on large payload.
 
 > Stats are generated using 400+ files using default parameters. More details on used files, see GHA workflows.
 > And yes, these results might change at any time. The dataset can be updated to include more files.
+> The actual delays heavily depends on your CPU capabilities. The factors should remain the same.
 
 [cchardet](https://github.com/PyYoshi/cChardet) is a non-native (cpp binding) faster alternative. If speed is the most important factor,
 you should try it.
