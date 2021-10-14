@@ -120,7 +120,7 @@ def alphabet_languages(
 
     source_have_accents = False  # type: bool
 
-    for character in characters:
+    for character in set(characters):
         if is_accentuated(character):
             source_have_accents = True
             break
