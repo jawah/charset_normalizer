@@ -124,7 +124,7 @@ def get_target_features(language: str) -> Tuple[bool, bool]:
             target_have_accents = True
         if target_pure_latin is True and is_latin(character) is False:
             target_pure_latin = False
-    
+
     return target_have_accents, target_pure_latin
 
 
