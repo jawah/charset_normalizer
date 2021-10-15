@@ -110,18 +110,19 @@ def mb_encoding_languages(iana_name: str) -> List[str]:
     return []
 
 
-@lru_cache()
-def get_target_features(language_characters: Tuple[str]) -> Tuple[bool, bool]:
+@lru_cache(maxsize=64)
+def get_target_features(language: str) -> Tuple[bool, bool]:
     """
-    Cache features of the target language to be tested.
+    Cache features (accents, latin) of the target language to be tested against
+    the input string.
     """
     target_have_accents = False  # type: bool
     target_pure_latin = True  # type: bool
 
-    for language_character in language_characters:
-        if target_have_accents is False and is_accentuated(language_character):
+    for character in FREQUENCIES[language]:
+        if target_have_accents is False and is_accentuated(character):
             target_have_accents = True
-        if target_pure_latin is True and is_latin(language_character) is False:
+        if target_pure_latin is True and is_latin(character) is False:
             target_pure_latin = False
     
     return target_have_accents, target_pure_latin
@@ -144,7 +145,7 @@ def alphabet_languages(
 
     for language, language_characters in FREQUENCIES.items():
 
-        target_have_accents, target_pure_latin = get_target_features(tuple(language_characters))
+        target_have_accents, target_pure_latin = get_target_features(language)
 
         if ignore_non_latin and target_pure_latin is False:
             continue
