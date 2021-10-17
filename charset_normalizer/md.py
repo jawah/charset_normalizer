@@ -509,7 +509,7 @@ def mess_ratio(
         md_class() for md_class in MessDetectorPlugin.__subclasses__()
     ]  # type: List[MessDetectorPlugin]
 
-    length = len(decoded_sequence)  # type: int
+    length = len(decoded_sequence) + 1  # type: int
 
     mean_mess_ratio = 0.0  # type: float
 
@@ -520,7 +520,7 @@ def mess_ratio(
     else:
         intermediary_mean_mess_ratio_calc = 128
 
-    for character, index in zip(decoded_sequence, range(0, length)):
+    for character, index in zip(decoded_sequence + "\n", range(0, length)):
         for detector in detectors:
             if detector.eligible(character):
                 detector.feed(character)
