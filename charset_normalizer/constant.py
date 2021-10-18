@@ -4,6 +4,8 @@ from encodings.aliases import aliases
 from re import IGNORECASE, compile as re_compile
 from typing import Dict, List, Set, Union
 
+from .assets import FREQUENCIES
+
 # Contain for each eligible encoding a list of/item bytes SIG/BOM
 ENCODING_MARKS = OrderedDict(
     [
@@ -494,3 +496,5 @@ KO_NAMES = {"johab", "cp949", "euc_kr"}  # type: Set[str]
 ZH_NAMES = {"big5", "cp950", "big5hkscs", "hz"}  # type: Set[str]
 
 NOT_PRINTABLE_PATTERN = re_compile(r"[0-9\W\n\r\t]+")
+
+FREQUENCIES_SIZE = len(FREQUENCIES)
