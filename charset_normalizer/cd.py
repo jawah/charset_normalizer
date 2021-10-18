@@ -113,7 +113,7 @@ def mb_encoding_languages(iana_name: str) -> List[str]:
 @lru_cache(maxsize=64)
 def get_target_features(language: str) -> Tuple[bool, bool]:
     """
-    Cache features (accents, latin) of the target language to be tested against
+    Determine main aspects from a supported language if it contains accents and if is pure Latin.
     the input string.
     """
     target_have_accents = False  # type: bool
