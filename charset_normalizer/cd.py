@@ -138,7 +138,7 @@ def alphabet_languages(
 
     source_have_accents = False  # type: bool
 
-    for character in set(characters):
+    for character in characters:
         if is_accentuated(character):
             source_have_accents = True
             break
