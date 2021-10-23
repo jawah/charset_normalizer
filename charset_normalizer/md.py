@@ -40,11 +40,11 @@ class MessDetectorPlugin:
         """
         raise NotImplementedError  # pragma: nocover
 
-    def reset(self) -> None:
+    def reset(self) -> None:  # pragma: no cover
         """
         Permit to reset the plugin to the initial state.
         """
-        raise NotImplementedError  # pragma: nocover
+        raise NotImplementedError
 
     @property
     def ratio(self) -> float:
@@ -85,7 +85,7 @@ class TooManySymbolOrPunctuationPlugin(MessDetectorPlugin):
 
         self._last_printable_char = character
 
-    def reset(self) -> None:
+    def reset(self) -> None:  # pragma: no cover
         self._punctuation_count = 0
         self._character_count = 0
         self._symbol_count = 0
@@ -116,7 +116,7 @@ class TooManyAccentuatedPlugin(MessDetectorPlugin):
         if is_accentuated(character):
             self._accentuated_count += 1
 
-    def reset(self) -> None:
+    def reset(self) -> None:  # pragma: no cover
         self._character_count = 0
         self._accentuated_count = 0
 
@@ -147,7 +147,7 @@ class UnprintablePlugin(MessDetectorPlugin):
             self._unprintable_count += 1
         self._character_count += 1
 
-    def reset(self) -> None:
+    def reset(self) -> None:  # pragma: no cover
         self._unprintable_count = 0
 
     @property
@@ -181,7 +181,7 @@ class SuspiciousDuplicateAccentPlugin(MessDetectorPlugin):
                     self._successive_count += 1
         self._last_latin_character = character
 
-    def reset(self) -> None:
+    def reset(self) -> None:  # pragma: no cover
         self._successive_count = 0
         self._character_count = 0
         self._last_latin_character = None
@@ -228,7 +228,7 @@ class SuspiciousRange(MessDetectorPlugin):
 
         self._last_printable_seen = character
 
-    def reset(self) -> None:
+    def reset(self) -> None:  # pragma: no cover
         self._character_count = 0
         self._suspicious_successive_range_count = 0
         self._last_printable_seen = None
@@ -311,7 +311,7 @@ class SuperWeirdWordPlugin(MessDetectorPlugin):
             self._is_current_word_bad = True
             self._buffer += character
 
-    def reset(self) -> None:
+    def reset(self) -> None:  # pragma: no cover
         self._buffer = ""
         self._is_current_word_bad = False
         self._foreign_long_watch = False
@@ -348,7 +348,7 @@ class CjkInvalidStopPlugin(MessDetectorPlugin):
         if is_cjk(character):
             self._cjk_character_count += 1
 
-    def reset(self) -> None:
+    def reset(self) -> None:  # pragma: no cover
         self._wrong_stop_count = 0
         self._cjk_character_count = 0
 
@@ -418,7 +418,7 @@ class ArchaicUpperLowerPlugin(MessDetectorPlugin):
         self._character_count_since_last_sep += 1
         self._last_alpha_seen = character
 
-    def reset(self) -> None:
+    def reset(self) -> None:  # pragma: no cover
         self._character_count = 0
         self._character_count_since_last_sep = 0
         self._successive_upper_lower_count = 0
