@@ -5,7 +5,7 @@ from functools import lru_cache
 from typing import Dict, List, Optional, Tuple
 
 from .assets import FREQUENCIES
-from .constant import FREQUENCIES_SIZE, KO_NAMES, TOO_SMALL_SEQUENCE, ZH_NAMES
+from .constant import LANGUAGE_SUPPORTED_COUNT, KO_NAMES, TOO_SMALL_SEQUENCE, ZH_NAMES
 from .md import is_suspiciously_successive_range
 from .models import CoherenceMatches
 from .utils import (
@@ -110,7 +110,7 @@ def mb_encoding_languages(iana_name: str) -> List[str]:
     return []
 
 
-@lru_cache(maxsize=FREQUENCIES_SIZE)
+@lru_cache(maxsize=LANGUAGE_SUPPORTED_COUNT)
 def get_target_features(language: str) -> Tuple[bool, bool]:
     """
     Determine main aspects from a supported language if it contains accents and if is pure Latin.

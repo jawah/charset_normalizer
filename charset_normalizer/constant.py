@@ -497,4 +497,4 @@ ZH_NAMES = {"big5", "cp950", "big5hkscs", "hz"}  # type: Set[str]
 
 NOT_PRINTABLE_PATTERN = re_compile(r"[0-9\W\n\r\t]+")
 
-FREQUENCIES_SIZE = len(FREQUENCIES)
+LANGUAGE_SUPPORTED_COUNT = len(FREQUENCIES)  # type: int
