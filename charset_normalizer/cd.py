@@ -5,7 +5,7 @@ from functools import lru_cache
 from typing import Dict, List, Optional, Tuple
 
 from .assets import FREQUENCIES
-from .constant import KO_NAMES, TOO_SMALL_SEQUENCE, ZH_NAMES
+from .constant import KO_NAMES, LANGUAGE_SUPPORTED_COUNT, TOO_SMALL_SEQUENCE, ZH_NAMES
 from .md import is_suspiciously_successive_range
 from .models import CoherenceMatches
 from .utils import (
@@ -110,6 +110,23 @@ def mb_encoding_languages(iana_name: str) -> List[str]:
     return []
 
 
+@lru_cache(maxsize=LANGUAGE_SUPPORTED_COUNT)
+def get_target_features(language: str) -> Tuple[bool, bool]:
+    """
+    Determine main aspects from a supported language if it contains accents and if is pure Latin.
+    """
+    target_have_accents = False  # type: bool
+    target_pure_latin = True  # type: bool
+
+    for character in FREQUENCIES[language]:
+        if target_have_accents is False and is_accentuated(character):
+            target_have_accents = True
+        if target_pure_latin is True and is_latin(character) is False:
+            target_pure_latin = False
+
+    return target_have_accents, target_pure_latin
+
+
 def alphabet_languages(
     characters: List[str], ignore_non_latin: bool = False
 ) -> List[str]:
@@ -127,14 +144,7 @@ def alphabet_languages(
 
     for language, language_characters in FREQUENCIES.items():
 
-        target_have_accents = False  # type: bool
-        target_pure_latin = True  # type: bool
-
-        for language_character in language_characters:
-            if target_have_accents is False and is_accentuated(language_character):
-                target_have_accents = True
-            if target_pure_latin is True and is_latin(language_character) is False:
-                target_pure_latin = False
+        target_have_accents, target_pure_latin = get_target_features(language)
 
         if ignore_non_latin and target_pure_latin is False:
             continue
