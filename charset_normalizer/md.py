@@ -252,6 +252,8 @@ class SuperWeirdWordPlugin(MessDetectorPlugin):
     def __init__(self) -> None:
         self._word_count = 0  # type: int
         self._bad_word_count = 0  # type: int
+        self._foreign_long_count = 0  # type: int
+
         self._is_current_word_bad = False  # type: bool
         self._foreign_long_watch = False  # type: bool
 
@@ -271,7 +273,7 @@ class SuperWeirdWordPlugin(MessDetectorPlugin):
                 self._buffer_accent_count += 1
             if (
                 self._foreign_long_watch is False
-                and is_latin(character) is False
+                and (is_latin(character) is False or is_accentuated(character))
                 and is_cjk(character) is False
                 and is_hangul(character) is False
                 and is_katakana(character) is False
@@ -293,6 +295,7 @@ class SuperWeirdWordPlugin(MessDetectorPlugin):
             if buffer_length >= 4 and self._buffer_accent_count / buffer_length > 0.34:
                 self._is_current_word_bad = True
             if buffer_length >= 24 and self._foreign_long_watch:
+                self._foreign_long_count += 1
                 self._is_current_word_bad = True
 
             if self._is_current_word_bad:
@@ -319,10 +322,11 @@ class SuperWeirdWordPlugin(MessDetectorPlugin):
         self._word_count = 0
         self._character_count = 0
         self._bad_character_count = 0
+        self._foreign_long_count = 0
 
     @property
     def ratio(self) -> float:
-        if self._word_count <= 10:
+        if self._word_count <= 10 and self._foreign_long_count == 0:
             return 0.0
 
         return self._bad_character_count / self._character_count
@@ -453,6 +457,12 @@ def is_suspiciously_successive_range(
     if "Emoticons" in unicode_range_a or "Emoticons" in unicode_range_b:
         return False
 
+    # Latin characters can be accompanied with a combining diacritical mark
+    # eg. Vietnamese.
+    if "Latin" in unicode_range_a or "Latin" in unicode_range_b:
+        if "Combining" in unicode_range_a or "Combining" in unicode_range_b:
+            return False
+
     keywords_range_a, keywords_range_b = unicode_range_a.split(
         " "
     ), unicode_range_b.split(" ")
@@ -509,7 +519,7 @@ def mess_ratio(
         md_class() for md_class in MessDetectorPlugin.__subclasses__()
     ]  # type: List[MessDetectorPlugin]
 
-    length = len(decoded_sequence)  # type: int
+    length = len(decoded_sequence) + 1  # type: int
 
     mean_mess_ratio = 0.0  # type: float
 
@@ -520,7 +530,7 @@ def mess_ratio(
     else:
         intermediary_mean_mess_ratio_calc = 128
 
-    for character, index in zip(decoded_sequence, range(0, length)):
+    for character, index in zip(decoded_sequence + "\n", range(0, length)):
         for detector in detectors:
             if detector.eligible(character):
                 detector.feed(character)
