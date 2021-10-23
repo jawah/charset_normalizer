@@ -453,6 +453,12 @@ def is_suspiciously_successive_range(
     if "Emoticons" in unicode_range_a or "Emoticons" in unicode_range_b:
         return False
 
+    # Latin characters can be accompanied with a combining diacritical mark
+    # eg. Vietnamese.
+    if "Latin" in unicode_range_a or "Latin" in unicode_range_b:
+        if "Combining" in unicode_range_a or "Combining" in unicode_range_b:
+            return False
+
     keywords_range_a, keywords_range_b = unicode_range_a.split(
         " "
     ), unicode_range_b.split(" ")
