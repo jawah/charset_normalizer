@@ -114,7 +114,6 @@ def mb_encoding_languages(iana_name: str) -> List[str]:
 def get_target_features(language: str) -> Tuple[bool, bool]:
     """
     Determine main aspects from a supported language if it contains accents and if is pure Latin.
-    the input string.
     """
     target_have_accents = False  # type: bool
     target_pure_latin = True  # type: bool
