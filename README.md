@@ -9,7 +9,7 @@
       <img src="https://codecov.io/gh/Ousret/charset_normalizer/branch/master/graph/badge.svg" />
   </a>
   <a href="https://pepy.tech/project/charset-normalizer/">
-    <img alt="Download Count Total" src="https://pepy.tech/badge/charset-normalizer" />
+    <img alt="Download Count Total" src="https://pepy.tech/badge/charset-normalizer/month" />
   </a>
 </p>
 
