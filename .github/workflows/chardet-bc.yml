@@ -31,4 +31,4 @@ jobs:
         git clone https://github.com/Ousret/char-dataset.git
     - name: BC Coverage
       run: |
-        python ./bin/bc.py --coverage 85
+        python ./bin/bc.py --coverage 80
