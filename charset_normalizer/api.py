@@ -132,7 +132,7 @@ def from_bytes(
 
     specified_encoding = (
         any_specified_encoding(sequences) if preemptive_behaviour else None
-    )
+    )  # type: Optional[str]
 
 
     if specified_encoding is not None:
