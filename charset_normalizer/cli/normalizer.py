@@ -235,8 +235,7 @@ def cli_detect(argv: List[str] = None) -> int:
                     o_.insert(-1, best_guess.encoding)
                     if my_file.closed is False:
                         my_file.close()
-                else:
-                    if (
+                elif (
                         args.force is False
                         and query_yes_no(
                             'Are you sure to normalize "{}" by replacing it ?'.format(
@@ -246,9 +245,9 @@ def cli_detect(argv: List[str] = None) -> int:
                         )
                         is False
                     ):
-                        if my_file.closed is False:
-                            my_file.close()
-                        continue
+                    if my_file.closed is False:
+                        my_file.close()
+                    continue
 
                 try:
                     x_[0].unicode_path = abspath("./{}".format(".".join(o_)))
@@ -274,15 +273,8 @@ def cli_detect(argv: List[str] = None) -> int:
         )
     else:
         for my_file in args.files:
-            print(
-                ", ".join(
-                    [
-                        el.encoding if el.encoding else "undefined"
-                        for el in x_
-                        if el.path == abspath(my_file.name)
-                    ]
-                )
-            )
+            print(", ".join([el.encoding or "undefined" for el in x_
+                                    if el.path == abspath(my_file.name)]))
 
     return 0
 

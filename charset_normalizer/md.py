@@ -170,15 +170,18 @@ class SuspiciousDuplicateAccentPlugin(MessDetectorPlugin):
 
     def feed(self, character: str) -> None:
         self._character_count += 1
-        if self._last_latin_character is not None:
-            if is_accentuated(character) and is_accentuated(self._last_latin_character):
-                if character.isupper() and self._last_latin_character.isupper():
-                    self._successive_count += 1
-                # Worse if its the same char duplicated with different accent.
-                if remove_accent(character) == remove_accent(
-                    self._last_latin_character
-                ):
-                    self._successive_count += 1
+        if (
+            self._last_latin_character is not None
+            and is_accentuated(character)
+            and is_accentuated(self._last_latin_character)
+        ):
+            if character.isupper() and self._last_latin_character.isupper():
+                self._successive_count += 1
+            # Worse if its the same char duplicated with different accent.
+            if remove_accent(character) == remove_accent(
+                self._last_latin_character
+            ):
+                self._successive_count += 1
         self._last_latin_character = character
 
     def reset(self) -> None:  # pragma: no cover
@@ -346,7 +349,7 @@ class CjkInvalidStopPlugin(MessDetectorPlugin):
         return True
 
     def feed(self, character: str) -> None:
-        if character in ["丅", "丄"]:
+        if character in {"丅", "丄"}:
             self._wrong_stop_count += 1
             return
         if is_cjk(character):
@@ -459,9 +462,10 @@ def is_suspiciously_successive_range(
 
     # Latin characters can be accompanied with a combining diacritical mark
     # eg. Vietnamese.
-    if "Latin" in unicode_range_a or "Latin" in unicode_range_b:
-        if "Combining" in unicode_range_a or "Combining" in unicode_range_b:
-            return False
+    if ("Latin" in unicode_range_a or "Latin" in unicode_range_b) and (
+        "Combining" in unicode_range_a or "Combining" in unicode_range_b
+    ):
+        return False
 
     keywords_range_a, keywords_range_b = unicode_range_a.split(
         " "
@@ -482,11 +486,12 @@ def is_suspiciously_successive_range(
         ),
         unicode_range_b in ("Hiragana", "Katakana"),
     )
-    if range_a_jp_chars or range_b_jp_chars:
-        if "CJK" in unicode_range_a or "CJK" in unicode_range_b:
-            return False
-        if range_a_jp_chars and range_b_jp_chars:
-            return False
+    if (range_a_jp_chars or range_b_jp_chars) and (
+        "CJK" in unicode_range_a or "CJK" in unicode_range_b
+    ):
+        return False
+    if range_a_jp_chars and range_b_jp_chars:
+        return False
 
     if "Hangul" in unicode_range_a or "Hangul" in unicode_range_b:
         if "CJK" in unicode_range_a or "CJK" in unicode_range_b:
@@ -530,7 +535,7 @@ def mess_ratio(
     else:
         intermediary_mean_mess_ratio_calc = 128
 
-    for character, index in zip(decoded_sequence + "\n", range(0, length)):
+    for character, index in zip(decoded_sequence + "\n", range(length)):
         for detector in detectors:
             if detector.eligible(character):
                 detector.feed(character)
