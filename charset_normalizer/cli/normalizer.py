@@ -236,15 +236,15 @@ def cli_detect(argv: List[str] = None) -> int:
                     if my_file.closed is False:
                         my_file.close()
                 elif (
-                        args.force is False
-                        and query_yes_no(
-                            'Are you sure to normalize "{}" by replacing it ?'.format(
-                                my_file.name
-                            ),
-                            "no",
-                        )
-                        is False
-                    ):
+                    args.force is False
+                    and query_yes_no(
+                        'Are you sure to normalize "{}" by replacing it ?'.format(
+                            my_file.name
+                        ),
+                        "no",
+                    )
+                    is False
+                ):
                     if my_file.closed is False:
                         my_file.close()
                     continue
@@ -273,8 +273,15 @@ def cli_detect(argv: List[str] = None) -> int:
         )
     else:
         for my_file in args.files:
-            print(", ".join([el.encoding or "undefined" for el in x_
-                                    if el.path == abspath(my_file.name)]))
+            print(
+                ", ".join(
+                    [
+                        el.encoding or "undefined"
+                        for el in x_
+                        if el.path == abspath(my_file.name)
+                    ]
+                )
+            )
 
     return 0
 

@@ -135,9 +135,7 @@ def alphabet_languages(
     """
     languages = []  # type: List[Tuple[str, float]]
 
-    source_have_accents = any(
-        is_accentuated(character) for character in characters
-    )
+    source_have_accents = any(is_accentuated(character) for character in characters)
 
     for language, language_characters in FREQUENCIES.items():
 
@@ -278,14 +276,16 @@ def merge_coherence_ratios(results: List[CoherenceMatches]) -> CoherenceMatches:
                 continue
             per_language_ratios[language].append(ratio)
 
-    merge = [(
-                language,
-                round(
-                    sum(per_language_ratios[language])
-                    / len(per_language_ratios[language]),
-                    4,
-                ),
-            ) for language in per_language_ratios]
+    merge = [
+        (
+            language,
+            round(
+                sum(per_language_ratios[language]) / len(per_language_ratios[language]),
+                4,
+            ),
+        )
+        for language in per_language_ratios
+    ]
 
     return sorted(merge, key=lambda x: x[1], reverse=True)
 

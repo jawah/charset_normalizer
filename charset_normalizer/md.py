@@ -178,9 +178,7 @@ class SuspiciousDuplicateAccentPlugin(MessDetectorPlugin):
             if character.isupper() and self._last_latin_character.isupper():
                 self._successive_count += 1
             # Worse if its the same char duplicated with different accent.
-            if remove_accent(character) == remove_accent(
-                self._last_latin_character
-            ):
+            if remove_accent(character) == remove_accent(self._last_latin_character):
                 self._successive_count += 1
         self._last_latin_character = character
 

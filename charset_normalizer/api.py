@@ -134,7 +134,6 @@ def from_bytes(
         any_specified_encoding(sequences) if preemptive_behaviour else None
     )  # type: Optional[str]
 
-
     if specified_encoding is not None:
         prioritized_encodings.append(specified_encoding)
         logger.info(
@@ -247,7 +246,6 @@ def from_bytes(
             int(length / steps),
         )
 
-
         multi_byte_bonus = (
             is_multi_byte_decoder
             and decoded_payload is not None
@@ -281,7 +279,7 @@ def from_bytes(
             # not the cleanest way to perform that fix but clever enough for now.
             if is_multi_byte_decoder and i > 0 and sequences[i] >= 0x80:
 
-                chunk_partial_size_chk = min(chunk_size, 16)   # type: int
+                chunk_partial_size_chk = min(chunk_size, 16)  # type: int
 
                 if (
                     decoded_payload
@@ -310,7 +308,9 @@ def from_bytes(
             ):
                 break
 
-        mean_mess_ratio = sum(md_ratios) / len(md_ratios) if md_ratios else 0.0   # type: float
+        mean_mess_ratio = (
+            sum(md_ratios) / len(md_ratios) if md_ratios else 0.0
+        )  # type: float
         if mean_mess_ratio >= threshold or early_stop_count >= max_chunk_gave_up:
             tested_but_soft_failure.append(encoding_iana)
             logger.warning(

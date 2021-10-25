@@ -193,9 +193,7 @@ def is_thai(character: str) -> bool:
 
 @lru_cache(maxsize=len(UNICODE_RANGES_COMBINED))
 def is_unicode_range_secondary(range_name: str) -> bool:
-    return any(
-        keyword in range_name for keyword in UNICODE_SECONDARY_RANGE_KEYWORD
-    )
+    return any(keyword in range_name for keyword in UNICODE_SECONDARY_RANGE_KEYWORD)
 
 
 def any_specified_encoding(sequence: bytes, search_zone: int = 4096) -> Optional[str]:
@@ -211,7 +209,6 @@ def any_specified_encoding(sequence: bytes, search_zone: int = 4096) -> Optional
         RE_POSSIBLE_ENCODING_INDICATION,
         sequence[: min(seq_len, search_zone)].decode("ascii", errors="ignore"),
     )  # type: List[str]
-
 
     if len(results) == 0:
         return None
