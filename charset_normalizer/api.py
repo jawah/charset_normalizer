@@ -281,7 +281,7 @@ def from_bytes(
             # not the cleanest way to perform that fix but clever enough for now.
             if is_multi_byte_decoder and i > 0 and sequences[i] >= 0x80:
 
-                chunk_partial_size_chk = min(chunk_size, 16)
+                chunk_partial_size_chk = min(chunk_size, 16)   # type: int
 
                 if (
                     decoded_payload
@@ -310,7 +310,7 @@ def from_bytes(
             ):
                 break
 
-        mean_mess_ratio = sum(md_ratios) / len(md_ratios) if md_ratios else 0.0
+        mean_mess_ratio = sum(md_ratios) / len(md_ratios) if md_ratios else 0.0   # type: float
         if mean_mess_ratio >= threshold or early_stop_count >= max_chunk_gave_up:
             tested_but_soft_failure.append(encoding_iana)
             logger.warning(
