@@ -311,7 +311,7 @@ UNICODE_RANGES_COMBINED = {
     "CJK Compatibility Ideographs Supplement": range(194560, 195103 + 1),
     "Tags": range(917504, 917631 + 1),
     "Variation Selectors Supplement": range(917760, 917999 + 1),
-}
+}  # type: Dict[str, range]
 
 
 UNICODE_SECONDARY_RANGE_KEYWORD = [
