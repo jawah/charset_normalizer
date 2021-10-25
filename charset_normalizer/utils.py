@@ -210,7 +210,7 @@ def any_specified_encoding(sequence: bytes, search_zone: int = 4096) -> Optional
     results = findall(
         RE_POSSIBLE_ENCODING_INDICATION,
         sequence[: min(seq_len, search_zone)].decode("ascii", errors="ignore"),
-    )
+    )  # type: List[str]
 
 
     if len(results) == 0:
