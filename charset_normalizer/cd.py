@@ -324,7 +324,7 @@ def coherence_ratio(
         sequence_frequencies = Counter(layer)  # type: Counter
         most_common = sequence_frequencies.most_common()
 
-        character_count = sum([o for c, o in most_common])  # type: int
+        character_count = sum(o for c, o in most_common)  # type: int
 
         if character_count <= TOO_SMALL_SEQUENCE:
             continue

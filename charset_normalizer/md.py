@@ -538,7 +538,7 @@ def mess_ratio(
         if (
             index > 0 and index % intermediary_mean_mess_ratio_calc == 0
         ) or index == length - 1:
-            mean_mess_ratio = sum([dt.ratio for dt in detectors])
+            mean_mess_ratio = sum(dt.ratio for dt in detectors)
 
             if mean_mess_ratio >= maximum_threshold:
                 break
