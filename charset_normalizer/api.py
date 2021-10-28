@@ -131,7 +131,7 @@ def from_bytes(
     prioritized_encodings = []  # type: List[str]
 
     specified_encoding = (
-        any_specified_encoding(sequences) if preemptive_behaviour is True else None
+        any_specified_encoding(sequences) if preemptive_behaviour else None
     )  # type: Optional[str]
 
     if specified_encoding is not None:
@@ -185,7 +185,7 @@ def from_bytes(
             encoding_iana
         )  # type: bool
 
-        if encoding_iana in {"utf_16", "utf_32"} and bom_or_sig_available is False:
+        if encoding_iana in {"utf_16", "utf_32"} and not bom_or_sig_available:
             logger.info(
                 "Encoding %s wont be tested as-is because it require a BOM. Will try some sub-encoder LE/BE.",
                 encoding_iana,
@@ -241,7 +241,7 @@ def from_bytes(
             continue
 
         r_ = range(
-            0 if bom_or_sig_available is False else len(sig_payload),
+            0 if not bom_or_sig_available else len(sig_payload),
             length,
             int(length / steps),
         )
@@ -261,9 +261,7 @@ def from_bytes(
 
         max_chunk_gave_up = int(len(r_) / 4)  # type: int
 
-        if max_chunk_gave_up < 2:
-            max_chunk_gave_up = 2
-
+        max_chunk_gave_up = max(max_chunk_gave_up, 2)
         early_stop_count = 0  # type: int
 
         md_chunks = []  # type: List[str]
@@ -281,9 +279,7 @@ def from_bytes(
             # not the cleanest way to perform that fix but clever enough for now.
             if is_multi_byte_decoder and i > 0 and sequences[i] >= 0x80:
 
-                chunk_partial_size_chk = (
-                    16 if chunk_size > 16 else chunk_size
-                )  # type: int
+                chunk_partial_size_chk = min(chunk_size, 16)  # type: int
 
                 if (
                     decoded_payload
@@ -312,11 +308,9 @@ def from_bytes(
             ):
                 break
 
-        if md_ratios:
-            mean_mess_ratio = sum(md_ratios) / len(md_ratios)  # type: float
-        else:
-            mean_mess_ratio = 0.0
-
+        mean_mess_ratio = (
+            sum(md_ratios) / len(md_ratios) if md_ratios else 0.0
+        )  # type: float
         if mean_mess_ratio >= threshold or early_stop_count >= max_chunk_gave_up:
             tested_but_soft_failure.append(encoding_iana)
             logger.warning(

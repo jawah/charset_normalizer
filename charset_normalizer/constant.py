@@ -32,7 +32,7 @@ TOO_BIG_SEQUENCE = int(10e6)  # type: int
 UTF8_MAXIMAL_ALLOCATION = 1112064  # type: int
 
 UNICODE_RANGES_COMBINED = {
-    "Control character": range(0, 31 + 1),
+    "Control character": range(31 + 1),
     "Basic Latin": range(32, 127 + 1),
     "Latin-1 Supplement": range(128, 255 + 1),
     "Latin Extended-A": range(256, 383 + 1),
@@ -312,6 +312,7 @@ UNICODE_RANGES_COMBINED = {
     "Tags": range(917504, 917631 + 1),
     "Variation Selectors Supplement": range(917760, 917999 + 1),
 }  # type: Dict[str, range]
+
 
 UNICODE_SECONDARY_RANGE_KEYWORD = [
     "Supplement",

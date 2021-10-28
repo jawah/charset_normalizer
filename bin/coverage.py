@@ -15,11 +15,10 @@ def calc_equivalence(content: bytes, cp_a: str, cp_b: str):
     str_b = content.decode(cp_b)
 
     character_count = len(str_a)
-    diff_character_count = 0
+    diff_character_count = sum(
+        chr_a != chr_b for chr_a, chr_b in zip(str_a, str_b)
+    )
 
-    for chr_a, chr_b in zip(str_a, str_b):
-        if chr_a != chr_b:
-            diff_character_count += 1
 
     return 1. - (diff_character_count / character_count)
 
