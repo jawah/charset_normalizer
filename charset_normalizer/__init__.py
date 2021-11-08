@@ -19,6 +19,8 @@ at <https://github.com/Ousret/charset_normalizer>.
 :copyright: (c) 2021 by Ahmed TAHRI
 :license: MIT, see LICENSE for more details.
 """
+import logging
+
 from .api import from_bytes, from_fp, from_path, normalize
 from .legacy import (
     CharsetDetector,
@@ -45,3 +47,26 @@ __all__ = (
     "__version__",
     "VERSION",
 )
+
+
+def set_logging_handler(
+    name: str = "charset_normalizer",
+    level: int = logging.DEBUG,
+    format_string: str = None,
+) -> None:
+
+    if format_string is None:
+        format_string = "%(asctime)s | %(levelname)s | %(message)s"
+    logger = logging.getLogger(name)
+    logger.setLevel(level)
+
+    handler = logging.StreamHandler()
+    handler.setFormatter(logging.Formatter(format_string))
+    logger.addHandler(handler)
+
+
+# Attach a NullHandler to the top level logger by default
+# https://docs.python.org/3.3/howto/logging.html#configuring-logging-for-a-library
+
+
+logging.getLogger(__name__).addHandler(logging.NullHandler())

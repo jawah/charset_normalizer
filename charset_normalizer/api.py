@@ -1,3 +1,4 @@
+import logging
 from os.path import basename, splitext
 from typing import BinaryIO, List, Optional, Set
 
@@ -6,7 +7,7 @@ try:
 except ImportError:  # pragma: no cover
     PathLike = str  # type: ignore
 
-import logging
+import charset_normalizer
 
 from .cd import (
     coherence_ratio,
@@ -26,12 +27,7 @@ from .utils import (
     should_strip_sig_or_bom,
 )
 
-logger = logging.getLogger("charset_normalizer")
-logger.setLevel(logging.DEBUG)
-
-handler = logging.StreamHandler()
-handler.setFormatter(logging.Formatter("%(asctime)s | %(levelname)s | %(message)s"))
-logger.addHandler(handler)
+logger = logging.getLogger(__name__)
 
 
 def from_bytes(
@@ -67,9 +63,9 @@ def from_bytes(
         )
 
     if not explain:
-        logger.setLevel(logging.CRITICAL)
+        charset_normalizer.set_logging_handler(level=logging.CRITICAL)
     else:
-        logger.setLevel(logging.INFO)
+        charset_normalizer.set_logging_handler(level=logging.INFO)
 
     length = len(sequences)  # type: int
 
