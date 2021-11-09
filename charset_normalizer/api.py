@@ -276,7 +276,7 @@ def from_bytes(
             try:
                 chunk = cut_sequence.decode(
                     encoding_iana,
-                    errors="ignore" if is_multi_byte_decoder else "strict"
+                    errors="ignore" if is_multi_byte_decoder else "strict",
                 )  # type: str
             except UnicodeDecodeError as e:  # Lazy str loading may have missed something there
                 logger.warning(
@@ -385,7 +385,7 @@ def from_bytes(
         # Only if initial MD/CD tests passes
         if is_too_large_sequence and not is_multi_byte_decoder:
             try:
-                sequences[int(50e3):].decode(encoding_iana, errors="strict")
+                sequences[int(50e3) :].decode(encoding_iana, errors="strict")
             except UnicodeDecodeError as e:
                 logger.warning(
                     "LazyStr Loading: After final lookup, code page %s does not fit given bytes sequence at ALL. %s",
