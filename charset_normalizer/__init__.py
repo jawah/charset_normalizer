@@ -51,7 +51,7 @@ __all__ = (
 
 def set_logging_handler(
     name: str = "charset_normalizer",
-    level: int = logging.DEBUG,
+    level: int = logging.INFO,
     format_string: str = None,
 ) -> None:
 
