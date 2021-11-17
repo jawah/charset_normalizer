@@ -268,7 +268,7 @@ def from_bytes(
         md_ratios = []
 
         for i in r_:
-            if i + chunk_size > length+8:
+            if i + chunk_size > length + 8:
                 continue
 
             cut_sequence = sequences[i : i + chunk_size]
