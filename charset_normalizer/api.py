@@ -268,6 +268,9 @@ def from_bytes(
         md_ratios = []
 
         for i in r_:
+            if i + chunk_size > length+8:
+                continue
+
             cut_sequence = sequences[i : i + chunk_size]
 
             if bom_or_sig_available and strip_sig_or_bom is False:
