@@ -4,6 +4,7 @@ except ImportError:
     import unicodedata  # type: ignore[no-redef]
 
 import importlib
+import logging
 from codecs import IncrementalDecoder
 from encodings.aliases import aliases
 from functools import lru_cache
@@ -325,3 +326,24 @@ def is_cp_similar(iana_name_a: str, iana_name_b: str) -> bool:
         iana_name_a in IANA_SUPPORTED_SIMILAR
         and iana_name_b in IANA_SUPPORTED_SIMILAR[iana_name_a]
     )
+
+
+def set_logging_handler(
+    name: str = "charset_normalizer",
+    level: int = logging.INFO,
+    format_string: str = "%(asctime)s | %(levelname)s | %(message)s",
+) -> None:
+
+    logger = logging.getLogger(name)
+    logger.setLevel(level)
+
+    handler = logging.StreamHandler()
+    handler.setFormatter(logging.Formatter(format_string))
+    logger.addHandler(handler)
+
+
+# Attach a NullHandler to the top level logger by default
+# https://docs.python.org/3.3/howto/logging.html#configuring-logging-for-a-library
+
+
+logging.getLogger(__name__).addHandler(logging.NullHandler())

@@ -7,8 +7,6 @@ try:
 except ImportError:  # pragma: no cover
     PathLike = str  # type: ignore
 
-import charset_normalizer
-
 from .cd import (
     coherence_ratio,
     encoding_languages,
@@ -24,6 +22,7 @@ from .utils import (
     identify_sig_or_bom,
     is_cp_similar,
     is_multi_byte_encoding,
+    set_logging_handler,
     should_strip_sig_or_bom,
 )
 
@@ -62,10 +61,8 @@ def from_bytes(
             )
         )
 
-    if not explain:
-        charset_normalizer.set_logging_handler(level=logging.CRITICAL)
-    else:
-        charset_normalizer.set_logging_handler(level=logging.INFO)
+    if explain:
+        set_logging_handler(level=logging.INFO)
 
     length = len(sequences)  # type: int
 
