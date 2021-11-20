@@ -24,7 +24,7 @@ class TestCommandLineInterface(unittest.TestCase):
         self.assertEqual(
             0,
             cli_detect(
-                ['./data/sample.1.ar.srt']
+                ['./data/sample-arabic-1.txt']
             )
         )
 
@@ -32,16 +32,16 @@ class TestCommandLineInterface(unittest.TestCase):
         self.assertEqual(
             0,
             cli_detect(
-                ['./data/sample.1.ar.srt', '--normalize']
+                ['./data/sample-arabic-1.txt', '--normalize']
             )
         )
 
         self.assertTrue(
-            exists('./data/sample.1.ar.cp1256.srt')
+            exists('./data/sample-arabic-1.cp1256.txt')
         )
 
         try:
-            remove('./data/sample.1.ar.cp1256.srt')
+            remove('./data/sample-arabic-1.cp1256.txt')
         except:
             pass
 
@@ -49,7 +49,7 @@ class TestCommandLineInterface(unittest.TestCase):
         self.assertEqual(
             0,
             cli_detect(
-                ['./data/sample.1.ar.srt', '--verbose']
+                ['./data/sample-arabic-1.txt', '--verbose']
             )
         )
 
@@ -58,8 +58,8 @@ class TestCommandLineInterface(unittest.TestCase):
             0,
             cli_detect(
                 [
-                    './data/sample.1.ar.srt',
-                    './data/sample.1.he.srt',
+                    './data/sample-arabic-1.txt',
+                    './data/sample-french.txt',
                     './data/sample-chinese.txt'
                 ]
             )
@@ -71,8 +71,8 @@ class TestCommandLineInterface(unittest.TestCase):
             cli_detect(
                 [
                     '-a',
-                    './data/sample.1.ar.srt',
-                    './data/sample.1.he.srt',
+                    './data/sample-arabic-1.txt',
+                    './data/sample-french.txt',
                     './data/sample-chinese.txt'
                 ]
             )
@@ -84,8 +84,8 @@ class TestCommandLineInterface(unittest.TestCase):
             cli_detect(
                 [
                     '-m',
-                    './data/sample.1.ar.srt',
-                    './data/sample.1.he.srt',
+                    './data/sample-arabic-1.txt',
+                    './data/sample-french.txt',
                     './data/sample-chinese.txt'
                 ]
             )
@@ -98,8 +98,8 @@ class TestCommandLineInterface(unittest.TestCase):
                 [
                     '-m',
                     '-a',
-                    './data/sample.1.ar.srt',
-                    './data/sample.1.he.srt',
+                    './data/sample-arabic-1.txt',
+                    './data/sample-french.txt',
                     './data/sample-chinese.txt'
                 ]
             )
@@ -119,7 +119,7 @@ class TestCommandLineInterface(unittest.TestCase):
         self.assertEqual(
             cli_detect(
                 [
-                    './data/sample.1.ar.srt',
+                    './data/sample-arabic-1.txt',
                     '--replace'
                 ]
             ),
@@ -130,7 +130,7 @@ class TestCommandLineInterface(unittest.TestCase):
         self.assertEqual(
             cli_detect(
                 [
-                    './data/sample.1.ar.srt',
+                    './data/sample-arabic-1.txt',
                     '--force'
                 ]
             ),

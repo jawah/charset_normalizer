@@ -22,3 +22,15 @@ def test_large_payload_ascii_basic_entry():
     assert best_guess.encoding == "ascii", "Large ASCII payload case detection wrongly detected!"
     assert best_guess.bom is False, "SIG/BOM property should be False"
     assert len(best_guess.raw) == len(payload), "Large payload should remain untouched when accessed through .raw"
+
+
+def test_misleading_large_sequence():
+    content = (("hello simple ascii " * TOO_BIG_SEQUENCE) + ('我没有埋怨，磋砣的只是一些时间。 磋砣的只是一些时间。')) .encode('utf_8')
+
+    guesses = from_bytes(content)
+
+    assert len(guesses) > 0
+    match = guesses.best()
+    assert match is not None
+    assert match.encoding == 'utf_8'
+    assert str(match) is not None
