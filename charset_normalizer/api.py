@@ -268,12 +268,27 @@ def from_bytes(
         md_ratios = []
 
         for i in r_:
+            if i + chunk_size > length + 8:
+                continue
+
             cut_sequence = sequences[i : i + chunk_size]
 
             if bom_or_sig_available and strip_sig_or_bom is False:
                 cut_sequence = sig_payload + cut_sequence
 
-            chunk = cut_sequence.decode(encoding_iana, errors="ignore")  # type: str
+            try:
+                chunk = cut_sequence.decode(
+                    encoding_iana,
+                    errors="ignore" if is_multi_byte_decoder else "strict",
+                )  # type: str
+            except UnicodeDecodeError as e:  # Lazy str loading may have missed something there
+                logger.warning(
+                    "LazyStr Loading: After MD chunk decode, code page %s does not fit given bytes sequence at ALL. %s",
+                    encoding_iana,
+                    str(e),
+                )
+                early_stop_count = max_chunk_gave_up
+                break
 
             # multi-byte bad cutting detector and adjustment
             # not the cleanest way to perform that fix but clever enough for now.
@@ -368,6 +383,20 @@ def from_bytes(
                     cd_ratios_merged, encoding_iana
                 )
             )
+
+        # We might want to check the sequence again with the whole content
+        # Only if initial MD/CD tests passes
+        if is_too_large_sequence and not is_multi_byte_decoder:
+            try:
+                sequences[int(50e3) :].decode(encoding_iana, errors="strict")
+            except UnicodeDecodeError as e:
+                logger.warning(
+                    "LazyStr Loading: After final lookup, code page %s does not fit given bytes sequence at ALL. %s",
+                    encoding_iana,
+                    str(e),
+                )
+                tested_but_hard_failure.append(encoding_iana)
+                continue
 
         results.append(
             CharsetMatch(
