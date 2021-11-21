@@ -46,4 +46,5 @@ __all__ = (
     "CharsetDoctor",
     "__version__",
     "VERSION",
+    "set_logging_handler",
 )
