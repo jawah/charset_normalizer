@@ -67,7 +67,7 @@ def from_bytes(
             )
         )
 
-    if explain and explain_handler not in logger.handlers:
+    if explain:
         logger.addHandler(explain_handler)
 
     length = len(sequences)  # type: int
