@@ -2,7 +2,7 @@ import pytest
 import logging
 
 from charset_normalizer.utils import set_logging_handler
-from charset_normalizer.api import from_bytes
+from charset_normalizer.api import from_bytes, explain_handler
 
 
 logger = logging.getLogger("charset_normalizer")
@@ -18,6 +18,7 @@ class TestLogBehaviorClass:
     def test_explain_true_behavior(self, caplog):
         test_sequence = b'This is a test sequence of bytes that should be sufficient'
         from_bytes(test_sequence, steps=1, chunk_size=50, explain=True)
+        assert explain_handler not in logger.handlers
         for record in caplog.records:
             assert record.levelname == "INFO"
 
@@ -25,6 +26,7 @@ class TestLogBehaviorClass:
         test_sequence = b'This is a test sequence of bytes that should be sufficient'
         set_logging_handler(level=logging.INFO, format_string="%(message)s")
         from_bytes(test_sequence, steps=1, chunk_size=50, explain=False)
+        assert any(isinstance(hdl, logging.StreamHandler) for hdl in logger.handlers)
         for record in caplog.records:
             assert record.levelname == "INFO"
         assert "ascii is most likely the one. Stopping the process." in caplog.text
