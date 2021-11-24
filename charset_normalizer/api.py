@@ -25,7 +25,7 @@ from .utils import (
     should_strip_sig_or_bom,
 )
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("charset_normalizer")
 explain_handler = logging.StreamHandler()
 explain_handler.setFormatter(
     logging.Formatter("%(asctime)s | %(levelname)s | %(message)s")
