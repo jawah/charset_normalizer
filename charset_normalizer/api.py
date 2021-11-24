@@ -27,7 +27,9 @@ from .utils import (
 
 logger = logging.getLogger(__name__)
 explain_handler = logging.StreamHandler()
-explain_handler.setFormatter(logging.Formatter("%(asctime)s | %(levelname)s | %(message)s"))
+explain_handler.setFormatter(
+    logging.Formatter("%(asctime)s | %(levelname)s | %(message)s")
+)
 
 
 def from_bytes(
