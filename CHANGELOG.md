@@ -2,7 +2,7 @@
 All notable changes to charset-normalizer will be documented in this file. This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [2.0.8.dev3](https://github.com/Ousret/charset_normalizer/compare/2.0.7...master) (unreleased)
+## [2.0.8](https://github.com/Ousret/charset_normalizer/compare/2.0.7...2.0.8) (2021-11-24)
 ### Changed
 - Improvement over Vietnamese detection (PR #126)
 - MD improvement on trailing data and long foreign (non-pure latin) data (PR #124)
