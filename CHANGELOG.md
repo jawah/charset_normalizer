@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Minor adjustment on the MD around european words (PR #133)
 - Remove and replace SRTs from assets / tests (PR #139)
 - Initialize the library logger with a `NullHandler` by default from [@nmaynes](https://github.com/nmaynes) (PR #135)
+- Setting kwarg `explain` to True will add provisionally (bounded to function lifespan) a specific stream handler (PR #135)
 
 ### Fixed
 - Fix large (misleading) sequence giving UnicodeDecodeError (PR #137)
