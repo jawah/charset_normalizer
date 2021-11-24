@@ -5,9 +5,6 @@ from charset_normalizer.utils import set_logging_handler
 from charset_normalizer.api import from_bytes, explain_handler
 
 
-logger = logging.getLogger("charset_normalizer")
-
-
 class TestLogBehaviorClass:
     def setup(self):
         self.logger = logging.getLogger("charset_normalizer")
@@ -18,7 +15,7 @@ class TestLogBehaviorClass:
     def test_explain_true_behavior(self, caplog):
         test_sequence = b'This is a test sequence of bytes that should be sufficient'
         from_bytes(test_sequence, steps=1, chunk_size=50, explain=True)
-        assert explain_handler not in logger.handlers
+        assert explain_handler not in self.logger.handlers
         for record in caplog.records:
             assert record.levelname == "INFO"
 
@@ -26,7 +23,7 @@ class TestLogBehaviorClass:
         test_sequence = b'This is a test sequence of bytes that should be sufficient'
         set_logging_handler(level=logging.INFO, format_string="%(message)s")
         from_bytes(test_sequence, steps=1, chunk_size=50, explain=False)
-        assert any(isinstance(hdl, logging.StreamHandler) for hdl in logger.handlers)
+        assert any(isinstance(hdl, logging.StreamHandler) for hdl in self.logger.handlers)
         for record in caplog.records:
             assert record.levelname == "INFO"
         assert "ascii is most likely the one. Stopping the process." in caplog.text
@@ -35,7 +32,7 @@ class TestLogBehaviorClass:
         set_logging_handler(
             "charset_normalizer", level=logging.DEBUG
         )
-        logger.debug("log content should log with default format")
+        self.logger.debug("log content should log with default format")
         for record in caplog.records:
             assert record.levelname == "DEBUG"
         assert "log content should log with default format" in caplog.text
@@ -44,7 +41,7 @@ class TestLogBehaviorClass:
         set_logging_handler(
             "charset_normalizer", format_string="%(message)s"
         )
-        logger.info("log content should only be this message")
+        self.logger.info("log content should only be this message")
         assert caplog.record_tuples == [
             (
                 "charset_normalizer",
