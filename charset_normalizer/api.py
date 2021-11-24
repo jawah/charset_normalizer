@@ -1,3 +1,4 @@
+import logging
 from os.path import basename, splitext
 from typing import BinaryIO, List, Optional, Set
 
@@ -5,8 +6,6 @@ try:
     from os import PathLike
 except ImportError:  # pragma: no cover
     PathLike = str  # type: ignore
-
-import logging
 
 from .cd import (
     coherence_ratio,
@@ -27,11 +26,10 @@ from .utils import (
 )
 
 logger = logging.getLogger("charset_normalizer")
-logger.setLevel(logging.DEBUG)
-
-handler = logging.StreamHandler()
-handler.setFormatter(logging.Formatter("%(asctime)s | %(levelname)s | %(message)s"))
-logger.addHandler(handler)
+explain_handler = logging.StreamHandler()
+explain_handler.setFormatter(
+    logging.Formatter("%(asctime)s | %(levelname)s | %(message)s")
+)
 
 
 def from_bytes(
@@ -57,6 +55,9 @@ def from_bytes(
     purpose.
 
     This function will strip the SIG in the payload/sequence every time except on UTF-16, UTF-32.
+    By default the library does not setup any handler other than the NullHandler, if you choose to set the 'explain'
+    toggle to True it will alter the logger configuration to add a StreamHandler that is suitable for debugging.
+    Custom logging format and handler can be set manually.
     """
 
     if not isinstance(sequences, (bytearray, bytes)):
@@ -66,10 +67,8 @@ def from_bytes(
             )
         )
 
-    if not explain:
-        logger.setLevel(logging.CRITICAL)
-    else:
-        logger.setLevel(logging.INFO)
+    if explain:
+        logger.addHandler(explain_handler)
 
     length = len(sequences)  # type: int
 
@@ -77,6 +76,8 @@ def from_bytes(
         logger.warning(
             "Given content is empty, stopping the process very early, returning empty utf_8 str match"
         )
+        if explain:
+            logger.removeHandler(explain_handler)
         return CharsetMatches([CharsetMatch(sequences, "utf_8", 0.0, False, [], "")])
 
     if cp_isolation is not None:
@@ -416,6 +417,8 @@ def from_bytes(
             logger.info(
                 "%s is most likely the one. Stopping the process.", encoding_iana
             )
+            if explain:
+                logger.removeHandler(explain_handler)
             return CharsetMatches([results[encoding_iana]])
 
         if encoding_iana == sig_encoding:
@@ -423,6 +426,8 @@ def from_bytes(
                 "%s is most likely the one as we detected a BOM or SIG within the beginning of the sequence.",
                 encoding_iana,
             )
+            if explain:
+                logger.removeHandler(explain_handler)
             return CharsetMatches([results[encoding_iana]])
 
     if len(results) == 0:
@@ -450,6 +455,9 @@ def from_bytes(
         elif fallback_ascii:
             logger.warning("ascii will be used as a fallback match")
             results.append(fallback_ascii)
+
+    if explain:
+        logger.removeHandler(explain_handler)
 
     return results
 
