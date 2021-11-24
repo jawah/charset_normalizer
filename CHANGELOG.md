@@ -18,10 +18,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Fix large (misleading) sequence giving UnicodeDecodeError (PR #137)
 - Avoid using too insignificant chunk (PR #137)
 
+### Added
+- Add and expose function `set_logging_handler` to configure a specific StreamHandler from [@nmaynes](https://github.com/nmaynes) (PR #135)
+- Add `CHANGELOG.md` entries, format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) (PR #141)
+
 ## [2.0.7](https://github.com/Ousret/charset_normalizer/compare/2.0.6...2.0.7) (2021-10-11)
 ### Added
 - Add support for Kazakh (Cyrillic) language detection (PR #109)
-- Add and expose function `set_logging_handler` to configure a specific StreamHandler from [@nmaynes](https://github.com/nmaynes) (PR #135)
 
 ### Changed
 - Further, improve inferring the language from a given single-byte code page (PR #112)
@@ -140,3 +143,34 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Added
 - CLI now produces JSON consumable output.
 - Return ASCII if given sequences fit. Given reasonable confidence.
+
+## [1.3.9](https://github.com/Ousret/charset_normalizer/compare/1.3.8...1.3.9) (2021-05-13)
+
+### Fixed
+- In some very rare cases, you may end up getting encode/decode errors due to a bad bytes payload (PR #40)
+
+## [1.3.8](https://github.com/Ousret/charset_normalizer/compare/1.3.7...1.3.8) (2021-05-12)
+
+### Fixed
+- Empty given payload for detection may cause an exception if trying to access the `alphabets` property. (PR #39)
+
+## [1.3.7](https://github.com/Ousret/charset_normalizer/compare/1.3.6...1.3.7) (2021-05-12)
+
+### Fixed
+- The legacy detect function should return UTF-8-SIG if sig is present in the payload. (PR #38)
+
+## [1.3.6](https://github.com/Ousret/charset_normalizer/compare/1.3.5...1.3.6) (2021-02-09)
+
+### Changed
+- Amend the previous release to allow prettytable 2.0 (PR #35)
+
+## [1.3.5](https://github.com/Ousret/charset_normalizer/compare/1.3.4...1.3.5) (2021-02-08)
+
+### Fixed
+- Fix error while using the package with a python pre-release interpreter (PR #33)
+
+### Changed
+- Dependencies refactoring, constraints revised.
+
+### Added
+- Add python 3.9 and 3.10 to the supported interpreters
