@@ -68,7 +68,9 @@ def from_bytes(
         )
 
     if explain:
+        previous_logger_level = logger.level  # type: int
         logger.addHandler(explain_handler)
+        logger.setLevel(logging.INFO)
 
     length = len(sequences)  # type: int
 
@@ -78,6 +80,7 @@ def from_bytes(
         )
         if explain:
             logger.removeHandler(explain_handler)
+            logger.setLevel(previous_logger_level)
         return CharsetMatches([CharsetMatch(sequences, "utf_8", 0.0, False, [], "")])
 
     if cp_isolation is not None:
@@ -419,6 +422,7 @@ def from_bytes(
             )
             if explain:
                 logger.removeHandler(explain_handler)
+                logger.setLevel(previous_logger_level)
             return CharsetMatches([results[encoding_iana]])
 
         if encoding_iana == sig_encoding:
@@ -428,6 +432,7 @@ def from_bytes(
             )
             if explain:
                 logger.removeHandler(explain_handler)
+                logger.setLevel(previous_logger_level)
             return CharsetMatches([results[encoding_iana]])
 
     if len(results) == 0:
@@ -458,6 +463,7 @@ def from_bytes(
 
     if explain:
         logger.removeHandler(explain_handler)
+        logger.setLevel(previous_logger_level)
 
     return results
 
