@@ -68,7 +68,7 @@ def from_bytes(
         )
 
     if explain:
-        previous_logger_level = logger.level  # type: int
+        previous_logger_level = logger.level  # type: Optional[int]
         logger.addHandler(explain_handler)
         logger.setLevel(logging.INFO)
 
