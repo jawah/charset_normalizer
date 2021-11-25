@@ -80,7 +80,7 @@ def from_bytes(
         )
         if explain:
             logger.removeHandler(explain_handler)
-            logger.setLevel(previous_logger_level)
+            logger.setLevel(previous_logger_level or logging.WARNING)
         return CharsetMatches([CharsetMatch(sequences, "utf_8", 0.0, False, [], "")])
 
     if cp_isolation is not None:
@@ -422,7 +422,7 @@ def from_bytes(
             )
             if explain:
                 logger.removeHandler(explain_handler)
-                logger.setLevel(previous_logger_level)
+                logger.setLevel(previous_logger_level or logging.WARNING)
             return CharsetMatches([results[encoding_iana]])
 
         if encoding_iana == sig_encoding:
@@ -432,7 +432,7 @@ def from_bytes(
             )
             if explain:
                 logger.removeHandler(explain_handler)
-                logger.setLevel(previous_logger_level)
+                logger.setLevel(previous_logger_level or logging.WARNING)
             return CharsetMatches([results[encoding_iana]])
 
     if len(results) == 0:
@@ -463,7 +463,7 @@ def from_bytes(
 
     if explain:
         logger.removeHandler(explain_handler)
-        logger.setLevel(previous_logger_level)
+        logger.setLevel(previous_logger_level or logging.WARNING)
 
     return results
 
