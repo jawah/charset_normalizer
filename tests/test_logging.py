@@ -10,7 +10,7 @@ class TestLogBehaviorClass:
         self.logger = logging.getLogger("charset_normalizer")
         self.logger.handlers.clear()
         self.logger.addHandler(logging.NullHandler())
-        self.logger.level = None
+        self.logger.level = logging.WARNING
 
     def test_explain_true_behavior(self, caplog):
         test_sequence = b'This is a test sequence of bytes that should be sufficient'
