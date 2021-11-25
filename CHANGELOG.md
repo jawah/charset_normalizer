@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 - [Short description of non-trivial change.]
 
+### Fixed
+- Wrong logging level applied when setting kwarg `explain` to True (PR #146)
+
 ## [2.0.8](https://github.com/Ousret/charset_normalizer/compare/2.0.7...2.0.8) (2021-11-24)
 ### Changed
 - Improvement over Vietnamese detection (PR #126)
