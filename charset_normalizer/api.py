@@ -68,7 +68,7 @@ def from_bytes(
         )
 
     if explain:
-        previous_logger_level = logger.level  # type: Optional[int]
+        previous_logger_level = logger.level  # type: int
         logger.addHandler(explain_handler)
         logger.setLevel(logging.INFO)
 
@@ -422,7 +422,7 @@ def from_bytes(
             )
             if explain:
                 logger.removeHandler(explain_handler)
-                logger.setLevel(previous_logger_level or logging.WARNING)
+                logger.setLevel(previous_logger_level)
             return CharsetMatches([results[encoding_iana]])
 
         if encoding_iana == sig_encoding:
@@ -432,7 +432,7 @@ def from_bytes(
             )
             if explain:
                 logger.removeHandler(explain_handler)
-                logger.setLevel(previous_logger_level or logging.WARNING)
+                logger.setLevel(previous_logger_level)
             return CharsetMatches([results[encoding_iana]])
 
     if len(results) == 0:
@@ -463,7 +463,7 @@ def from_bytes(
 
     if explain:
         logger.removeHandler(explain_handler)
-        logger.setLevel(previous_logger_level or logging.WARNING)
+        logger.setLevel(previous_logger_level)
 
     return results
 
