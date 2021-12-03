@@ -70,13 +70,13 @@ def from_bytes(
     if explain:
         previous_logger_level = logger.level  # type: int
         logger.addHandler(explain_handler)
-        logger.setLevel(logging.INFO)
+        logger.setLevel(logging.DEBUG)
 
     length = len(sequences)  # type: int
 
     if length == 0:
         logger.warning(
-            "Given content is empty, stopping the process very early, returning empty utf_8 str match"
+            "Encoding detection on empty bytes, assuming utf_8 intention."
         )
         if explain:
             logger.removeHandler(explain_handler)
@@ -84,7 +84,7 @@ def from_bytes(
         return CharsetMatches([CharsetMatch(sequences, "utf_8", 0.0, False, [], "")])
 
     if cp_isolation is not None:
-        logger.warning(
+        logger.debug(
             "cp_isolation is set. use this flag for debugging purpose. "
             "limited list of encoding allowed : %s.",
             ", ".join(cp_isolation),
@@ -94,7 +94,7 @@ def from_bytes(
         cp_isolation = []
 
     if cp_exclusion is not None:
-        logger.warning(
+        logger.debug(
             "cp_exclusion is set. use this flag for debugging purpose. "
             "limited list of encoding excluded : %s.",
             ", ".join(cp_exclusion),
@@ -104,7 +104,7 @@ def from_bytes(
         cp_exclusion = []
 
     if length <= (chunk_size * steps):
-        logger.warning(
+        logger.debug(
             "override steps (%i) and chunk_size (%i) as content does not fit (%i byte(s) given) parameters.",
             steps,
             chunk_size,
@@ -190,7 +190,7 @@ def from_bytes(
         )  # type: bool
 
         if encoding_iana in {"utf_16", "utf_32"} and not bom_or_sig_available:
-            logger.info(
+            logger.debug(
                 "Encoding %s wont be tested as-is because it require a BOM. Will try some sub-encoder LE/BE.",
                 encoding_iana,
             )
@@ -221,7 +221,7 @@ def from_bytes(
                 )
         except (UnicodeDecodeError, LookupError) as e:
             if not isinstance(e, LookupError):
-                logger.warning(
+                logger.debug(
                     "Code page %s does not fit given bytes sequence at ALL. %s",
                     encoding_iana,
                     str(e),
@@ -237,7 +237,7 @@ def from_bytes(
                 break
 
         if similar_soft_failure_test:
-            logger.warning(
+            logger.info(
                 "%s is deemed too similar to code page %s and was consider unsuited already. Continuing!",
                 encoding_iana,
                 encoding_soft_failed,
@@ -332,7 +332,7 @@ def from_bytes(
         )  # type: float
         if mean_mess_ratio >= threshold or early_stop_count >= max_chunk_gave_up:
             tested_but_soft_failure.append(encoding_iana)
-            logger.warning(
+            logger.info(
                 "%s was excluded because of initial chaos probing. Gave up %i time(s). "
                 "Computed mean chaos is %f %%.",
                 encoding_iana,
