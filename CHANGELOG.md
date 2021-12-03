@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 - [Short description of non-trivial change.]
 
+### Changed
+- Moderating the logging impact (since 2.0.8) for specific environments (PR #147)
+
 ### Fixed
 - Wrong logging level applied when setting kwarg `explain` to True (PR #146)
 
