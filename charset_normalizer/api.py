@@ -75,9 +75,7 @@ def from_bytes(
     length = len(sequences)  # type: int
 
     if length == 0:
-        logger.warning(
-            "Encoding detection on empty bytes, assuming utf_8 intention."
-        )
+        logger.warning("Encoding detection on empty bytes, assuming utf_8 intention.")
         if explain:
             logger.removeHandler(explain_handler)
             logger.setLevel(previous_logger_level or logging.WARNING)
