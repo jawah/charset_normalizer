@@ -7,5 +7,5 @@ fi
 
 set -x
 
-${PREFIX}black --diff --target-version=py35 charset_normalizer
-${PREFIX}isort --diff charset_normalizer
+${PREFIX}black --target-version=py35 charset_normalizer
+${PREFIX}isort charset_normalizer
