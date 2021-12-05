@@ -1,5 +1,6 @@
 #!/bin/python
 from glob import glob
+from os.path import isdir
 from sys import argv
 from typing import List
 import argparse
@@ -34,6 +35,10 @@ def cli_coverage(arguments: List[str]):
                         help="Define the minimum acceptable coverage to succeed")
 
     args = parser.parse_args(arguments)
+
+    if not isdir("./char-dataset"):
+        print("This script require https://github.com/Ousret/char-dataset to be cloned on package root directory")
+        exit(1)
 
     success_count = 0
     total_count = 0
