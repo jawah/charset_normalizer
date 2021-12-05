@@ -3,6 +3,7 @@ from glob import glob
 from time import time_ns
 import argparse
 from sys import argv
+from os.path import isdir
 
 from charset_normalizer import detect
 from chardet import detect as chardet_detect
@@ -28,6 +29,10 @@ def performance_compare(arguments):
                         help="Apply artificial size increase to challenge the detection mechanism further")
 
     args = parser.parse_args(arguments)
+
+    if not isdir("./char-dataset"):
+        print("This script require https://github.com/Ousret/char-dataset to be cloned on package root directory")
+        exit(1)
 
     chardet_results = []
     charset_normalizer_results = []
