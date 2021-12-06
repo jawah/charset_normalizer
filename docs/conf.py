@@ -168,9 +168,6 @@ man_pages = [
 
 # -- Options for Texinfo output -------------------------------------------
 
-# Grouping the document tree into Texinfo files. List of tuples
-# (source start file, target name, title, author,
-#  dir menu entry, description, category)
 texinfo_documents = [
     (master_doc, 'Charset Normalizer', 'Charsert Normalizer Documentation',
      author, 'charset-normalizer', '🔎 Like Chardet. 🚀 Package for encoding & language detection. Charset detection.',
