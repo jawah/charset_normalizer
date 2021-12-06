@@ -53,18 +53,34 @@ Features
 - Detect spoken language in text.
 - Ship with a great CLI.
 
-Contents:
+Start Guide
+-----------
 
 .. toctree::
     :maxdepth: 2
 
-    support
-    getstarted
-    advanced_search
-    handling_result
-    miscellaneous
-    faq
-    why_migrate
+    user/support
+    user/getstarted
+    user/advanced_search
+    user/handling_result
+    user/miscellaneous
+
+Community Guide
+---------------
+
+.. toctree::
+    :maxdepth: 2
+
+    community/faq
+    community/why_migrate
+
+Developer Guide
+---------------
+
+.. toctree::
+    :maxdepth: 3
+
+    api
 
 Indices and tables
 ==================
