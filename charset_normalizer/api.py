@@ -265,6 +265,7 @@ def from_bytes(
 
         max_chunk_gave_up = max(max_chunk_gave_up, 2)
         early_stop_count = 0  # type: int
+        lazy_str_hard_failure = False
 
         md_chunks = []  # type: List[str]
         md_ratios = []
@@ -290,6 +291,7 @@ def from_bytes(
                     str(e),
                 )
                 early_stop_count = max_chunk_gave_up
+                lazy_str_hard_failure = True
                 break
 
             # multi-byte bad cutting detector and adjustment
@@ -338,7 +340,7 @@ def from_bytes(
                 round(mean_mess_ratio * 100, ndigits=3),
             )
             # Preparing those fallbacks in case we got nothing.
-            if encoding_iana in ["ascii", "utf_8", specified_encoding]:
+            if encoding_iana in ["ascii", "utf_8", specified_encoding] and not lazy_str_hard_failure:
                 fallback_entry = CharsetMatch(
                     sequences, encoding_iana, threshold, False, [], decoded_payload
                 )
