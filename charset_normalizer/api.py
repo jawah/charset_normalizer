@@ -235,7 +235,7 @@ def from_bytes(
                 break
 
         if similar_soft_failure_test:
-            logger.info(
+            logger.debug(
                 "%s is deemed too similar to code page %s and was consider unsuited already. Continuing!",
                 encoding_iana,
                 encoding_soft_failed,
@@ -255,7 +255,7 @@ def from_bytes(
         )  # type: bool
 
         if multi_byte_bonus:
-            logger.info(
+            logger.debug(
                 "Code page %s is a multi byte encoding table and it appear that at least one character "
                 "was encoded using n-bytes.",
                 encoding_iana,
@@ -285,7 +285,7 @@ def from_bytes(
                     errors="ignore" if is_multi_byte_decoder else "strict",
                 )  # type: str
             except UnicodeDecodeError as e:  # Lazy str loading may have missed something there
-                logger.warning(
+                logger.debug(
                     "LazyStr Loading: After MD chunk decode, code page %s does not fit given bytes sequence at ALL. %s",
                     encoding_iana,
                     str(e),
@@ -337,7 +337,7 @@ def from_bytes(
             try:
                 sequences[int(50e3) :].decode(encoding_iana, errors="strict")
             except UnicodeDecodeError as e:
-                logger.warning(
+                logger.debug(
                     "LazyStr Loading: After final lookup, code page %s does not fit given bytes sequence at ALL. %s",
                     encoding_iana,
                     str(e),
@@ -393,12 +393,15 @@ def from_bytes(
 
         cd_ratios = []
 
-        for chunk in md_chunks:
-            chunk_languages = coherence_ratio(
-                chunk, 0.1, ",".join(target_languages) if target_languages else None
-            )
+        # We shall skip the CD when its about ASCII
+        # Most of the time its not relevant to run "language-detection" on it.
+        if encoding_iana != 'ascii':
+            for chunk in md_chunks:
+                chunk_languages = coherence_ratio(
+                    chunk, 0.1, ",".join(target_languages) if target_languages else None
+                )
 
-            cd_ratios.append(chunk_languages)
+                cd_ratios.append(chunk_languages)
 
         cd_ratios_merged = merge_coherence_ratios(cd_ratios)
 
@@ -424,7 +427,7 @@ def from_bytes(
             encoding_iana in [specified_encoding, "ascii", "utf_8"]
             and mean_mess_ratio < 0.1
         ):
-            logger.info(
+            logger.debug(
                 "%s is most likely the one. Stopping the process.", encoding_iana
             )
             if explain:
@@ -433,7 +436,7 @@ def from_bytes(
             return CharsetMatches([results[encoding_iana]])
 
         if encoding_iana == sig_encoding:
-            logger.info(
+            logger.debug(
                 "%s is most likely the one as we detected a BOM or SIG within the beginning of the sequence.",
                 encoding_iana,
             )
@@ -444,12 +447,12 @@ def from_bytes(
 
     if len(results) == 0:
         if fallback_u8 or fallback_ascii or fallback_specified:
-            logger.warning(
+            logger.debug(
                 "Nothing got out of the detection process. Using ASCII/UTF-8/Specified fallback."
             )
 
         if fallback_specified:
-            logger.warning(
+            logger.debug(
                 "%s will be used as a fallback match", fallback_specified.encoding
             )
             results.append(fallback_specified)
