@@ -9,6 +9,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Fixed
 - Fallback match entries might lead to UnicodeDecodeError for large bytes sequence (PR #154)
 
+### Changed
+- Skipping the language-detection (CD) on ASCII (PR #155)
+
 ## [2.0.9](https://github.com/Ousret/charset_normalizer/compare/2.0.8...2.0.9) (2021-12-03)
 
 ### Changed
