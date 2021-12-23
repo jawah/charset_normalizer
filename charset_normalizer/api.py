@@ -329,9 +329,13 @@ def from_bytes(
 
         # We might want to check the sequence again with the whole content
         # Only if initial MD tests passes
-        if not lazy_str_hard_failure and is_too_large_sequence and not is_multi_byte_decoder:
+        if (
+            not lazy_str_hard_failure
+            and is_too_large_sequence
+            and not is_multi_byte_decoder
+        ):
             try:
-                sequences[int(50e3):].decode(encoding_iana, errors="strict")
+                sequences[int(50e3) :].decode(encoding_iana, errors="strict")
             except UnicodeDecodeError as e:
                 logger.warning(
                     "LazyStr Loading: After final lookup, code page %s does not fit given bytes sequence at ALL. %s",
