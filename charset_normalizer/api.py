@@ -395,7 +395,7 @@ def from_bytes(
 
         # We shall skip the CD when its about ASCII
         # Most of the time its not relevant to run "language-detection" on it.
-        if encoding_iana != 'ascii':
+        if encoding_iana != "ascii":
             for chunk in md_chunks:
                 chunk_languages = coherence_ratio(
                     chunk, 0.1, ",".join(target_languages) if target_languages else None
