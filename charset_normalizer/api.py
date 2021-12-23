@@ -340,7 +340,10 @@ def from_bytes(
                 round(mean_mess_ratio * 100, ndigits=3),
             )
             # Preparing those fallbacks in case we got nothing.
-            if encoding_iana in ["ascii", "utf_8", specified_encoding] and not lazy_str_hard_failure:
+            if (
+                encoding_iana in ["ascii", "utf_8", specified_encoding]
+                and not lazy_str_hard_failure
+            ):
                 fallback_entry = CharsetMatch(
                     sequences, encoding_iana, threshold, False, [], decoded_payload
                 )
