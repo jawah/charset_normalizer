@@ -385,7 +385,7 @@ def from_bytes(
             target_languages = mb_encoding_languages(encoding_iana)
 
         if target_languages:
-            logger.info(
+            logger.debug(
                 "{} should target any language(s) of {}".format(
                     encoding_iana, str(target_languages)
                 )
@@ -427,7 +427,7 @@ def from_bytes(
             encoding_iana in [specified_encoding, "ascii", "utf_8"]
             and mean_mess_ratio < 0.1
         ):
-            logger.debug(
+            logger.info(
                 "%s is most likely the one. Stopping the process.", encoding_iana
             )
             if explain:
@@ -436,7 +436,7 @@ def from_bytes(
             return CharsetMatches([results[encoding_iana]])
 
         if encoding_iana == sig_encoding:
-            logger.debug(
+            logger.info(
                 "%s is most likely the one as we detected a BOM or SIG within the beginning of the sequence.",
                 encoding_iana,
             )
