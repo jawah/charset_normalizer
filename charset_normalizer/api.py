@@ -327,6 +327,20 @@ def from_bytes(
             ):
                 break
 
+        # We might want to check the sequence again with the whole content
+        # Only if initial MD tests passes
+        if not lazy_str_hard_failure and is_too_large_sequence and not is_multi_byte_decoder:
+            try:
+                sequences[int(50e3):].decode(encoding_iana, errors="strict")
+            except UnicodeDecodeError as e:
+                logger.warning(
+                    "LazyStr Loading: After final lookup, code page %s does not fit given bytes sequence at ALL. %s",
+                    encoding_iana,
+                    str(e),
+                )
+                tested_but_hard_failure.append(encoding_iana)
+                continue
+
         mean_mess_ratio = (
             sum(md_ratios) / len(md_ratios) if md_ratios else 0.0
         )  # type: float
@@ -390,20 +404,6 @@ def from_bytes(
                     cd_ratios_merged, encoding_iana
                 )
             )
-
-        # We might want to check the sequence again with the whole content
-        # Only if initial MD/CD tests passes
-        if is_too_large_sequence and not is_multi_byte_decoder:
-            try:
-                sequences[int(50e3) :].decode(encoding_iana, errors="strict")
-            except UnicodeDecodeError as e:
-                logger.warning(
-                    "LazyStr Loading: After final lookup, code page %s does not fit given bytes sequence at ALL. %s",
-                    encoding_iana,
-                    str(e),
-                )
-                tested_but_hard_failure.append(encoding_iana)
-                continue
 
         results.append(
             CharsetMatch(
