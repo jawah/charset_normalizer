@@ -21,8 +21,6 @@
 import sys
 import os
 
-from recommonmark.parser import CommonMarkParser
-
 sys.path.insert(0, os.path.abspath(".."))
 
 import charset_normalizer
@@ -57,11 +55,9 @@ templates_path = ['_templates']
 # source_suffix = ['.rst', '.md']
 # source_suffix = '.rst'
 
-source_parsers = {
-    '.md': CommonMarkParser,
-}
+source_parsers = {}
 
-source_suffix = ['.rst', '.md']
+source_suffix = ['.rst',]
 
 # The master toctree document.
 master_doc = 'index'
