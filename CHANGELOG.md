@@ -2,9 +2,7 @@
 All notable changes to charset-normalizer will be documented in this file. This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [2.0.10.dev0](https://github.com/Ousret/charset_normalizer/compare/2.0.9...master) (unreleased)
-
-- [Short description of non-trivial change.]
+## [2.0.10](https://github.com/Ousret/charset_normalizer/compare/2.0.9...2.0.10) (2022-01-04)
 
 ### Fixed
 - Fallback match entries might lead to UnicodeDecodeError for large bytes sequence (PR #154)
