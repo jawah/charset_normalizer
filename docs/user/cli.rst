@@ -91,7 +91,7 @@ JSON format.
    }
 
 
-I recommend the `jq` to easily parse and exploit specific data from the produced JSON.
+I recommend the `jq` command line tool to easily parse and exploit specific data from the produced JSON.
 
 Multiple File Input
 -------------------
