@@ -64,6 +64,7 @@ Start Guide
     user/advanced_search
     user/handling_result
     user/miscellaneous
+    user/cli
 
 Community Guide
 ---------------
