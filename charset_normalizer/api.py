@@ -126,14 +126,14 @@ def from_bytes(
             TRACE,
             "Trying to detect encoding from a tiny portion of ({}) byte(s).".format(
                 length
-            )
+            ),
         )
     elif is_too_large_sequence:
         logger.log(
             TRACE,
             "Using lazy str decoding because the payload is quite large, ({}) byte(s).".format(
                 length
-            )
+            ),
         )
 
     prioritized_encodings = []  # type: List[str]
@@ -209,7 +209,7 @@ def from_bytes(
             logger.log(
                 TRACE,
                 "Encoding %s does not provide an IncrementalDecoder",
-                encoding_iana
+                encoding_iana,
             )
             continue
 
@@ -407,7 +407,7 @@ def from_bytes(
                 TRACE,
                 "{} should target any language(s) of {}".format(
                     encoding_iana, str(target_languages)
-                )
+                ),
             )
 
         cd_ratios = []
@@ -429,7 +429,7 @@ def from_bytes(
                 TRACE,
                 "We detected language {} using {}".format(
                     cd_ratios_merged, encoding_iana
-                )
+                ),
             )
 
         results.append(
@@ -470,12 +470,13 @@ def from_bytes(
         if fallback_u8 or fallback_ascii or fallback_specified:
             logger.log(
                 TRACE,
-                "Nothing got out of the detection process. Using ASCII/UTF-8/Specified fallback."
+                "Nothing got out of the detection process. Using ASCII/UTF-8/Specified fallback.",
             )
 
         if fallback_specified:
             logger.debug(
-                "Encoding detection: %s will be used as a fallback match", fallback_specified.encoding
+                "Encoding detection: %s will be used as a fallback match",
+                fallback_specified.encoding,
             )
             results.append(fallback_specified)
         elif (
@@ -497,12 +498,10 @@ def from_bytes(
         logger.debug(
             "Encoding detection: Found %s as plausible (best-candidate) for content. With %i alternatives.",
             results.best().encoding,
-            len(results)
+            len(results),
         )
     else:
-        logger.debug(
-            "Encoding detection: Unable to determine any suitable charset."
-        )
+        logger.debug("Encoding detection: Unable to determine any suitable charset.")
 
     if explain:
         logger.removeHandler(explain_handler)
