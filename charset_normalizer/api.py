@@ -494,10 +494,10 @@ def from_bytes(
             logger.debug("Encoding detection: ascii will be used as a fallback match")
             results.append(fallback_ascii)
 
-    if results.best() is not None:
+    if results:
         logger.debug(
             "Encoding detection: Found %s as plausible (best-candidate) for content. With %i alternatives.",
-            results.best().encoding,
+            results.best().encoding,  # type: ignore
             len(results) - 1,
         )
     else:
