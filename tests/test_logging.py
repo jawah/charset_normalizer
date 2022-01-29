@@ -3,6 +3,7 @@ import logging
 
 from charset_normalizer.utils import set_logging_handler
 from charset_normalizer.api import from_bytes, explain_handler
+from charset_normalizer.constant import TRACE
 
 
 class TestLogBehaviorClass:
@@ -17,16 +18,16 @@ class TestLogBehaviorClass:
         from_bytes(test_sequence, steps=1, chunk_size=50, explain=True)
         assert explain_handler not in self.logger.handlers
         for record in caplog.records:
-            assert record.levelname in ["INFO", "DEBUG"]
+            assert record.levelname in ["TRACE", "DEBUG"]
 
     def test_explain_false_handler_set_behavior(self, caplog):
         test_sequence = b'This is a test sequence of bytes that should be sufficient'
-        set_logging_handler(level=logging.INFO, format_string="%(message)s")
+        set_logging_handler(level=TRACE, format_string="%(message)s")
         from_bytes(test_sequence, steps=1, chunk_size=50, explain=False)
         assert any(isinstance(hdl, logging.StreamHandler) for hdl in self.logger.handlers)
         for record in caplog.records:
-            assert record.levelname in ["INFO", "DEBUG"]
-        assert "ascii is most likely the one. Stopping the process." in caplog.text
+            assert record.levelname in ["TRACE", "DEBUG"]
+        assert "Encoding detection: ascii is most likely the one." in caplog.text
 
     def test_set_stream_handler(self, caplog):
         set_logging_handler(
@@ -34,7 +35,7 @@ class TestLogBehaviorClass:
         )
         self.logger.debug("log content should log with default format")
         for record in caplog.records:
-            assert record.levelname in ["INFO", "DEBUG"]
+            assert record.levelname in ["TRACE", "DEBUG"]
         assert "log content should log with default format" in caplog.text
 
     def test_set_stream_handler_format(self, caplog):
