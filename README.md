@@ -33,7 +33,7 @@ This project offers you an alternative to **Universal Charset Encoding Detector*
 | `License` | LGPL-2.1 | MIT | MPL-1.1
 | `Native Python` | :heavy_check_mark: | :heavy_check_mark: | ❌ |
 | `Detect spoken language` | ❌ | :heavy_check_mark: | N/A |
-| `Supported Encoding` | 30 | :tada: [93](https://charset-normalizer.readthedocs.io/en/latest/support.html)  | 40
+| `Supported Encoding` | 30 | :tada: [93](https://charset-normalizer.readthedocs.io/en/latest/user/support.html#supported-encodings)  | 40
 
 <p align="center">
 <img src="https://i.imgflip.com/373iay.gif" alt="Reading Normalized Text" width="226"/><img src="https://media.tenor.com/images/c0180f70732a18b4965448d33adba3d0/tenor.gif" alt="Cat Reading Text" width="200"/>
