@@ -2,15 +2,13 @@
 All notable changes to charset-normalizer will be documented in this file. This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [2.0.11.dev0](https://github.com/Ousret/charset_normalizer/compare/2.0.10...master) (unreleased)
-
-- [Short description of non-trivial change.]
+## [2.0.11](https://github.com/Ousret/charset_normalizer/compare/2.0.10...2.0.11) (2022-01-30)
 
 ### Added
 - Explicit support for Python 3.11 (PR #164)
 
 ### Changed
-- The logging behavior have been completely reviewed, now using only TRACE and DEBUG levels (PR #163)
+- The logging behavior have been completely reviewed, now using only TRACE and DEBUG levels (PR #163 #165)
 
 ## [2.0.10](https://github.com/Ousret/charset_normalizer/compare/2.0.9...2.0.10) (2022-01-04)
 
