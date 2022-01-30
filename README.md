@@ -39,6 +39,7 @@ This project offers you an alternative to **Universal Charset Encoding Detector*
 <img src="https://i.imgflip.com/373iay.gif" alt="Reading Normalized Text" width="226"/><img src="https://media.tenor.com/images/c0180f70732a18b4965448d33adba3d0/tenor.gif" alt="Cat Reading Text" width="200"/>
 
 *\*\* : They are clearly using specific code for a specific encoding even if covering most of used one*<br> 
+Did you got there because of the logs? See [https://charset-normalizer.readthedocs.io/en/latest/user/miscellaneous.html](https://charset-normalizer.readthedocs.io/en/latest/user/miscellaneous.html)
 
 ## ⭐ Your support
 
