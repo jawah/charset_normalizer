@@ -25,7 +25,8 @@ from .utils import (
     should_strip_sig_or_bom,
 )
 
-logging.addLevelName(TRACE, "TRACE")
+# Will most likely be controversial
+# logging.addLevelName(TRACE, "TRACE")
 logger = logging.getLogger("charset_normalizer")
 explain_handler = logging.StreamHandler()
 explain_handler.setFormatter(
