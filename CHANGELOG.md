@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 - [Short description of non-trivial change.]
 
+### Added
+- Explicit support for Python 3.11 (PR #164)
+
 ### Changed
 - The logging behavior have been completely reviewed, now using only TRACE and DEBUG levels (PR #163)
 
