@@ -31,7 +31,7 @@ jobs:
         git clone https://github.com/Ousret/char-dataset.git
     - name: Coverage WITH preemptive
       run: |
-        python ./bin/coverage.py --coverage 98 --with-preemptive
+        python ./bin/coverage.py --coverage 97 --with-preemptive
     - name: Coverage WITHOUT preemptive
       run: |
         python ./bin/coverage.py --coverage 95
