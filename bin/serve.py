@@ -13,7 +13,7 @@ def read_file(path):
 def read_targets():
     return jsonify(
         [
-            el.replace("./char-dataset", "/raw").replace("\\", "/") for el in glob("./char-dataset/**/*")
+            el.replace("./char-dataset", "/raw").replace("\\", "/") for el in sorted(glob("./char-dataset/**/*"))
         ]
     )
 
