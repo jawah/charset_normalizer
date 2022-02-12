@@ -37,7 +37,7 @@ def performance_compare(arguments):
     chardet_results = []
     charset_normalizer_results = []
 
-    for tbt_path in glob("./char-dataset/**/*.*"):
+    for tbt_path in sorted(glob("./char-dataset/**/*.*")):
         print(tbt_path)
 
         # Read Bin file
