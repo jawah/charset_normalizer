@@ -1,6 +1,7 @@
 import logging
+from collections.abc import Iterable
 from os.path import basename, splitext
-from typing import BinaryIO, List, Optional, Set
+from typing import BinaryIO, Generator, List, Optional, Set
 
 try:
     from os import PathLike
@@ -32,6 +33,65 @@ explain_handler = logging.StreamHandler()
 explain_handler.setFormatter(
     logging.Formatter("%(asctime)s | %(levelname)s | %(message)s")
 )
+
+
+def cut_sequence_chunks(
+    sequences: bytes,
+    length: int,
+    encoding_iana: str,
+    decoded_payload: Optional[str],
+    iterator: Iterable,
+    chunk_size: int,
+    bom_or_sig_available: bool,
+    strip_sig_or_bom: bool,
+    sig_payload: bytes,
+    is_multi_byte_decoder: bool,
+) -> Generator[str, None, None]:
+    chunk = ""  # type: str
+    if decoded_payload:
+        for i in iterator:
+            chunk = decoded_payload[i : i + chunk_size]
+            if not chunk:
+                break
+            yield chunk
+    else:
+        for i in iterator:
+            chunk_end = i + chunk_size
+            if chunk_end > length + 8:
+                continue
+
+            cut_sequence = sequences[i : i + chunk_size]
+
+            if bom_or_sig_available and strip_sig_or_bom is False:
+                cut_sequence = sig_payload + cut_sequence
+
+            chunk = cut_sequence.decode(
+                encoding_iana,
+                errors="ignore" if is_multi_byte_decoder else "strict",
+            )
+
+            # multi-byte bad cutting detector and adjustment
+            # not the cleanest way to perform that fix but clever enough for now.
+            if is_multi_byte_decoder and i > 0 and sequences[i] >= 0x80:
+
+                chunk_partial_size_chk = min(chunk_size, 16)  # type: int
+
+                if (
+                    decoded_payload
+                    and chunk[:chunk_partial_size_chk] not in decoded_payload
+                ):
+                    for j in range(i, i - 4, -1):
+                        cut_sequence = sequences[j:chunk_end]
+
+                        if bom_or_sig_available and strip_sig_or_bom is False:
+                            cut_sequence = sig_payload + cut_sequence
+
+                        chunk = cut_sequence.decode(encoding_iana, errors="ignore")
+
+                        if chunk[:chunk_partial_size_chk] in decoded_payload:
+                            break
+
+            yield chunk
 
 
 def from_bytes(
@@ -285,63 +345,39 @@ def from_bytes(
         md_chunks = []  # type: List[str]
         md_ratios = []
 
-        for i in r_:
-            if i + chunk_size > length + 8:
-                continue
-
-            cut_sequence = sequences[i : i + chunk_size]
-
-            if bom_or_sig_available and strip_sig_or_bom is False:
-                cut_sequence = sig_payload + cut_sequence
-
-            try:
-                chunk = cut_sequence.decode(
-                    encoding_iana,
-                    errors="ignore" if is_multi_byte_decoder else "strict",
-                )  # type: str
-            except UnicodeDecodeError as e:  # Lazy str loading may have missed something there
-                logger.log(
-                    TRACE,
-                    "LazyStr Loading: After MD chunk decode, code page %s does not fit given bytes sequence at ALL. %s",
-                    encoding_iana,
-                    str(e),
-                )
-                early_stop_count = max_chunk_gave_up
-                lazy_str_hard_failure = True
-                break
-
-            # multi-byte bad cutting detector and adjustment
-            # not the cleanest way to perform that fix but clever enough for now.
-            if is_multi_byte_decoder and i > 0 and sequences[i] >= 0x80:
-
-                chunk_partial_size_chk = min(chunk_size, 16)  # type: int
-
-                if (
-                    decoded_payload
-                    and chunk[:chunk_partial_size_chk] not in decoded_payload
-                ):
-                    for j in range(i, i - 4, -1):
-                        cut_sequence = sequences[j : i + chunk_size]
-
-                        if bom_or_sig_available and strip_sig_or_bom is False:
-                            cut_sequence = sig_payload + cut_sequence
-
-                        chunk = cut_sequence.decode(encoding_iana, errors="ignore")
-
-                        if chunk[:chunk_partial_size_chk] in decoded_payload:
-                            break
-
-            md_chunks.append(chunk)
-
-            md_ratios.append(mess_ratio(chunk, threshold))
-
-            if md_ratios[-1] >= threshold:
-                early_stop_count += 1
-
-            if (early_stop_count >= max_chunk_gave_up) or (
-                bom_or_sig_available and strip_sig_or_bom is False
+        try:
+            for chunk in cut_sequence_chunks(
+                sequences,
+                length,
+                encoding_iana,
+                decoded_payload,
+                r_,
+                chunk_size,
+                bom_or_sig_available,
+                strip_sig_or_bom,
+                sig_payload,
+                is_multi_byte_decoder,
             ):
-                break
+                md_chunks.append(chunk)
+
+                md_ratios.append(mess_ratio(chunk, threshold))
+
+                if md_ratios[-1] >= threshold:
+                    early_stop_count += 1
+
+                if (early_stop_count >= max_chunk_gave_up) or (
+                    bom_or_sig_available and strip_sig_or_bom is False
+                ):
+                    break
+        except UnicodeDecodeError as e:  # Lazy str loading may have missed something there
+            logger.log(
+                TRACE,
+                "LazyStr Loading: After MD chunk decode, code page %s does not fit given bytes sequence at ALL. %s",
+                encoding_iana,
+                str(e),
+            )
+            early_stop_count = max_chunk_gave_up
+            lazy_str_hard_failure = True
 
         # We might want to check the sequence again with the whole content
         # Only if initial MD tests passes
