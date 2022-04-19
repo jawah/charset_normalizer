@@ -1,0 +1,86 @@
+[build-system]
+requires = ["setuptools>=61.2.0", "wheel", "setuptools_scm[toml]>=3.4.3"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "charset-normalizer"
+authors = [{name = "Ahmed TAHRI @Ousret", email = "ahmed.tahri@cloudnursery.dev"}]
+license = {text = "MIT"}
+description = "The Real First Universal Charset Detector. Open, modern and actively maintained alternative to Chardet."
+keywords = [
+    "encoding",
+    "i18n",
+    "txt",
+    "text",
+    "charset",
+    "charset-detector",
+    "normalization",
+    "unicode",
+    "chardet",
+]
+classifiers = [
+    "License :: OSI Approved :: MIT License",
+    "Intended Audience :: Developers",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.5",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Text Processing :: Linguistic",
+    "Topic :: Utilities",
+    "Programming Language :: Python :: Implementation :: PyPy",
+    "Typing :: Typed",
+]
+requires-python = ">=3.5.0"
+dependencies = []
+dynamic = ["version"]
+
+[project.readme]
+text = "The Real First Universal Charset Detector. Open, modern and actively maintained alternative to Chardet."
+content-type = "text/markdown"
+
+[project.urls]
+Homepage = "https://github.com/ousret/charset_normalizer"
+"Bug Reports" = "https://github.com/Ousret/charset_normalizer/issues"
+Documentation = "https://charset-normalizer.readthedocs.io/en/latest"
+
+[project.optional-dependencies]
+unicode_backport = ["unicodedata2"]
+
+[project.scripts]
+normalizer = "charset_normalizer.cli.normalizer:cli_detect"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+exclude = ["tests", "*.tests", "*.tests.*", "tests.*"]
+namespaces = false
+
+[tool.setuptools.package-data]
+charset_normalizer = ["py.typed"]
+
+[tool.setuptools_scm]
+write_to = "charset_normalizer/version.py"
+write_to_template = "__version__ = \"{version}\"\nVERSION = __version__.split(\".\")\n"
+
+[tool.pytest.ini_options]
+addopts = "--cov=charset_normalizer --cov-report=term-missing -rxXs"
+
+[tool.flake8]
+ignore = "W503, E203, B305"
+max-line-length = 120
+
+[tool.mypy]
+disallow_untyped_defs = true
+ignore_missing_imports = true
+
+[tool.isort]
+profile = "black"
+combine_as_imports = true

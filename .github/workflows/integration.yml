@@ -20,7 +20,7 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
       run: |
-        pip install -U pip setuptools
+        pip install -U pip setuptools setuptools_scm wheel build
         pip install -r dev-requirements.txt
     - name: Remove Chardet & Charset-Normalizer
       run: |
@@ -28,7 +28,8 @@ jobs:
         pip uninstall -y charset-normalizer
     - name: Install the package
       run: |
-        python setup.py install
+        python -m build -nwx .
+        pip install -U ./dist/*.whl
     - name: Clone the complete dataset
       run: |
         git clone https://github.com/Ousret/char-dataset.git

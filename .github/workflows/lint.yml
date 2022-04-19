@@ -20,12 +20,13 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
       run: |
-        pip install -U pip setuptools
+        pip install -U pip setuptools setuptools_scm wheel build
         pip install -r dev-requirements.txt
         pip uninstall -y charset-normalizer
     - name: Install the package
       run: |
-        python setup.py install
+        python -m build -nwx .
+        pip install -U ./dist/*.whl
     - name: Type checking (Mypy)
       run: |
         mypy charset_normalizer
