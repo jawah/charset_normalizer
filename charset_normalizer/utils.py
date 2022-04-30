@@ -206,6 +206,7 @@ def is_unprintable(character: str) -> bool:
         and character != "\x1A"  # Why? Its the ASCII substitute character.
         ):
         return True
+    return False
 
 def any_specified_encoding(sequence: bytes, search_zone: int = 4096) -> Optional[str]:
     """
