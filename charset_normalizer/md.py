@@ -16,6 +16,7 @@ from .utils import (
     is_separator,
     is_symbol,
     is_thai,
+    is_unprintable,
     remove_accent,
     unicode_range,
 )
@@ -137,13 +138,9 @@ class UnprintablePlugin(MessDetectorPlugin):
 
     def eligible(self, character: str) -> bool:
         return True
-
+    
     def feed(self, character: str) -> None:
-        if (
-            character.isspace() is False  # includes \n \t \r \v
-            and character.isprintable() is False
-            and character != "\x1A"  # Why? Its the ASCII substitute character.
-        ):
+        if is_unprintable(character):
             self._unprintable_count += 1
         self._character_count += 1
 
@@ -167,7 +164,7 @@ class SuspiciousDuplicateAccentPlugin(MessDetectorPlugin):
 
     def eligible(self, character: str) -> bool:
         return character.isalpha() and is_latin(character)
-
+    
     def feed(self, character: str) -> None:
         self._character_count += 1
         if (
@@ -445,7 +442,7 @@ class ArchaicUpperLowerPlugin(MessDetectorPlugin):
 
         return self._successive_upper_lower_count_final / self._character_count
 
-
+@lru_cache(maxsize=1024)
 def is_suspiciously_successive_range(
     unicode_range_a: Optional[str], unicode_range_b: Optional[str]
 ) -> bool:
