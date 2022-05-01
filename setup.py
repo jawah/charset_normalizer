@@ -7,6 +7,8 @@ from re import search
 
 from setuptools import find_packages, setup
 
+from mypyc.build import mypycify
+
 
 def get_version():
     with open('charset_normalizer/version.py') as version_file:
@@ -51,6 +53,18 @@ setup(
     packages=find_packages(exclude=["tests", "*.tests", "*.tests.*", "tests.*"]),
     install_requires=REQUIRED,
     extras_require=EXTRAS,
+    ext_modules=mypycify([
+        'charset_normalizer/__init__.py',
+        'charset_normalizer/api.py',
+        'charset_normalizer/constant.py',
+        'charset_normalizer/cd.py',
+        'charset_normalizer/md.py',
+        'charset_normalizer/models.py',
+        'charset_normalizer/utils.py',
+        'charset_normalizer/assets/__init__.py',
+        'charset_normalizer/cli/normalizer.py'
+        
+    ]),
     include_package_data=True,
     package_data={"charset_normalizer": ["py.typed"]},
     license='MIT',
