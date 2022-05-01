@@ -138,7 +138,7 @@ class UnprintablePlugin(MessDetectorPlugin):
 
     def eligible(self, character: str) -> bool:
         return True
-    
+
     def feed(self, character: str) -> None:
         if is_unprintable(character):
             self._unprintable_count += 1
@@ -164,7 +164,7 @@ class SuspiciousDuplicateAccentPlugin(MessDetectorPlugin):
 
     def eligible(self, character: str) -> bool:
         return character.isalpha() and is_latin(character)
-    
+
     def feed(self, character: str) -> None:
         self._character_count += 1
         if (
@@ -441,6 +441,7 @@ class ArchaicUpperLowerPlugin(MessDetectorPlugin):
             return 0.0
 
         return self._successive_upper_lower_count_final / self._character_count
+
 
 @lru_cache(maxsize=1024)
 def is_suspiciously_successive_range(
