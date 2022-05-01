@@ -176,7 +176,7 @@ def characters_popularity_compare(
 
     character_approved_count = 0  # type: int
     FREQUENCIES_language_set = set(FREQUENCIES[language])
-    
+
     for character in ordered_characters:
         if character not in FREQUENCIES_language_set:
             continue
@@ -193,14 +193,14 @@ def characters_popularity_compare(
         characters_after = ordered_characters[
             ordered_characters.index(character) :
         ]  # type: List[str]
-        
+
         before_match_count = len(
             set(characters_before) & set(characters_before_source)
-            )  # type: int
+        )  # type: int
 
         after_match_count = len(
             set(characters_after) & set(characters_after_source)
-            )  # type: int
+        )  # type: int
 
         if len(characters_before_source) == 0 and before_match_count <= 4:
             character_approved_count += 1
