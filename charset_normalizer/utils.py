@@ -200,13 +200,11 @@ def is_unicode_range_secondary(range_name: str) -> bool:
 
 @lru_cache(maxsize=UTF8_MAXIMAL_ALLOCATION)
 def is_unprintable(character: str) -> bool:
-    if (
+    return (
         character.isspace() is False  # includes \n \t \r \v
         and character.isprintable() is False
         and character != "\x1A"  # Why? Its the ASCII substitute character.
-    ):
-        return True
-    return False
+    )
 
 
 def any_specified_encoding(sequence: bytes, search_zone: int = 4096) -> Optional[str]:
