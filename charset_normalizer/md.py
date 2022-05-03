@@ -266,7 +266,7 @@ class SuperWeirdWordPlugin(MessDetectorPlugin):
 
     def feed(self, character: str) -> None:
         if character.isalpha():
-            self._buffer = self._buffer + character
+            self._buffer += character
             if is_accentuated(character):
                 self._buffer_accent_count += 1
             if (
