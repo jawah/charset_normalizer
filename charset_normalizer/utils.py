@@ -9,7 +9,7 @@ from codecs import IncrementalDecoder
 from encodings.aliases import aliases
 from functools import lru_cache
 from re import findall
-from typing import List, Optional, Set, Tuple, Union, Dict, Iterator, Any
+from typing import Any, Dict, Iterator, List, Optional, Set, Tuple, Union
 
 from _multibytecodec import MultibyteIncrementalDecoder  # type: ignore
 
@@ -59,11 +59,11 @@ def unicode_range(character: str) -> Optional[str]:
     UNICODE_RANGES_COMBINED: Dict[str, Iterator[int]]
     range_name: str
     ord_range: Iterator[int]
-    
+
     for range_name, ord_range in UNICODE_RANGES_COMBINED.items():
         if character_ord in ord_range:
             return range_name
-        
+
     return None
 
 
