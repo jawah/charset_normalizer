@@ -56,9 +56,7 @@ def unicode_range(character: str) -> Optional[str]:
     Retrieve the Unicode range official name from a single character.
     """
     character_ord: int = ord(character)
-    UNICODE_RANGES_COMBINED: Dict[str, Iterator[int]]
-    range_name: str
-    ord_range: Iterator[int]
+    UNICODE_RANGES_COMBINED: Dict[str, range]
 
     for range_name, ord_range in UNICODE_RANGES_COMBINED.items():
         if character_ord in ord_range:
