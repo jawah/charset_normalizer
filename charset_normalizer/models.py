@@ -4,7 +4,7 @@ from encodings.aliases import aliases
 from hashlib import sha256
 from json import dumps
 from re import sub
-from typing import TYPE_CHECKING, Any, Dict, Iterator, List, Optional, Tuple, Union
+from typing import Any, Dict, Iterator, List, Optional, Tuple, Union
 
 from .constant import NOT_PRINTABLE_PATTERN, TOO_BIG_SEQUENCE
 from .md import mess_ratio
@@ -372,25 +372,21 @@ class CliDetectionResult:
         self.coherence: float = coherence
         self.is_preferred: bool = is_preferred
 
-    if TYPE_CHECKING:
-        __dict__ = {}  # type: Dict[str, Any]
-    else:
-
-        @property
-        def __dict__(self) -> Dict[str, Any]:
-            return {
-                "path": self.path,
-                "encoding": self.encoding,
-                "encoding_aliases": self.encoding_aliases,
-                "alternative_encodings": self.alternative_encodings,
-                "language": self.language,
-                "alphabets": self.alphabets,
-                "has_sig_or_bom": self.has_sig_or_bom,
-                "chaos": self.chaos,
-                "coherence": self.coherence,
-                "unicode_path": self.unicode_path,
-                "is_preferred": self.is_preferred,
-            }
+    @property
+    def __dict__(self) -> Dict[str, Any]:  # type: ignore
+        return {
+            "path": self.path,
+            "encoding": self.encoding,
+            "encoding_aliases": self.encoding_aliases,
+            "alternative_encodings": self.alternative_encodings,
+            "language": self.language,
+            "alphabets": self.alphabets,
+            "has_sig_or_bom": self.has_sig_or_bom,
+            "chaos": self.chaos,
+            "coherence": self.coherence,
+            "unicode_path": self.unicode_path,
+            "is_preferred": self.is_preferred,
+        }
 
     def to_json(self) -> str:
         return dumps(self.__dict__, ensure_ascii=True, indent=4)
