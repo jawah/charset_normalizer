@@ -82,6 +82,13 @@ def performance_compare(arguments):
     print("   --> 99th: " + str(charset_normalizer_99p) + "s")
     print("   --> 95th: " + str(charset_normalizer_95p) + "s")
     print("   --> 50th: " + str(charset_normalizer_50p) + "s")
+    
+    print("------------------------------")
+    print("--> Charset-Normalizer / Chardet: Performance Сomparison")
+    print("   --> Avg: " + str(round(((charset_normalizer_avg_delay - chardet_avg_delay) /charset_normalizer_avg_delay * -100), 2)) + "%")        
+    print("   --> 99th: " + str(round(((charset_normalizer_99p - chardet_99p) / charset_normalizer_99p * -100), 2)) + "%")
+    print("   --> 95th: " + str(round(((charset_normalizer_95p - chardet_95p) / charset_normalizer_95p * -100), 2)) + "%")
+    print("   --> 50th: " + str(round(((charset_normalizer_50p - chardet_50p) / charset_normalizer_50p * -100), 2)) + "%")
 
     return 0 if chardet_avg_delay > charset_normalizer_avg_delay and chardet_99p > charset_normalizer_99p else 1
 
