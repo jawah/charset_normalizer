@@ -4,7 +4,7 @@ from encodings.aliases import aliases
 from hashlib import sha256
 from json import dumps
 from re import sub
-from typing import Any, Dict, Iterator, List, Optional, Tuple, Union
+from typing import TYPE_CHECKING, Any, Dict, Iterator, List, Optional, Tuple, Union
 
 from .constant import NOT_PRINTABLE_PATTERN, TOO_BIG_SEQUENCE
 from .md import mess_ratio
@@ -20,22 +20,22 @@ class CharsetMatch:
         has_sig_or_bom: bool,
         languages: "CoherenceMatches",
         decoded_payload: Optional[str] = None,
-    ):
-        self._payload = payload  # type: bytes
+    ) -> None:
+        self._payload: bytes = payload
 
-        self._encoding = guessed_encoding  # type: str
-        self._mean_mess_ratio = mean_mess_ratio  # type: float
+        self._encoding: str = guessed_encoding
+        self._mean_mess_ratio: float = mean_mess_ratio
         self._languages = languages  # type: CoherenceMatches
-        self._has_sig_or_bom = has_sig_or_bom  # type: bool
-        self._unicode_ranges = None  # type: Optional[List[str]]
+        self._has_sig_or_bom: bool = has_sig_or_bom
+        self._unicode_ranges: Optional[List[str]] = None
 
-        self._leaves = []  # type: List[CharsetMatch]
-        self._mean_coherence_ratio = 0.0  # type: float
+        self._leaves: List[CharsetMatch] = []
+        self._mean_coherence_ratio: float = 0.0
 
-        self._output_payload = None  # type: Optional[bytes]
-        self._output_encoding = None  # type: Optional[str]
+        self._output_payload: Optional[bytes] = None
+        self._output_encoding: Optional[str] = None
 
-        self._string = decoded_payload  # type: Optional[str]
+        self._string: Optional[str] = decoded_payload
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, CharsetMatch):
@@ -53,8 +53,8 @@ class CharsetMatch:
         if not isinstance(other, CharsetMatch):
             raise ValueError
 
-        chaos_difference = abs(self.chaos - other.chaos)  # type: float
-        coherence_difference = abs(self.coherence - other.coherence)  # type: float
+        chaos_difference: float = abs(self.chaos - other.chaos)
+        coherence_difference: float = abs(self.coherence - other.coherence)
 
         # Bellow 1% difference --> Use Coherence
         if chaos_difference < 0.01 and coherence_difference > 0.02:
@@ -104,13 +104,13 @@ class CharsetMatch:
             "w_counter is deprecated and will be removed in 3.0", DeprecationWarning
         )
 
-        string_printable_only = sub(NOT_PRINTABLE_PATTERN, " ", str(self).lower())
+        string_printable_only: str = sub(NOT_PRINTABLE_PATTERN, " ", str(self).lower())
 
         return Counter(string_printable_only.split())
 
     def __str__(self) -> str:
         # Lazy Str Loading
-        if self._string is None:
+        if not self._string:
             self._string = str(self._payload, self._encoding, "strict")
         return self._string
 
@@ -137,7 +137,7 @@ class CharsetMatch:
         """
         Encoding name are known by many name, using this could help when searching for IBM855 when it's listed as CP855.
         """
-        also_known_as = []  # type: List[str]
+        also_known_as: List[str] = []
         for u, p in aliases.items():
             if self.encoding == u:
                 also_known_as.append(p)
@@ -227,9 +227,9 @@ class CharsetMatch:
         if self._unicode_ranges is not None:
             return self._unicode_ranges
         # list detected ranges
-        detected_ranges = [
+        detected_ranges: List[Optional[str]] = [
             unicode_range(char) for char in str(self)
-        ]  # type: List[Optional[str]]
+        ]
         # filter and sort
         self._unicode_ranges = sorted(list({r for r in detected_ranges if r}))
         return self._unicode_ranges
@@ -280,8 +280,8 @@ class CharsetMatches:
     Act like a list(iterable) but does not implements all related methods.
     """
 
-    def __init__(self, results: List[CharsetMatch] = None):
-        self._results = sorted(results) if results else []  # type: List[CharsetMatch]
+    def __init__(self, results: List[CharsetMatch] = None) -> None:
+        self._results: List[CharsetMatch] = sorted(results) if results else []
 
     def __iter__(self) -> Iterator[CharsetMatch]:
         yield from self._results
@@ -360,33 +360,37 @@ class CliDetectionResult:
         unicode_path: Optional[str],
         is_preferred: bool,
     ):
-        self.path = path  # type: str
-        self.unicode_path = unicode_path  # type: Optional[str]
-        self.encoding = encoding  # type: Optional[str]
-        self.encoding_aliases = encoding_aliases  # type: List[str]
-        self.alternative_encodings = alternative_encodings  # type: List[str]
-        self.language = language  # type: str
-        self.alphabets = alphabets  # type: List[str]
-        self.has_sig_or_bom = has_sig_or_bom  # type: bool
-        self.chaos = chaos  # type: float
-        self.coherence = coherence  # type: float
-        self.is_preferred = is_preferred  # type: bool
+        self.path: str = path
+        self.unicode_path: Optional[str] = unicode_path
+        self.encoding: Optional[str] = encoding
+        self.encoding_aliases: List[str] = encoding_aliases
+        self.alternative_encodings: List[str] = alternative_encodings
+        self.language: str = language
+        self.alphabets: List[str] = alphabets
+        self.has_sig_or_bom: bool = has_sig_or_bom
+        self.chaos: float = chaos
+        self.coherence: float = coherence
+        self.is_preferred: bool = is_preferred
 
-    @property
-    def __dict__(self) -> Dict[str, Any]:  # type: ignore
-        return {
-            "path": self.path,
-            "encoding": self.encoding,
-            "encoding_aliases": self.encoding_aliases,
-            "alternative_encodings": self.alternative_encodings,
-            "language": self.language,
-            "alphabets": self.alphabets,
-            "has_sig_or_bom": self.has_sig_or_bom,
-            "chaos": self.chaos,
-            "coherence": self.coherence,
-            "unicode_path": self.unicode_path,
-            "is_preferred": self.is_preferred,
-        }
+    if TYPE_CHECKING:
+        __dict__ = {}  # type: Dict[str, Any]
+    else:
+
+        @property
+        def __dict__(self) -> Dict[str, Any]:
+            return {
+                "path": self.path,
+                "encoding": self.encoding,
+                "encoding_aliases": self.encoding_aliases,
+                "alternative_encodings": self.alternative_encodings,
+                "language": self.language,
+                "alphabets": self.alphabets,
+                "has_sig_or_bom": self.has_sig_or_bom,
+                "chaos": self.chaos,
+                "coherence": self.coherence,
+                "unicode_path": self.unicode_path,
+                "is_preferred": self.is_preferred,
+            }
 
     def to_json(self) -> str:
         return dumps(self.__dict__, ensure_ascii=True, indent=4)
