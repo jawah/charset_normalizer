@@ -1,5 +1,6 @@
 import sys
 from typing import Any, TypeVar
+
 from typing_extensions import final
 
 ucd_3_2_0: UCD
