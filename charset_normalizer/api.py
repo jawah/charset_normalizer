@@ -70,11 +70,11 @@ def from_bytes(
         )
 
     if explain:
-        previous_logger_level = logger.level  # type: int
+        previous_logger_level: int = logger.level
         logger.addHandler(explain_handler)
         logger.setLevel(TRACE)
 
-    length = len(sequences)  # type: int
+    length: int = len(sequences)
 
     if length == 0:
         logger.debug("Encoding detection on empty bytes, assuming utf_8 intention.")
@@ -119,8 +119,8 @@ def from_bytes(
     if steps > 1 and length / steps < chunk_size:
         chunk_size = int(length / steps)
 
-    is_too_small_sequence = len(sequences) < TOO_SMALL_SEQUENCE  # type: bool
-    is_too_large_sequence = len(sequences) >= TOO_BIG_SEQUENCE  # type: bool
+    is_too_small_sequence: bool = len(sequences) < TOO_SMALL_SEQUENCE
+    is_too_large_sequence: bool = len(sequences) >= TOO_BIG_SEQUENCE
 
     if is_too_small_sequence:
         logger.log(
@@ -137,11 +137,11 @@ def from_bytes(
             ),
         )
 
-    prioritized_encodings = []  # type: List[str]
+    prioritized_encodings: List[str] = []
 
-    specified_encoding = (
+    specified_encoding: Optional[str] = (
         any_specified_encoding(sequences) if preemptive_behaviour else None
-    )  # type: Optional[str]
+    )
 
     if specified_encoding is not None:
         prioritized_encodings.append(specified_encoding)
@@ -151,15 +151,15 @@ def from_bytes(
             specified_encoding,
         )
 
-    tested = set()  # type: Set[str]
-    tested_but_hard_failure = []  # type: List[str]
-    tested_but_soft_failure = []  # type: List[str]
+    tested: Set[str] = set()
+    tested_but_hard_failure: List[str] = []
+    tested_but_soft_failure: List[str] = []
 
-    fallback_ascii = None  # type: Optional[CharsetMatch]
-    fallback_u8 = None  # type: Optional[CharsetMatch]
-    fallback_specified = None  # type: Optional[CharsetMatch]
+    fallback_ascii: Optional[CharsetMatch] = None
+    fallback_u8: Optional[CharsetMatch] = None
+    fallback_specified: Optional[CharsetMatch] = None
 
-    results = CharsetMatches()  # type: CharsetMatches
+    results: CharsetMatches = CharsetMatches()
 
     sig_encoding, sig_payload = identify_sig_or_bom(sequences)
 
@@ -190,11 +190,11 @@ def from_bytes(
 
         tested.add(encoding_iana)
 
-        decoded_payload = None  # type: Optional[str]
-        bom_or_sig_available = sig_encoding == encoding_iana  # type: bool
-        strip_sig_or_bom = bom_or_sig_available and should_strip_sig_or_bom(
+        decoded_payload: Optional[str] = None
+        bom_or_sig_available: bool = sig_encoding == encoding_iana
+        strip_sig_or_bom: bool = bom_or_sig_available and should_strip_sig_or_bom(
             encoding_iana
-        )  # type: bool
+        )
 
         if encoding_iana in {"utf_16", "utf_32"} and not bom_or_sig_available:
             logger.log(
@@ -205,7 +205,7 @@ def from_bytes(
             continue
 
         try:
-            is_multi_byte_decoder = is_multi_byte_encoding(encoding_iana)  # type: bool
+            is_multi_byte_decoder: bool = is_multi_byte_encoding(encoding_iana)
         except (ModuleNotFoundError, ImportError):
             logger.log(
                 TRACE,
@@ -240,7 +240,7 @@ def from_bytes(
             tested_but_hard_failure.append(encoding_iana)
             continue
 
-        similar_soft_failure_test = False  # type: bool
+        similar_soft_failure_test: bool = False
 
         for encoding_soft_failed in tested_but_soft_failure:
             if is_cp_similar(encoding_iana, encoding_soft_failed):
@@ -262,11 +262,11 @@ def from_bytes(
             int(length / steps),
         )
 
-        multi_byte_bonus = (
+        multi_byte_bonus: bool = (
             is_multi_byte_decoder
             and decoded_payload is not None
             and len(decoded_payload) < length
-        )  # type: bool
+        )
 
         if multi_byte_bonus:
             logger.log(
@@ -276,13 +276,13 @@ def from_bytes(
                 encoding_iana,
             )
 
-        max_chunk_gave_up = int(len(r_) / 4)  # type: int
+        max_chunk_gave_up: int = int(len(r_) / 4)
 
         max_chunk_gave_up = max(max_chunk_gave_up, 2)
-        early_stop_count = 0  # type: int
+        early_stop_count: int = 0
         lazy_str_hard_failure = False
 
-        md_chunks = []  # type: List[str]
+        md_chunks: List[str] = []
         md_ratios = []
 
         for i in r_:
@@ -295,10 +295,10 @@ def from_bytes(
                 cut_sequence = sig_payload + cut_sequence
 
             try:
-                chunk = cut_sequence.decode(
+                chunk: str = cut_sequence.decode(
                     encoding_iana,
                     errors="ignore" if is_multi_byte_decoder else "strict",
-                )  # type: str
+                )
             except UnicodeDecodeError as e:  # Lazy str loading may have missed something there
                 logger.log(
                     TRACE,
@@ -314,7 +314,7 @@ def from_bytes(
             # not the cleanest way to perform that fix but clever enough for now.
             if is_multi_byte_decoder and i > 0 and sequences[i] >= 0x80:
 
-                chunk_partial_size_chk = min(chunk_size, 16)  # type: int
+                chunk_partial_size_chk: int = min(chunk_size, 16)
 
                 if (
                     decoded_payload
@@ -362,9 +362,7 @@ def from_bytes(
                 tested_but_hard_failure.append(encoding_iana)
                 continue
 
-        mean_mess_ratio = (
-            sum(md_ratios) / len(md_ratios) if md_ratios else 0.0
-        )  # type: float
+        mean_mess_ratio: float = sum(md_ratios) / len(md_ratios) if md_ratios else 0.0
         if mean_mess_ratio >= threshold or early_stop_count >= max_chunk_gave_up:
             tested_but_soft_failure.append(encoding_iana)
             logger.log(
@@ -399,7 +397,7 @@ def from_bytes(
         )
 
         if not is_multi_byte_decoder:
-            target_languages = encoding_languages(encoding_iana)  # type: List[str]
+            target_languages: List[str] = encoding_languages(encoding_iana)
         else:
             target_languages = mb_encoding_languages(encoding_iana)
 
