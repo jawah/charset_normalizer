@@ -1,11 +1,7 @@
 import logging
+from os import PathLike
 from os.path import basename, splitext
 from typing import BinaryIO, List, Optional, Set
-
-try:
-    from os import PathLike
-except ImportError:  # pragma: no cover
-    PathLike = str  # type: ignore
 
 from .cd import (
     coherence_ratio,

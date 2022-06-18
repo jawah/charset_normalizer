@@ -5,10 +5,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [2.1.0.dev0](https://github.com/Ousret/charset_normalizer/compare/2.0.12...master) (2022-??-??)
 
 ### Changed
-- Re-use decoded buffer for single byte character sets (PR #175)
+- Re-use decoded buffer for single byte character sets from [@nijel](https://github.com/nijel) (PR #175)
+- Fixing some performance bottlenecks from [@deedy5](https://github.com/deedy5) (PR #183)
 
 ### Fixed
 - Workaround potential bug in cpython with Zero Width No-Break Space located in Arabic Presentation Forms-B, Unicode 1.1 not acknowledged as space (PR #175)
+
+### Removed
+- Support for Python 3.5 (PR #192)
 
 ## [2.0.12](https://github.com/Ousret/charset_normalizer/compare/2.0.11...2.0.12) (2022-02-12)
 
