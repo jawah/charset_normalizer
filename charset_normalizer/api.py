@@ -1,8 +1,7 @@
 import logging
+from os import PathLike
 from os.path import basename, splitext
 from typing import BinaryIO, List, Optional, Set
-
-from os import PathLike
 
 from .cd import (
     coherence_ratio,
