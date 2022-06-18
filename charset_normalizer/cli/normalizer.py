@@ -229,7 +229,7 @@ def cli_detect(argv: List[str] = None) -> int:
                         my_file.close()
                     continue
 
-                o_ = my_file.name.split(".")  # type: List[str]
+                o_: List[str] = my_file.name.split(".")
 
                 if args.replace is False:
                     o_.insert(-1, best_guess.encoding)
