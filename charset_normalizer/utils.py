@@ -9,7 +9,7 @@ from codecs import IncrementalDecoder
 from encodings.aliases import aliases
 from functools import lru_cache
 from re import findall
-from typing import List, Optional, Set, Tuple, Union
+from typing import List, Optional, Set, Tuple, Union, Generator, Iterable
 
 from _multibytecodec import MultibyteIncrementalDecoder  # type: ignore
 
@@ -350,3 +350,62 @@ def set_logging_handler(
     handler = logging.StreamHandler()
     handler.setFormatter(logging.Formatter(format_string))
     logger.addHandler(handler)
+
+
+def cut_sequence_chunks(
+    sequences: bytes,
+    length: int,
+    encoding_iana: str,
+    decoded_payload: Optional[str],
+    iterator: Iterable,
+    chunk_size: int,
+    bom_or_sig_available: bool,
+    strip_sig_or_bom: bool,
+    sig_payload: bytes,
+    is_multi_byte_decoder: bool,
+) -> Generator[str, None, None]:
+    chunk = ""  # type: str
+    if decoded_payload:
+        for i in iterator:
+            chunk = decoded_payload[i : i + chunk_size]
+            if not chunk:
+                break
+            yield chunk
+    else:
+        for i in iterator:
+            chunk_end = i + chunk_size
+            if chunk_end > length + 8:
+                continue
+
+            cut_sequence = sequences[i : i + chunk_size]
+
+            if bom_or_sig_available and strip_sig_or_bom is False:
+                cut_sequence = sig_payload + cut_sequence
+
+            chunk = cut_sequence.decode(
+                encoding_iana,
+                errors="ignore" if is_multi_byte_decoder else "strict",
+            )
+
+            # multi-byte bad cutting detector and adjustment
+            # not the cleanest way to perform that fix but clever enough for now.
+            if is_multi_byte_decoder and i > 0 and sequences[i] >= 0x80:
+
+                chunk_partial_size_chk = min(chunk_size, 16)  # type: int
+
+                if (
+                    decoded_payload
+                    and chunk[:chunk_partial_size_chk] not in decoded_payload
+                ):
+                    for j in range(i, i - 4, -1):
+                        cut_sequence = sequences[j:chunk_end]
+
+                        if bom_or_sig_available and strip_sig_or_bom is False:
+                            cut_sequence = sig_payload + cut_sequence
+
+                        chunk = cut_sequence.decode(encoding_iana, errors="ignore")
+
+                        if chunk[:chunk_partial_size_chk] in decoded_payload:
+                            break
+
+            yield chunk
