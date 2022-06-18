@@ -19,6 +19,7 @@ from .md import mess_ratio
 from .models import CharsetMatch, CharsetMatches
 from .utils import (
     any_specified_encoding,
+    cut_sequence_chunks,
     iana_name,
     identify_sig_or_bom,
     is_cp_similar,
@@ -289,15 +290,14 @@ def from_bytes(
         try:
             for chunk in cut_sequence_chunks(
                 sequences,
-                length,
                 encoding_iana,
-                decoded_payload,
                 r_,
                 chunk_size,
                 bom_or_sig_available,
                 strip_sig_or_bom,
                 sig_payload,
                 is_multi_byte_decoder,
+                decoded_payload,
             ):
                 md_chunks.append(chunk)
 

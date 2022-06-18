@@ -354,27 +354,26 @@ def set_logging_handler(
 
 def cut_sequence_chunks(
     sequences: bytes,
-    length: int,
     encoding_iana: str,
-    decoded_payload: Optional[str],
-    iterator: Iterable,
+    offsets: range,
     chunk_size: int,
     bom_or_sig_available: bool,
     strip_sig_or_bom: bool,
     sig_payload: bytes,
     is_multi_byte_decoder: bool,
+    decoded_payload: Optional[str] = None
 ) -> Generator[str, None, None]:
-    chunk = ""  # type: str
-    if decoded_payload:
-        for i in iterator:
+
+    if decoded_payload and is_multi_byte_decoder is False:
+        for i in offsets:
             chunk = decoded_payload[i : i + chunk_size]
             if not chunk:
                 break
             yield chunk
     else:
-        for i in iterator:
+        for i in offsets:
             chunk_end = i + chunk_size
-            if chunk_end > length + 8:
+            if chunk_end > len(sequences) + 8:
                 continue
 
             cut_sequence = sequences[i : i + chunk_size]
