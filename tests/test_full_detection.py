@@ -22,6 +22,7 @@ import pytest
         ('sample-turkish.txt', 'cp1254', 'Turkish'),
         ('sample-russian-2.txt', 'utf_8', 'Russian'),
         ('sample-russian.txt', 'mac_cyrillic', 'Russian'),
+        ('sample-polish.txt', 'utf_8', 'Polish'),
     ]
 )
 def test_elementary_detection(

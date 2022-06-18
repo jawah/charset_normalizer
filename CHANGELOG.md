@@ -2,6 +2,14 @@
 All notable changes to charset-normalizer will be documented in this file. This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [2.1.0.dev0](https://github.com/Ousret/charset_normalizer/compare/2.0.12...master) (2022-??-??)
+
+### Changed
+- Re-use decoded buffer for single byte character sets (PR #175)
+
+### Fixed
+- Workaround potential bug in cpython with Zero Width No-Break Space located in Arabic Presentation Forms-B, Unicode 1.1 not acknowledged as space (PR #175)
+
 ## [2.0.12](https://github.com/Ousret/charset_normalizer/compare/2.0.11...2.0.12) (2022-02-12)
 
 ### Fixed

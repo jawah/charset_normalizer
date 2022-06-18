@@ -18,6 +18,7 @@ from .md import mess_ratio
 from .models import CharsetMatch, CharsetMatches
 from .utils import (
     any_specified_encoding,
+    cut_sequence_chunks,
     iana_name,
     identify_sig_or_bom,
     is_cp_similar,
@@ -285,63 +286,38 @@ def from_bytes(
         md_chunks = []  # type: List[str]
         md_ratios = []
 
-        for i in r_:
-            if i + chunk_size > length + 8:
-                continue
-
-            cut_sequence = sequences[i : i + chunk_size]
-
-            if bom_or_sig_available and strip_sig_or_bom is False:
-                cut_sequence = sig_payload + cut_sequence
-
-            try:
-                chunk = cut_sequence.decode(
-                    encoding_iana,
-                    errors="ignore" if is_multi_byte_decoder else "strict",
-                )  # type: str
-            except UnicodeDecodeError as e:  # Lazy str loading may have missed something there
-                logger.log(
-                    TRACE,
-                    "LazyStr Loading: After MD chunk decode, code page %s does not fit given bytes sequence at ALL. %s",
-                    encoding_iana,
-                    str(e),
-                )
-                early_stop_count = max_chunk_gave_up
-                lazy_str_hard_failure = True
-                break
-
-            # multi-byte bad cutting detector and adjustment
-            # not the cleanest way to perform that fix but clever enough for now.
-            if is_multi_byte_decoder and i > 0 and sequences[i] >= 0x80:
-
-                chunk_partial_size_chk = min(chunk_size, 16)  # type: int
-
-                if (
-                    decoded_payload
-                    and chunk[:chunk_partial_size_chk] not in decoded_payload
-                ):
-                    for j in range(i, i - 4, -1):
-                        cut_sequence = sequences[j : i + chunk_size]
-
-                        if bom_or_sig_available and strip_sig_or_bom is False:
-                            cut_sequence = sig_payload + cut_sequence
-
-                        chunk = cut_sequence.decode(encoding_iana, errors="ignore")
-
-                        if chunk[:chunk_partial_size_chk] in decoded_payload:
-                            break
-
-            md_chunks.append(chunk)
-
-            md_ratios.append(mess_ratio(chunk, threshold))
-
-            if md_ratios[-1] >= threshold:
-                early_stop_count += 1
-
-            if (early_stop_count >= max_chunk_gave_up) or (
-                bom_or_sig_available and strip_sig_or_bom is False
+        try:
+            for chunk in cut_sequence_chunks(
+                sequences,
+                encoding_iana,
+                r_,
+                chunk_size,
+                bom_or_sig_available,
+                strip_sig_or_bom,
+                sig_payload,
+                is_multi_byte_decoder,
+                decoded_payload,
             ):
-                break
+                md_chunks.append(chunk)
+
+                md_ratios.append(mess_ratio(chunk, threshold))
+
+                if md_ratios[-1] >= threshold:
+                    early_stop_count += 1
+
+                if (early_stop_count >= max_chunk_gave_up) or (
+                    bom_or_sig_available and strip_sig_or_bom is False
+                ):
+                    break
+        except UnicodeDecodeError as e:  # Lazy str loading may have missed something there
+            logger.log(
+                TRACE,
+                "LazyStr Loading: After MD chunk decode, code page %s does not fit given bytes sequence at ALL. %s",
+                encoding_iana,
+                str(e),
+            )
+            early_stop_count = max_chunk_gave_up
+            lazy_str_hard_failure = True
 
         # We might want to check the sequence again with the whole content
         # Only if initial MD tests passes
