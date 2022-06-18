@@ -334,9 +334,7 @@ def from_bytes(
                 tested_but_hard_failure.append(encoding_iana)
                 continue
 
-        mean_mess_ratio: float = (
-            sum(md_ratios) / len(md_ratios) if md_ratios else 0.0
-        )
+        mean_mess_ratio: float = sum(md_ratios) / len(md_ratios) if md_ratios else 0.0
         if mean_mess_ratio >= threshold or early_stop_count >= max_chunk_gave_up:
             tested_but_soft_failure.append(encoding_iana)
             logger.log(

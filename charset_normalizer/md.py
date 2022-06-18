@@ -125,9 +125,7 @@ class TooManyAccentuatedPlugin(MessDetectorPlugin):
     def ratio(self) -> float:
         if self._character_count == 0:
             return 0.0
-        ratio_of_accentuation: float = (
-            self._accentuated_count / self._character_count
-        )
+        ratio_of_accentuation: float = self._accentuated_count / self._character_count
         return ratio_of_accentuation if ratio_of_accentuation >= 0.35 else 0.0
 
 
@@ -216,9 +214,7 @@ class SuspiciousRange(MessDetectorPlugin):
             self._last_printable_seen = character
             return
 
-        unicode_range_a: Optional[str] = unicode_range(
-            self._last_printable_seen
-        )
+        unicode_range_a: Optional[str] = unicode_range(self._last_printable_seen)
         unicode_range_b: Optional[str] = unicode_range(character)
 
         if is_suspiciously_successive_range(unicode_range_a, unicode_range_b):
