@@ -34,7 +34,7 @@ jobs:
         isort --check charset_normalizer
     - name: Code format (Black)
       run: |
-        black --check --diff --target-version=py35 charset_normalizer
+        black --check --diff --target-version=py36 charset_normalizer
     - name: Style guide enforcement (Flake8)
       run: |
         flake8 charset_normalizer
