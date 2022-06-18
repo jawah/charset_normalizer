@@ -111,7 +111,7 @@ def cli_detect(argv: List[str] = None) -> int:
         "-t",
         "--threshold",
         action="store",
-        default=0.1,
+        default=0.2,
         type=float,
         dest="threshold",
         help="Define a custom maximum amount of chaos allowed in decoded content. 0. <= chaos <= 1.",

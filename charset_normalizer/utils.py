@@ -73,6 +73,7 @@ def is_latin(character: str) -> bool:
     return "LATIN" in description
 
 
+@lru_cache(maxsize=UTF8_MAXIMAL_ALLOCATION)
 def is_ascii(character: str) -> bool:
     try:
         character.encode("ascii")
@@ -195,6 +196,15 @@ def is_thai(character: str) -> bool:
 @lru_cache(maxsize=len(UNICODE_RANGES_COMBINED))
 def is_unicode_range_secondary(range_name: str) -> bool:
     return any(keyword in range_name for keyword in UNICODE_SECONDARY_RANGE_KEYWORD)
+
+
+@lru_cache(maxsize=UTF8_MAXIMAL_ALLOCATION)
+def is_unprintable(character: str) -> bool:
+    return (
+        character.isspace() is False  # includes \n \t \r \v
+        and character.isprintable() is False
+        and character != "\x1A"  # Why? Its the ASCII substitute character.
+    )
 
 
 def any_specified_encoding(sequence: bytes, search_zone: int = 4096) -> Optional[str]:
