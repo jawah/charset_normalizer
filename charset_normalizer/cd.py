@@ -1,6 +1,6 @@
 import importlib
 from codecs import IncrementalDecoder
-from collections import Counter, OrderedDict
+from collections import Counter
 from functools import lru_cache
 from typing import Dict, List, Optional, Tuple
 
@@ -226,7 +226,7 @@ def alpha_unicode_split(decoded_sequence: str) -> List[str]:
     Ex. a text containing English/Latin with a bit a Hebrew will return two items in the resulting list;
     One containing the latin letters and the other hebrew.
     """
-    layers = OrderedDict()  # type: Dict[str, str]
+    layers: Dict[str, str] = {}
 
     for character in decoded_sequence:
         if character.isalpha() is False:
@@ -264,7 +264,7 @@ def merge_coherence_ratios(results: List[CoherenceMatches]) -> CoherenceMatches:
     This function merge results previously given by the function coherence_ratio.
     The return type is the same as coherence_ratio.
     """
-    per_language_ratios = OrderedDict()  # type: Dict[str, List[float]]
+    per_language_ratios: Dict[str, List[float]] = {}
     for result in results:
         for sub_result in result:
             language, ratio = sub_result
