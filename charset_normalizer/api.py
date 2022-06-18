@@ -1,7 +1,6 @@
 import logging
-from collections.abc import Iterable
 from os.path import basename, splitext
-from typing import BinaryIO, Generator, List, Optional, Set
+from typing import BinaryIO, List, Optional, Set
 
 try:
     from os import PathLike
