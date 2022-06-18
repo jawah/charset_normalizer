@@ -9,7 +9,7 @@ from codecs import IncrementalDecoder
 from encodings.aliases import aliases
 from functools import lru_cache
 from re import findall
-from typing import List, Optional, Set, Tuple, Union, Generator, Iterable
+from typing import Generator, Iterable, List, Optional, Set, Tuple, Union
 
 from _multibytecodec import MultibyteIncrementalDecoder  # type: ignore
 
@@ -363,7 +363,7 @@ def cut_sequence_chunks(
     strip_sig_or_bom: bool,
     sig_payload: bytes,
     is_multi_byte_decoder: bool,
-    decoded_payload: Optional[str] = None
+    decoded_payload: Optional[str] = None,
 ) -> Generator[str, None, None]:
 
     if decoded_payload and is_multi_byte_decoder is False:
