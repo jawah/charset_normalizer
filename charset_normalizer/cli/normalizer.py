@@ -5,6 +5,11 @@ from os.path import abspath
 from platform import python_version
 from typing import List
 
+try:
+    from unicodedata2 import unidata_version
+except ImportError:
+    from unicodedata import unidata_version
+
 from charset_normalizer import from_fp
 from charset_normalizer.models import CliDetectionResult
 from charset_normalizer.version import __version__
@@ -119,8 +124,8 @@ def cli_detect(argv: List[str] = None) -> int:
     parser.add_argument(
         "--version",
         action="version",
-        version="Charset-Normalizer {} - Python {}".format(
-            __version__, python_version()
+        version="Charset-Normalizer {} - Python {} - Unicode {}".format(
+            __version__, python_version(), unidata_version
         ),
         help="Show version information and exit.",
     )

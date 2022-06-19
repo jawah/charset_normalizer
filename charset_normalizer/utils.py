@@ -1,4 +1,6 @@
 try:
+    # WARNING: unicodedata2 support is going to be removed in 3.0
+    # Python is quickly catching up.
     import unicodedata2 as unicodedata
 except ImportError:
     import unicodedata  # type: ignore[no-redef]
