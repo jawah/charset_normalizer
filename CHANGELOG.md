@@ -2,7 +2,7 @@
 All notable changes to charset-normalizer will be documented in this file. This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [2.1.0.dev0](https://github.com/Ousret/charset_normalizer/compare/2.0.12...master) (2022-??-??)
+## [2.1.0](https://github.com/Ousret/charset_normalizer/compare/2.0.12...master) (2022-06-19)
 
 ### Added
 - Output the Unicode table version when running the CLI with `--version` (PR #194)
