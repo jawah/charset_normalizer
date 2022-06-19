@@ -4,6 +4,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [2.1.0.dev0](https://github.com/Ousret/charset_normalizer/compare/2.0.12...master) (2022-??-??)
 
+### Added
+- Output the Unicode table version when running the CLI with `--version` (PR #194)
+
 ### Changed
 - Re-use decoded buffer for single byte character sets from [@nijel](https://github.com/nijel) (PR #175)
 - Fixing some performance bottlenecks from [@deedy5](https://github.com/deedy5) (PR #183)
