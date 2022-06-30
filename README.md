@@ -30,10 +30,11 @@ This project offers you an alternative to **Universal Charset Encoding Detector*
 | `Reliable` **without** distinguishable standards | ❌ | :heavy_check_mark: | :heavy_check_mark: |
 | `Reliable` **with** distinguishable standards | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
 | `Free & Open`  | :heavy_check_mark:             | :heavy_check_mark:                | :heavy_check_mark: |
-| `License` | LGPL-2.1 | MIT | MPL-1.1
+| `License` | LGPL-2.1 | MIT | MPL-1.1 |
 | `Native Python` | :heavy_check_mark: | :heavy_check_mark: | ❌ |
 | `Detect spoken language` | ❌ | :heavy_check_mark: | N/A |
-| `Supported Encoding` | 30 | :tada: [93](https://charset-normalizer.readthedocs.io/en/latest/user/support.html#supported-encodings)  | 40
+| `UnicodeDecodeError Safety` | ❌ | :heavy_check_mark: | ❌ |
+| `Supported Encoding` | 33 | :tada: [93](https://charset-normalizer.readthedocs.io/en/latest/user/support.html#supported-encodings)  | 40
 
 <p align="center">
 <img src="https://i.imgflip.com/373iay.gif" alt="Reading Normalized Text" width="226"/><img src="https://media.tenor.com/images/c0180f70732a18b4965448d33adba3d0/tenor.gif" alt="Cat Reading Text" width="200"/>
@@ -51,7 +52,7 @@ This package offer better performance than its counterpart Chardet. Here are som
 
 | Package       | Accuracy       | Mean per file (ms) | File per sec (est) |
 | ------------- | :-------------: | :------------------: | :------------------: |
-|      [chardet](https://github.com/chardet/chardet)        |     92 %     |     200 ms      |       5 file/sec        |
+|      [chardet](https://github.com/chardet/chardet)        |     86 %     |     200 ms      |       5 file/sec        |
 | charset-normalizer |    **98 %**     |     **39 ms**      |       26 file/sec    |
 
 | Package       | 99th percentile       | 95th percentile | 50th percentile |
@@ -64,6 +65,8 @@ Chardet's performance on larger file (1MB+) are very poor. Expect huge differenc
 > Stats are generated using 400+ files using default parameters. More details on used files, see GHA workflows.
 > And yes, these results might change at any time. The dataset can be updated to include more files.
 > The actual delays heavily depends on your CPU capabilities. The factors should remain the same.
+> Keep in mind that the stats are generous and that Chardet accuracy vs our is measured using Chardet initial capability
+> (eg. Supported Encoding) Challenge-them if you want.
 
 [cchardet](https://github.com/PyYoshi/cChardet) is a non-native (cpp binding) and unmaintained faster alternative with 
 a better accuracy than chardet but lower than this package. If speed is the most important factor, you should try it.
