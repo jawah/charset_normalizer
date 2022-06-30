@@ -29,11 +29,11 @@ This project offers you an alternative to **Universal Charset Encoding Detector*
 | `Universal**`     | ❌            | :heavy_check_mark:                 | ❌ |
 | `Reliable` **without** distinguishable standards | ❌ | :heavy_check_mark: | :heavy_check_mark: |
 | `Reliable` **with** distinguishable standards | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
-| `Free & Open`  | :heavy_check_mark:             | :heavy_check_mark:                | :heavy_check_mark: |
-| `License` | LGPL-2.1 | MIT | MPL-1.1 |
+| `License` | LGPL-2.1<br>_restrictive_ | MIT | MPL-1.1<br>_restrictive_ |
 | `Native Python` | :heavy_check_mark: | :heavy_check_mark: | ❌ |
 | `Detect spoken language` | ❌ | :heavy_check_mark: | N/A |
 | `UnicodeDecodeError Safety` | ❌ | :heavy_check_mark: | ❌ |
+| `Whl Size` | 193.6 kB | 39.5 kB | ~200 kB |
 | `Supported Encoding` | 33 | :tada: [93](https://charset-normalizer.readthedocs.io/en/latest/user/support.html#supported-encodings)  | 40
 
 <p align="center">
