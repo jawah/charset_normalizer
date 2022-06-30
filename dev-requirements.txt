@@ -1,10 +1,10 @@
 pytest
 pytest-cov
 codecov
-chardet==5.0.*
-Flask>=2.0,<3.0; python_version >= '3.6'
-requests>=2.26,<3.0; python_version >= '3.6'
-black==22.3.0; python_version >= '3.6'
-flake8==4.0.1; python_version >= '3.6'
-mypy==0.961; python_version >= '3.6'
-isort; python_version >= '3.6'
+chardet>=5.0,<5.1
+Flask>=2.0,<3.0
+requests>=2.26,<3.0
+black==22.3.0
+flake8==4.0.1
+mypy==0.961
+isort

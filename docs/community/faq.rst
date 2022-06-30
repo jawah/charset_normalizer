@@ -23,6 +23,10 @@ assumptions are unwise.
 
 The real debate is to state if the detection is an HTTP client matter or not. That is more complicated and not my field.
 
+Some individuals keep insisting that the *whole* Internet is UTF-8 ready. Those are absolutely wrong and very Europe and North America-centered,
+In my humble experience, the countries in the world are very disparate in this evolution. And the Internet is not just about HTML content.
+Having a thorough analysis of this is very scary.
+
 Should I bother using detection?
 --------------------------------
 
@@ -36,10 +40,9 @@ If you use the legacy `detect` function,
 Then this change is mostly backward-compatible, exception of a thing:
 
 - This new library support way more code pages (x3) than its counterpart Chardet.
-  - Based on the 30-ich charsets that Chardet support, expect roughly 90% BC results https://github.com/Ousret/charset_normalizer/pull/77/checks?check_run_id=3244585065
+  - Based on the 30-ich charsets that Chardet support, expect roughly 85% BC results https://github.com/Ousret/charset_normalizer/pull/77/checks?check_run_id=3244585065
 
 We do not guarantee this BC exact percentage through time. May vary but not by much.
-
 
 Isn't it the same as Chardet?
 -----------------------------
