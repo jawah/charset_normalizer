@@ -282,6 +282,7 @@ def merge_coherence_ratios(results: List[CoherenceMatches]) -> CoherenceMatches:
             ),
         )
         for language in per_language_ratios
+        if len(per_language_ratios[language]) > 2 or len(results) == 1
     ]
 
     return sorted(merge, key=lambda x: x[1], reverse=True)
