@@ -6,5 +6,5 @@ Flask>=2.0,<3.0
 requests>=2.26,<3.0
 black==22.6.0
 flake8==4.0.1
-mypy==0.961
+mypy==0.971
 isort
