@@ -321,8 +321,12 @@ def cp_similarity(iana_name_a: str, iana_name_b: str) -> float:
     if is_multi_byte_encoding(iana_name_a) or is_multi_byte_encoding(iana_name_b):
         return 0.0
 
-    decoder_a = importlib.import_module("encodings.{}".format(iana_name_a)).IncrementalDecoder
-    decoder_b = importlib.import_module("encodings.{}".format(iana_name_b)).IncrementalDecoder
+    decoder_a = importlib.import_module(
+        "encodings.{}".format(iana_name_a)
+    ).IncrementalDecoder
+    decoder_b = importlib.import_module(
+        "encodings.{}".format(iana_name_b)
+    ).IncrementalDecoder
 
     id_a: IncrementalDecoder = decoder_a(errors="ignore")
     id_b: IncrementalDecoder = decoder_b(errors="ignore")

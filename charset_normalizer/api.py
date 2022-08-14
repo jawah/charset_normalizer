@@ -1,7 +1,7 @@
 import logging
 from os import PathLike
 from os.path import basename, splitext
-from typing import BinaryIO, List, Optional, Set, Any
+from typing import Any, BinaryIO, List, Optional, Set
 
 from .cd import (
     coherence_ratio,
@@ -508,7 +508,7 @@ def from_fp(
 
 
 def from_path(
-    path: 'PathLike[Any]',
+    path: "PathLike[Any]",
     steps: int = 5,
     chunk_size: int = 512,
     threshold: float = 0.20,
@@ -535,7 +535,7 @@ def from_path(
 
 
 def normalize(
-    path: 'PathLike[Any]',
+    path: "PathLike[Any]",
     steps: int = 5,
     chunk_size: int = 512,
     threshold: float = 0.20,
