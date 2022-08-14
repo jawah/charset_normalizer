@@ -1,7 +1,13 @@
+import sys
 from codecs import BOM_UTF8, BOM_UTF16_BE, BOM_UTF16_LE, BOM_UTF32_BE, BOM_UTF32_LE
 from encodings.aliases import aliases
 from re import IGNORECASE, compile as re_compile
-from typing import Dict, Final, List, Set, Union
+from typing import Dict, List, Set, Union
+
+if sys.version_info <= (3, 8):
+    from typing_extensions import Final
+else:
+    from typing import Final
 
 from .assets import FREQUENCIES
 
