@@ -53,7 +53,7 @@ VERSION = get_version()
 REQUIRED = []
 
 EXTRAS = {
-    'unicode_backport': ['unicodedata2']
+    'unicode_backport': []
 }
 
 here = os.path.abspath(os.path.dirname(__file__))
