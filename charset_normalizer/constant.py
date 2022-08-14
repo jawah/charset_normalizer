@@ -1,7 +1,7 @@
 from codecs import BOM_UTF8, BOM_UTF16_BE, BOM_UTF16_LE, BOM_UTF32_BE, BOM_UTF32_LE
 from encodings.aliases import aliases
 from re import IGNORECASE, compile as re_compile
-from typing import Dict, List, Set, Union, Final
+from typing import Dict, Final, List, Set, Union
 
 from .assets import FREQUENCIES
 
