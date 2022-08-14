@@ -1,6 +1,6 @@
-import unicodedata
 import importlib
 import logging
+import unicodedata
 from codecs import IncrementalDecoder
 from encodings.aliases import aliases
 from functools import lru_cache
