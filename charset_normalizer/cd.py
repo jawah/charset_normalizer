@@ -2,7 +2,7 @@ import importlib
 from codecs import IncrementalDecoder
 from collections import Counter
 from functools import lru_cache
-from typing import Dict, List, Optional, Tuple
+from typing import Counter as TypeCounter, Dict, List, Optional, Tuple
 
 from .assets import FREQUENCIES
 from .constant import KO_NAMES, LANGUAGE_SUPPORTED_COUNT, TOO_SMALL_SEQUENCE, ZH_NAMES
@@ -24,7 +24,9 @@ def encoding_unicode_range(iana_name: str) -> List[str]:
     if is_multi_byte_encoding(iana_name):
         raise IOError("Function not supported on multi-byte code page")
 
-    decoder = importlib.import_module("encodings.{}".format(iana_name)).IncrementalDecoder  # type: ignore
+    decoder = importlib.import_module(
+        "encodings.{}".format(iana_name)
+    ).IncrementalDecoder
 
     p: IncrementalDecoder = decoder(errors="ignore")
     seen_ranges: Dict[str, int] = {}
@@ -307,7 +309,7 @@ def coherence_ratio(
         lg_inclusion_list.remove("Latin Based")
 
     for layer in alpha_unicode_split(decoded_sequence):
-        sequence_frequencies: Counter = Counter(layer)
+        sequence_frequencies: TypeCounter[str] = Counter(layer)
         most_common = sequence_frequencies.most_common()
 
         character_count: int = sum(o for c, o in most_common)

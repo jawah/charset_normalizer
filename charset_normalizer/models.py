@@ -4,7 +4,16 @@ from encodings.aliases import aliases
 from hashlib import sha256
 from json import dumps
 from re import sub
-from typing import Any, Dict, Iterator, List, Optional, Tuple, Union
+from typing import (
+    Any,
+    Counter as TypeCounter,
+    Dict,
+    Iterator,
+    List,
+    Optional,
+    Tuple,
+    Union,
+)
 
 from .constant import NOT_PRINTABLE_PATTERN, TOO_BIG_SEQUENCE
 from .md import mess_ratio
@@ -95,7 +104,7 @@ class CharsetMatch:
         return 0.0
 
     @property
-    def w_counter(self) -> Counter:
+    def w_counter(self) -> TypeCounter[str]:
         """
         Word counter instance on decoded text.
         Notice: Will be removed in 3.0
@@ -280,7 +289,7 @@ class CharsetMatches:
     Act like a list(iterable) but does not implements all related methods.
     """
 
-    def __init__(self, results: List[CharsetMatch] = None):
+    def __init__(self, results: Optional[List[CharsetMatch]] = None):
         self._results: List[CharsetMatch] = sorted(results) if results else []
 
     def __iter__(self) -> Iterator[CharsetMatch]:
