@@ -28,7 +28,7 @@ jobs:
         python setup.py install
     - name: Type checking (Mypy)
       run: |
-        mypy charset_normalizer
+        mypy --strict charset_normalizer
     - name: Import sorting check (isort)
       run: |
         isort --check charset_normalizer

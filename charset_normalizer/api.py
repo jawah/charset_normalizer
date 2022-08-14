@@ -1,7 +1,7 @@
 import logging
 from os import PathLike
 from os.path import basename, splitext
-from typing import BinaryIO, List, Optional, Set
+from typing import BinaryIO, List, Optional, Set, Any
 
 from .cd import (
     coherence_ratio,
@@ -36,8 +36,8 @@ def from_bytes(
     steps: int = 5,
     chunk_size: int = 512,
     threshold: float = 0.2,
-    cp_isolation: List[str] = None,
-    cp_exclusion: List[str] = None,
+    cp_isolation: Optional[List[str]] = None,
+    cp_exclusion: Optional[List[str]] = None,
     preemptive_behaviour: bool = True,
     explain: bool = False,
 ) -> CharsetMatches:
@@ -486,8 +486,8 @@ def from_fp(
     steps: int = 5,
     chunk_size: int = 512,
     threshold: float = 0.20,
-    cp_isolation: List[str] = None,
-    cp_exclusion: List[str] = None,
+    cp_isolation: Optional[List[str]] = None,
+    cp_exclusion: Optional[List[str]] = None,
     preemptive_behaviour: bool = True,
     explain: bool = False,
 ) -> CharsetMatches:
@@ -508,12 +508,12 @@ def from_fp(
 
 
 def from_path(
-    path: PathLike,
+    path: 'PathLike[Any]',
     steps: int = 5,
     chunk_size: int = 512,
     threshold: float = 0.20,
-    cp_isolation: List[str] = None,
-    cp_exclusion: List[str] = None,
+    cp_isolation: Optional[List[str]] = None,
+    cp_exclusion: Optional[List[str]] = None,
     preemptive_behaviour: bool = True,
     explain: bool = False,
 ) -> CharsetMatches:
@@ -535,12 +535,12 @@ def from_path(
 
 
 def normalize(
-    path: PathLike,
+    path: 'PathLike[Any]',
     steps: int = 5,
     chunk_size: int = 512,
     threshold: float = 0.20,
-    cp_isolation: List[str] = None,
-    cp_exclusion: List[str] = None,
+    cp_isolation: Optional[List[str]] = None,
+    cp_exclusion: Optional[List[str]] = None,
     preemptive_behaviour: bool = True,
 ) -> CharsetMatch:
     """

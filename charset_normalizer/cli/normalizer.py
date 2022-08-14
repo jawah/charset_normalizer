@@ -3,7 +3,7 @@ import sys
 from json import dumps
 from os.path import abspath
 from platform import python_version
-from typing import List
+from typing import List, Optional
 
 try:
     from unicodedata2 import unidata_version
@@ -48,7 +48,7 @@ def query_yes_no(question: str, default: str = "yes") -> bool:
             sys.stdout.write("Please respond with 'yes' or 'no' " "(or 'y' or 'n').\n")
 
 
-def cli_detect(argv: List[str] = None) -> int:
+def cli_detect(argv: Optional[List[str]] = None) -> int:
     """
     CLI assistant using ARGV and ArgumentParser
     :param argv:

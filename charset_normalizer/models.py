@@ -95,7 +95,7 @@ class CharsetMatch:
         return 0.0
 
     @property
-    def w_counter(self) -> Counter:
+    def w_counter(self) -> Counter[str]:
         """
         Word counter instance on decoded text.
         Notice: Will be removed in 3.0
@@ -280,7 +280,7 @@ class CharsetMatches:
     Act like a list(iterable) but does not implements all related methods.
     """
 
-    def __init__(self, results: List[CharsetMatch] = None):
+    def __init__(self, results: Optional[List[CharsetMatch]] = None):
         self._results: List[CharsetMatch] = sorted(results) if results else []
 
     def __iter__(self) -> Iterator[CharsetMatch]:
