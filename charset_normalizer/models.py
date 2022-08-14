@@ -3,7 +3,7 @@ from hashlib import sha256
 from json import dumps
 from typing import Any, Dict, Iterator, List, Optional, Tuple, Union
 
-from .constant import NOT_PRINTABLE_PATTERN, TOO_BIG_SEQUENCE
+from .constant import TOO_BIG_SEQUENCE
 from .utils import iana_name, is_multi_byte_encoding, unicode_range
 
 
