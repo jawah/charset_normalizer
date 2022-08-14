@@ -30,7 +30,7 @@ if USE_MYPYC:
         "charset_normalizer/models.py",
         "charset_normalizer/utils.py",
         "charset_normalizer/assets/__init__.py"
-    ], opt_level="4")
+    ])
 else:
     MYPYC_MODULES = None
 
