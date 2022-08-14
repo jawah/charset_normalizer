@@ -3,9 +3,36 @@
 
 import io
 import os
+import sys
 from re import search
 
 from setuptools import find_packages, setup
+
+
+USE_MYPYC = False
+
+if len(sys.argv) > 1 and sys.argv[1] == "--use-mypyc":
+    sys.argv.pop(1)
+    USE_MYPYC = True
+if os.getenv("CHARSET_NORMALIZER_USE_MYPYC", None) == "1":
+    USE_MYPYC = True
+
+if USE_MYPYC:
+    from mypyc.build import mypycify
+
+    MYPYC_MODULES = mypycify([
+        "charset_normalizer/__init__.py",
+        "charset_normalizer/api.py",
+        "charset_normalizer/cd.py",
+        "charset_normalizer/constant.py",
+        "charset_normalizer/legacy.py",
+        "charset_normalizer/md.py",
+        "charset_normalizer/models.py",
+        "charset_normalizer/utils.py",
+        "charset_normalizer/assets/__init__.py"
+    ], opt_level="4")
+else:
+    MYPYC_MODULES = None
 
 
 def get_version():
@@ -83,4 +110,5 @@ setup(
         'Bug Reports': 'https://github.com/Ousret/charset_normalizer/issues',
         'Documentation': 'https://charset-normalizer.readthedocs.io/en/latest',
     },
+    ext_modules=MYPYC_MODULES
 )
