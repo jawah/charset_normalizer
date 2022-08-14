@@ -1,6 +1,5 @@
 import logging
 from os import PathLike
-from os.path import basename, splitext
 from typing import Any, BinaryIO, List, Optional, Set
 
 from .cd import (
@@ -532,47 +531,3 @@ def from_path(
             preemptive_behaviour,
             explain,
         )
-
-
-def normalize(
-    path: "PathLike[Any]",
-    steps: int = 5,
-    chunk_size: int = 512,
-    threshold: float = 0.20,
-    cp_isolation: Optional[List[str]] = None,
-    cp_exclusion: Optional[List[str]] = None,
-    preemptive_behaviour: bool = True,
-) -> CharsetMatch:
-    """
-    Take a (text-based) file path and try to create another file next to it, this time using UTF-8.
-    """
-    results = from_path(
-        path,
-        steps,
-        chunk_size,
-        threshold,
-        cp_isolation,
-        cp_exclusion,
-        preemptive_behaviour,
-    )
-
-    filename = basename(path)
-    target_extensions = list(splitext(filename))
-
-    if len(results) == 0:
-        raise IOError(
-            'Unable to normalize "{}", no encoding charset seems to fit.'.format(
-                filename
-            )
-        )
-
-    result = results.best()
-
-    target_extensions[0] += "-" + result.encoding  # type: ignore
-
-    with open(
-        "{}".format(str(path).replace(filename, "".join(target_extensions))), "wb"
-    ) as fp:
-        fp.write(result.output())  # type: ignore
-
-    return result  # type: ignore
