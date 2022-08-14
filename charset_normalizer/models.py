@@ -95,7 +95,7 @@ class CharsetMatch:
         return 0.0
 
     @property
-    def w_counter(self) -> Counter[str]:
+    def w_counter(self) -> "Counter[str]":
         """
         Word counter instance on decoded text.
         Notice: Will be removed in 3.0

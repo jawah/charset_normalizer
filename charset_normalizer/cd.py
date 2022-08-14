@@ -307,7 +307,7 @@ def coherence_ratio(
         lg_inclusion_list.remove("Latin Based")
 
     for layer in alpha_unicode_split(decoded_sequence):
-        sequence_frequencies: Counter[str] = Counter(layer)
+        sequence_frequencies: "Counter[str]" = Counter(layer)
         most_common = sequence_frequencies.most_common()
 
         character_count: int = sum(o for c, o in most_common)
