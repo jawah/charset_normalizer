@@ -72,6 +72,7 @@ Community Guide
 .. toctree::
     :maxdepth: 2
 
+    community/speedup
     community/faq
     community/why_migrate
 
