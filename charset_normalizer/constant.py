@@ -332,7 +332,7 @@ UNICODE_SECONDARY_RANGE_KEYWORD: Final[List[str]] = [
     "Tags",
 ]
 
-RE_POSSIBLE_ENCODING_INDICATION: Final[Pattern] = re_compile(
+RE_POSSIBLE_ENCODING_INDICATION: Final[Pattern[str]] = re_compile(
     r"(?:(?:encoding)|(?:charset)|(?:coding))(?:[\:= ]{1,10})(?:[\"\']?)([a-zA-Z0-9\-_]+)(?:[\"\']?)",
     IGNORECASE,
 )
