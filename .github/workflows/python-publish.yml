@@ -1,6 +1,7 @@
 name: Release-Deployment CI
 
 on:
+  workflow_dispatch: 
   release:
     types: [created]
 
@@ -177,7 +178,6 @@ jobs:
       matrix:
         os: [ ubuntu, windows, macos ]
         qemu: [ '' ]
-        python-version: [ 3.6, 3.7, 3.8, 3.9, "3.10" ]
         include:
           # Split ubuntu job for the sake of speed-up
           - os: ubuntu
@@ -207,18 +207,18 @@ jobs:
         shell: bash
       - name: Setup Python
         uses: actions/setup-python@v4
-        with:
-          python-version: ${{ matrix.python-version }}
       - name: Update pip, wheel, setuptools, build, twine
         run: |
           python -m pip install -U pip wheel setuptools build twine
       - name: Install dev-dependencies
         run: |
           pip install -r dev-requirements.txt
-      - name: Build Wheel
+      - name: Build wheels
+        uses: pypa/cibuildwheel@2.7.0
         env:
+          CIBW_ARCHS_MACOS: x86_64 arm64 universal2
+          CIBW_ENVIRONMENT: CHARSET_NORMALIZER_USE_MYPYC='1'
           CHARSET_NORMALIZER_USE_MYPYC: '1'
-        run: python setup.py sdist bdist_wheel
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
