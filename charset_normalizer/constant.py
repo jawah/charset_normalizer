@@ -4,7 +4,7 @@ from encodings.aliases import aliases
 from re import IGNORECASE, compile as re_compile
 from typing import Dict, List, Set, Union
 
-if sys.version_info <= (3, 8):
+if sys.version_info < (3, 8):
     from typing_extensions import Final
 else:
     from typing import Final
