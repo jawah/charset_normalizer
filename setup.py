@@ -21,15 +21,7 @@ if USE_MYPYC:
     from mypyc.build import mypycify
 
     MYPYC_MODULES = mypycify([
-        "charset_normalizer/__init__.py",
-        "charset_normalizer/api.py",
-        "charset_normalizer/cd.py",
-        "charset_normalizer/constant.py",
-        "charset_normalizer/legacy.py",
-        "charset_normalizer/md.py",
-        "charset_normalizer/models.py",
-        "charset_normalizer/utils.py",
-        "charset_normalizer/assets/__init__.py"
+        "charset_normalizer/md.py"
     ])
 else:
     MYPYC_MODULES = None
