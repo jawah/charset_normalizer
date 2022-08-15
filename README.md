@@ -53,12 +53,12 @@ This package offer better performance than its counterpart Chardet. Here are som
 | Package       | Accuracy       | Mean per file (ms) | File per sec (est) |
 | ------------- | :-------------: | :------------------: | :------------------: |
 |      [chardet](https://github.com/chardet/chardet)        |     86 %     |     200 ms      |       5 file/sec        |
-| charset-normalizer |    **98 %**     |     **39 ms**      |       26 file/sec    |
+| charset-normalizer |    **98 %**     |     **10 ms**      |       100 file/sec    |
 
 | Package       | 99th percentile       | 95th percentile | 50th percentile |
 | ------------- | :-------------: | :------------------: | :------------------: |
 |      [chardet](https://github.com/chardet/chardet)        |     1200 ms     |     287 ms      |       23 ms        |
-| charset-normalizer |    400 ms     |     200 ms      |       15 ms    |
+| charset-normalizer |    100 ms     |     50 ms      |       5 ms    |
 
 Chardet's performance on larger file (1MB+) are very poor. Expect huge difference on large payload.
 
@@ -68,19 +68,11 @@ Chardet's performance on larger file (1MB+) are very poor. Expect huge differenc
 > Keep in mind that the stats are generous and that Chardet accuracy vs our is measured using Chardet initial capability
 > (eg. Supported Encoding) Challenge-them if you want.
 
-[cchardet](https://github.com/PyYoshi/cChardet) is a non-native (cpp binding) and unmaintained faster alternative with 
-a better accuracy than chardet but lower than this package. If speed is the most important factor, you should try it.
-
 ## ✨ Installation
 
 Using PyPi for latest stable
 ```sh
 pip install charset-normalizer -U
-```
-
-If you want a more up-to-date `unicodedata` than the one available in your Python setup.
-```sh
-pip install charset-normalizer[unicode_backport] -U
 ```
 
 ## 🚀 Basic Usage
