@@ -215,7 +215,7 @@ jobs:
         env:
           CIBW_ARCHS_MACOS: x86_64 arm64 universal2
           CIBW_ENVIRONMENT: CHARSET_NORMALIZER_USE_MYPYC='1'
-          CIBW_DEPENDENCY_VERSIONS: ./dev-requirements.txt
+          CIBW_BEFORE_BUILD: pip install -r dev-requirements.txt
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
