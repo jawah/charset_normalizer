@@ -1,4 +1,5 @@
 import logging
+import warnings
 from os import PathLike
 from os.path import basename, splitext
 from typing import Any, BinaryIO, List, Optional, Set
@@ -546,6 +547,11 @@ def normalize(
     """
     Take a (text-based) file path and try to create another file next to it, this time using UTF-8.
     """
+    warnings.warn(
+        "normalize is deprecated and will be removed in 3.0",
+        DeprecationWarning,
+    )
+
     results = from_path(
         path,
         steps,

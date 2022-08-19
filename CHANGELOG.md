@@ -2,6 +2,17 @@
 All notable changes to charset-normalizer will be documented in this file. This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [2.1.1](https://github.com/Ousret/charset_normalizer/compare/2.1.0...2.1.1) (2022-08-19)
+
+### Deprecated
+- Function `normalize` scheduled for removal in 3.0
+
+### Changed
+- Removed useless call to decode in fn is_unprintable (#206)
+
+### Fixed
+- Third-party library (i18n xgettext) crashing not recognizing utf_8 with underscore from [@aleksandernovikov](https://github.com/aleksandernovikov) (#204)
+
 ## [2.1.0](https://github.com/Ousret/charset_normalizer/compare/2.0.12...2.1.0) (2022-06-19)
 
 ### Added
