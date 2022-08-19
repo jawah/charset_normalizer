@@ -4,6 +4,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [3.0.0b1](https://github.com/Ousret/charset_normalizer/compare/2.1.0...3.0.0b1) (2022-08-15)
 
+### Added
+- `normalizer --version` now specify if current version provide extra speedup (meaning mypyc compilation whl)
+
 ### Changed
 - Optional: Module `md.py` can be compiled using Mypyc to provide an extra speedup up to 4x faster than v2.1
 
