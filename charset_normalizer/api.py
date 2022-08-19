@@ -551,7 +551,7 @@ def normalize(
         "normalize is deprecated and will be removed in 3.0",
         DeprecationWarning,
     )
-    
+
     results = from_path(
         path,
         steps,
