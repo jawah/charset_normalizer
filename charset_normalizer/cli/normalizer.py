@@ -5,10 +5,7 @@ from os.path import abspath
 from platform import python_version
 from typing import List, Optional
 
-try:
-    from unicodedata2 import unidata_version
-except ImportError:
-    from unicodedata import unidata_version
+from unicodedata import unidata_version
 
 from charset_normalizer import from_fp
 from charset_normalizer.models import CliDetectionResult
