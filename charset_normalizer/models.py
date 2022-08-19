@@ -200,18 +200,6 @@ class CharsetMatch:
         """
         return [self._encoding] + [m.encoding for m in self._leaves]
 
-    def first(self) -> "CharsetMatch":
-        """
-        Kept for BC reasons. Will be removed in 3.0.
-        """
-        return self
-
-    def best(self) -> "CharsetMatch":
-        """
-        Kept for BC reasons. Will be removed in 3.0.
-        """
-        return self
-
     def output(self, encoding: str = "utf_8") -> bytes:
         """
         Method to get re-encoded bytes payload using given target encoding. Default to UTF-8.
