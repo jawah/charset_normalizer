@@ -28,6 +28,12 @@ class TestCommandLineInterface(unittest.TestCase):
             )
         )
 
+    def test_version_output_success(self):
+        with self.assertRaises(SystemExit):
+            cli_detect(
+                ['--version']
+            )
+
     def test_single_file_normalize(self):
         self.assertEqual(
             0,
