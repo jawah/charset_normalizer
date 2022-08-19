@@ -9,6 +9,7 @@ from unicodedata import unidata_version
 
 from charset_normalizer import from_fp
 from charset_normalizer.models import CliDetectionResult
+import charset_normalizer.md as md_module
 from charset_normalizer.version import __version__
 
 
@@ -121,8 +122,8 @@ def cli_detect(argv: Optional[List[str]] = None) -> int:
     parser.add_argument(
         "--version",
         action="version",
-        version="Charset-Normalizer {} - Python {} - Unicode {}".format(
-            __version__, python_version(), unidata_version
+        version="Charset-Normalizer {} - Python {} - Unicode {} - SpeedUp {}".format(
+            __version__, python_version(), unidata_version, "OFF" if md_module.__file__.lower().endswith(".py") else "ON"
         ),
         help="Show version information and exit.",
     )
