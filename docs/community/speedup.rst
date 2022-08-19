@@ -25,11 +25,8 @@ Following those instructions (provided you have the necessary toolchain installe
 
   ::
 
-    git clone https://github.com/Ousret/charset_normalizer.git
-    cd charset_normalizer
-    git checkout 3.0
-    pip install -r dev-requirements.txt
-    python setup.py --use-mypyc install
+    export CHARSET_NORMALIZER_USE_MYPYC=1
+    pip install charset-normalizer --no-binary :all:
 
 
 How not to?
@@ -40,6 +37,6 @@ You may install charset-normalizer without any specific (pre-built wheel) by dir
 
   ::
 
-    pip install https://........./charset_normalizer-3.0.0b2-py3-none-any.whl
+    pip install charset-normalizer --no-binary :all:
 
 Directly.
