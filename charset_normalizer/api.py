@@ -45,7 +45,7 @@ def from_bytes(
     """
     Given a raw bytes sequence, return the best possibles charset usable to render str objects.
     If there is no results, it is a strong indicator that the source is binary/not text.
-    By default, the process will extract 5 blocs of 512o each to assess the mess and coherence of a given sequence.
+    By default, the process will extract 5 blocks of 512o each to assess the mess and coherence of a given sequence.
     And will give up a particular code page after 20% of measured mess. Those criteria are customizable at will.
 
     The preemptive behavior DOES NOT replace the traditional detection workflow, it prioritize a particular code page
@@ -197,7 +197,7 @@ def from_bytes(
         if encoding_iana in {"utf_16", "utf_32"} and not bom_or_sig_available:
             logger.log(
                 TRACE,
-                "Encoding %s wont be tested as-is because it require a BOM. Will try some sub-encoder LE/BE.",
+                "Encoding %s won't be tested as-is because it require a BOM. Will try some sub-encoder LE/BE.",
                 encoding_iana,
             )
             continue
