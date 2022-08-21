@@ -493,5 +493,5 @@ NOT_PRINTABLE_PATTERN = re_compile(r"[0-9\W\n\r\t]+")
 
 LANGUAGE_SUPPORTED_COUNT: int = len(FREQUENCIES)
 
-# Logging LEVEL bellow DEBUG
+# Logging LEVEL below DEBUG
 TRACE: int = 5

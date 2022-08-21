@@ -9,7 +9,7 @@ Possible use cases:
 #. I want to quickly convert a non Unicode file to Unicode.
 #. Debug the charset-detector.
 
-Down bellow, we will guide you through some basic examples.
+Down below, we will guide you through some basic examples.
 
 Arguments
 ---------
