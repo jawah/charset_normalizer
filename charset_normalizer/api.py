@@ -1,5 +1,4 @@
 import logging
-import warnings
 from os import PathLike
 from typing import Any, BinaryIO, List, Optional, Set
 
