@@ -491,5 +491,5 @@ ZH_NAMES: Set[str] = {"big5", "cp950", "big5hkscs", "hz"}
 
 LANGUAGE_SUPPORTED_COUNT: int = len(FREQUENCIES)
 
-# Logging LEVEL bellow DEBUG
+# Logging LEVEL below DEBUG
 TRACE: int = 5
