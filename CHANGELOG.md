@@ -2,13 +2,16 @@
 All notable changes to charset-normalizer will be documented in this file. This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [3.0.0b2](https://github.com/Ousret/charset_normalizer/compare/3.0.0b1...3.0.0b2) (2022-08-19)
+## [3.0.0b2](https://github.com/Ousret/charset_normalizer/compare/3.0.0b1...3.0.0b2) (2022-08-21)
 
 ### Added
 - `normalizer --version` now specify if current version provide extra speedup (meaning mypyc compilation whl)
 
 ### Removed
 - Breaking: Method `first()` and `best()` from CharsetMatch
+
+### Fixed
+- Sphinx warnings when generating the documentation
 
 ## [3.0.0b1](https://github.com/Ousret/charset_normalizer/compare/2.1.0...3.0.0b1) (2022-08-15)
 
