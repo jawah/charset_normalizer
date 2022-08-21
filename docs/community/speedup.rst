@@ -30,7 +30,7 @@ Following those instructions (provided you have the necessary toolchain installe
 
 
 How not to?
--------
+-----------
 
 You may install charset-normalizer without any specific (pre-built wheel) by directly using the universal wheel
 (most likely hosted on PyPi or any valid mirror you use)

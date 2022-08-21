@@ -14,11 +14,9 @@ Those functions are publicly exposed and are protected through our BC guarantee.
 .. autofunction:: from_fp
 .. autofunction:: from_path
 
-.. autofunction:: normalize
-
-.. autoclass:: charset_normalizer.CharsetMatches
+.. autoclass:: charset_normalizer.models.CharsetMatches
     :inherited-members:
-.. autoclass:: charset_normalizer.CharsetMatch
+.. autoclass:: charset_normalizer.models.CharsetMatch
     :inherited-members:
 
 .. autofunction:: detect
@@ -99,3 +97,8 @@ Some reusable functions used across the project. We do not guarantee the BC in t
 .. autofunction:: charset_normalizer.utils.range_scan
 
 .. autofunction:: charset_normalizer.utils.is_cp_similar
+
+
+.. class:: os.PathLike
+
+   Used as a generic way to accept AnyStr for paths.
