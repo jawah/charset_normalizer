@@ -199,6 +199,13 @@ def from_bytes(
                 encoding_iana,
             )
             continue
+        if encoding_iana in {"utf_7"} and not bom_or_sig_available:
+            logger.log(
+                TRACE,
+                "Encoding %s won't be tested as-is because detection is unreliable without BOM/SIG.",
+                encoding_iana,
+            )
+            continue
 
         try:
             is_multi_byte_decoder: bool = is_multi_byte_encoding(encoding_iana)
