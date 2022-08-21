@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Removed
 - Breaking: Method `first()` and `best()` from CharsetMatch
+- UTF-7 will no longer appear as "detected" without a recognized SIG/mark (is unreliable/conflict with ASCII)
 
 ### Fixed
 - Sphinx warnings when generating the documentation
