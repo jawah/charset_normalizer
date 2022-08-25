@@ -34,7 +34,7 @@ This project offers you an alternative to **Universal Charset Encoding Detector*
 | `Detect spoken language` | ❌ | :heavy_check_mark: | N/A |
 | `UnicodeDecodeError Safety` | ❌ | :heavy_check_mark: | ❌ |
 | `Whl Size` | 193.6 kB | 39.5 kB | ~200 kB |
-| `Supported Encoding` | 33 | :tada: [93](https://charset-normalizer.readthedocs.io/en/latest/user/support.html#supported-encodings)  | 40
+| `Supported Encoding` | 33 | :tada: [92](https://charset-normalizer.readthedocs.io/en/latest/user/support.html#supported-encodings)  | 40
 
 <p align="center">
 <img src="https://i.imgflip.com/373iay.gif" alt="Reading Normalized Text" width="226"/><img src="https://media.tenor.com/images/c0180f70732a18b4965448d33adba3d0/tenor.gif" alt="Cat Reading Text" width="200"/>

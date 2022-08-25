@@ -98,7 +98,6 @@ rot_13           rot13
 shift_jis        csshiftjis, shiftjis, sjis, s_jis, x_mac_japanese
 shift_jis_2004   shiftjis2004, sjis_2004, s_jis_2004
 shift_jisx0213   shiftjisx0213, sjisx0213, s_jisx0213
-tactis           tis260
 tis_620          tis620, tis_620_0, tis_620_2529_0, tis_620_2529_1, iso_ir_166
 utf_16           u16, utf16
 utf_16_be        unicodebigunmarked, utf_16be
