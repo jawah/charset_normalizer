@@ -4,7 +4,7 @@ from collections import Counter
 from functools import lru_cache
 from typing import Counter as TypeCounter, Dict, List, Optional, Tuple
 
-from .assets import FREQUENCIES
+from .assets import FREQUENCIES, FREQUENCIES_INDEX, FREQUENCIES_SETS
 from .constant import KO_NAMES, LANGUAGE_SUPPORTED_COUNT, TOO_SMALL_SEQUENCE, ZH_NAMES
 from .md import is_suspiciously_successive_range
 from .models import CoherenceMatches
@@ -177,36 +177,30 @@ def characters_popularity_compare(
         raise ValueError("{} not available".format(language))
 
     character_approved_count: int = 0
-    FREQUENCIES_language_set = set(FREQUENCIES[language])
 
-    for character in ordered_characters:
-        if character not in FREQUENCIES_language_set:
+    for character_index, character in enumerate(ordered_characters):
+        if character not in FREQUENCIES_SETS[language]:
             continue
 
         characters_before_source: List[str] = FREQUENCIES[language][
-            0 : FREQUENCIES[language].index(character)
+            0 : FREQUENCIES_INDEX[language][character]
         ]
-        characters_after_source: List[str] = FREQUENCIES[language][
-            FREQUENCIES[language].index(character) :
-        ]
-        characters_before: List[str] = ordered_characters[
-            0 : ordered_characters.index(character)
-        ]
-        characters_after: List[str] = ordered_characters[
-            ordered_characters.index(character) :
-        ]
-
+        characters_before: List[str] = ordered_characters[0:character_index]
         before_match_count: int = len(
             set(characters_before) & set(characters_before_source)
-        )
-
-        after_match_count: int = len(
-            set(characters_after) & set(characters_after_source)
         )
 
         if len(characters_before_source) == 0 and before_match_count <= 4:
             character_approved_count += 1
             continue
+
+        characters_after_source: List[str] = FREQUENCIES[language][
+            FREQUENCIES_INDEX[language][character] :
+        ]
+        characters_after: List[str] = ordered_characters[character_index:]
+        after_match_count: int = len(
+            set(characters_after) & set(characters_after_source)
+        )
 
         if len(characters_after_source) == 0 and after_match_count <= 4:
             character_approved_count += 1
