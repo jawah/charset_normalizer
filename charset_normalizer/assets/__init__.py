@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from typing import Dict, List
+from typing import Dict, List, Set
 
 FREQUENCIES: Dict[str, List[str]] = {
     "English": [
@@ -1119,4 +1119,22 @@ FREQUENCIES: Dict[str, List[str]] = {
         "г",
         "ө",
     ],
+}
+
+""" 
+FREQUENCIES_INDEX["Simple English"] =
+{
+    "e": 0,
+    "a": 1,
+    "t": 2,
+    and so on...
+}
+"""
+FREQUENCIES_INDEX: Dict[str, int] = {
+    key: {char: i for i, char in enumerate(value)} for key, value in FREQUENCIES.items()
+}
+
+
+FREQUENCIES_SETS: Dict[str, Set[str]] = {
+    key: set(value) for key, value in FREQUENCIES.items()
 }
