@@ -1122,7 +1122,7 @@ FREQUENCIES: Dict[str, List[str]] = {
 }
 
 
-""" 
+"""
 FREQUENCIES_INDEX["Simple English"] =
 {
     "e": 0,
