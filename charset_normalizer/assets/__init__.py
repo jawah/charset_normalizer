@@ -1121,6 +1121,7 @@ FREQUENCIES: Dict[str, List[str]] = {
     ],
 }
 
+
 """ 
 FREQUENCIES_INDEX["Simple English"] =
 {
@@ -1130,7 +1131,7 @@ FREQUENCIES_INDEX["Simple English"] =
     and so on...
 }
 """
-FREQUENCIES_INDEX: Dict[str, int] = {
+FREQUENCIES_INDEX: Dict[str, Dict[str, int]] = {
     key: {char: i for i, char in enumerate(value)} for key, value in FREQUENCIES.items()
 }
 
