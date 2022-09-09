@@ -8,7 +8,7 @@ As follow ::
 
     from charset_normalizer import from_bytes
 
-    my_byte_str = '我没有埋怨，磋砣的只是一些时间。'.encode('gb18030')
+    my_byte_str = 'Bсеки човек има право на образование.'.encode('cp1251')
 
     results = from_bytes(
         my_byte_str,
