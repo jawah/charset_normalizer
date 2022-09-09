@@ -6,14 +6,14 @@ When initiating search upon a buffer, bytes or file you can assign the return va
 
  ::
 
-    my_byte_str = '我没有埋怨，磋砣的只是一些时间。'.encode('gb18030')
+    my_byte_str = 'Bсеки човек има право на образование.'.encode('cp1251')
 
     # Assign return value so we can fully exploit result
     result = from_bytes(
         my_byte_str
     ).best()
 
-    print(result.encoding)  # gb18030
+    print(result.encoding)  # cp1251
 
 Using CharsetMatch
 ----------------------------
