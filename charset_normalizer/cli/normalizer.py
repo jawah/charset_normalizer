@@ -1,7 +1,7 @@
 import argparse
 import sys
 from json import dumps
-from os.path import abspath
+from os.path import abspath, realpath, dirname, basename, join
 from platform import python_version
 from typing import List, Optional
 from unicodedata import unidata_version
@@ -234,7 +234,10 @@ def cli_detect(argv: Optional[List[str]] = None) -> int:
                         my_file.close()
                     continue
 
-                o_: List[str] = my_file.name.split(".")
+                dir_path = dirname(realpath(my_file.name))
+                file_name = basename(realpath(my_file.name))
+
+                o_: List[str] = file_name.split(".")
 
                 if args.replace is False:
                     o_.insert(-1, best_guess.encoding)
@@ -255,7 +258,7 @@ def cli_detect(argv: Optional[List[str]] = None) -> int:
                     continue
 
                 try:
-                    x_[0].unicode_path = abspath("./{}".format(".".join(o_)))
+                    x_[0].unicode_path = join(dir_path, ".".join(o_))
 
                     with open(x_[0].unicode_path, "w", encoding="utf-8") as fp:
                         fp.write(str(best_guess))
