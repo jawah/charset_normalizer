@@ -1,7 +1,7 @@
 black==22.8.0
 flake8==5.0.4
 mypy>=0.970
-Flask==2.2.2
+Flask>=2.0.3,<=2.2.2
 chardet==5.0.0
 isort==5.10.1
 codecov==2.1.12
