@@ -28,7 +28,8 @@ jobs:
         pip uninstall -y charset-normalizer
     - name: Install the package
       run: |
-        python setup.py install
+        python -m build
+        pip install ./dist/*.whl
     - name: Clone the complete dataset
       run: |
         git clone https://github.com/Ousret/char-dataset.git

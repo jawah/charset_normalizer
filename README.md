@@ -25,14 +25,14 @@ This project offers you an alternative to **Universal Charset Encoding Detector*
 
 | Feature       | [Chardet](https://github.com/chardet/chardet)       | Charset Normalizer | [cChardet](https://github.com/PyYoshi/cChardet) |
 | ------------- | :-------------: | :------------------: | :------------------: |
-| `Fast`         | ❌<br>          | :heavy_check_mark:<br>             | :heavy_check_mark: <br> |
-| `Universal**`     | ❌            | :heavy_check_mark:                 | ❌ |
-| `Reliable` **without** distinguishable standards | ❌ | :heavy_check_mark: | :heavy_check_mark: |
-| `Reliable` **with** distinguishable standards | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
+| `Fast`         | ❌<br>          | ✅<br>             | ✅ <br> |
+| `Universal**`     | ❌            | ✅                 | ❌ |
+| `Reliable` **without** distinguishable standards | ❌ | ✅ | ✅ |
+| `Reliable` **with** distinguishable standards | ✅ | ✅ | ✅ |
 | `License` | LGPL-2.1<br>_restrictive_ | MIT | MPL-1.1<br>_restrictive_ |
-| `Native Python` | :heavy_check_mark: | :heavy_check_mark: | ❌ |
-| `Detect spoken language` | ❌ | :heavy_check_mark: | N/A |
-| `UnicodeDecodeError Safety` | ❌ | :heavy_check_mark: | ❌ |
+| `Native Python` | ✅ | ✅ | ❌ |
+| `Detect spoken language` | ❌ | ✅ | N/A |
+| `UnicodeDecodeError Safety` | ❌ | ✅ | ❌ |
 | `Whl Size` | 193.6 kB | 39.5 kB | ~200 kB |
 | `Supported Encoding` | 33 | :tada: [90](https://charset-normalizer.readthedocs.io/en/latest/user/support.html#supported-encodings)  | 40
 
