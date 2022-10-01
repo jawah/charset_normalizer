@@ -1,7 +1,7 @@
 import argparse
 import sys
 from json import dumps
-from os.path import abspath, realpath, dirname, basename, join
+from os.path import abspath, basename, dirname, join, realpath
 from platform import python_version
 from typing import List, Optional
 from unicodedata import unidata_version
