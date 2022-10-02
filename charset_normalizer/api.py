@@ -302,7 +302,11 @@ def from_bytes(
             ):
                 md_chunks.append(chunk)
 
-                md_ratios.append(mess_ratio(chunk, threshold))
+                md_ratios.append(
+                    mess_ratio(
+                        chunk, threshold, explain is True and len(cp_isolation) <= 2
+                    )
+                )
 
                 if md_ratios[-1] >= threshold:
                     early_stop_count += 1
