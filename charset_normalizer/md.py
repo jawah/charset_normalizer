@@ -557,7 +557,8 @@ def mess_ratio(
         logger.log(
             TRACE,
             "Mess-detector extended-analysis start. "
-            f"intermediary_mean_mess_ratio_calc={intermediary_mean_mess_ratio_calc} mean_mess_ratio={mean_mess_ratio} maximum_threshold={maximum_threshold}",
+            f"intermediary_mean_mess_ratio_calc={intermediary_mean_mess_ratio_calc} mean_mess_ratio={mean_mess_ratio} "
+            f"maximum_threshold={maximum_threshold}",
         )
 
         if len(decoded_sequence) > 16:
