@@ -304,7 +304,9 @@ def from_bytes(
 
                 md_ratios.append(
                     mess_ratio(
-                        chunk, threshold, explain is True and 1 <= len(cp_isolation) <= 2
+                        chunk,
+                        threshold,
+                        explain is True and 1 <= len(cp_isolation) <= 2,
                     )
                 )
 
