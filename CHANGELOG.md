@@ -6,12 +6,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 - Extend the capability of explain=True when cp_isolation contains at most two entries (min one), will log in details of the Mess-detector results
+- Support for alternative language frequency set in charset_normalizer.assets.FREQUENCIES
 
 ### Changed
 - Build with static metadata using 'build' frontend
 
 ### Fixed
 - CLI with opt --normalize fail when using full path for files
+
+### Removed
+- Coherence detector no longer return 'Simple English' instead return 'English'
 
 ## [3.0.0b2](https://github.com/Ousret/charset_normalizer/compare/3.0.0b1...3.0.0b2) (2022-08-21)
 
