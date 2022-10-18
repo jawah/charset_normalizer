@@ -26,6 +26,7 @@ Following those instructions (provided you have the necessary toolchain installe
   ::
 
     export CHARSET_NORMALIZER_USE_MYPYC=1
+    pip install mypy build wheel
     pip install charset-normalizer --no-binary :all:
 
 
