@@ -39,6 +39,7 @@ def from_bytes(
     cp_exclusion: Optional[List[str]] = None,
     preemptive_behaviour: bool = True,
     explain: bool = False,
+    language_threshold: float = 0.1,
 ) -> CharsetMatches:
     """
     Given a raw bytes sequence, return the best possibles charset usable to render str objects.
@@ -400,7 +401,9 @@ def from_bytes(
         if encoding_iana != "ascii":
             for chunk in md_chunks:
                 chunk_languages = coherence_ratio(
-                    chunk, 0.1, ",".join(target_languages) if target_languages else None
+                    chunk,
+                    language_threshold,
+                    ",".join(target_languages) if target_languages else None,
                 )
 
                 cd_ratios.append(chunk_languages)
@@ -502,6 +505,7 @@ def from_fp(
     cp_exclusion: Optional[List[str]] = None,
     preemptive_behaviour: bool = True,
     explain: bool = False,
+    language_threshold: float = 0.1,
 ) -> CharsetMatches:
     """
     Same thing than the function from_bytes but using a file pointer that is already ready.
@@ -516,6 +520,7 @@ def from_fp(
         cp_exclusion,
         preemptive_behaviour,
         explain,
+        language_threshold,
     )
 
 
@@ -528,6 +533,7 @@ def from_path(
     cp_exclusion: Optional[List[str]] = None,
     preemptive_behaviour: bool = True,
     explain: bool = False,
+    language_threshold: float = 0.1,
 ) -> CharsetMatches:
     """
     Same thing than the function from_bytes but with one extra step. Opening and reading given file path in binary mode.
@@ -543,4 +549,5 @@ def from_path(
             cp_exclusion,
             preemptive_behaviour,
             explain,
+            language_threshold,
         )

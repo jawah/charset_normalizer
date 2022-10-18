@@ -7,6 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Added
 - Extend the capability of explain=True when cp_isolation contains at most two entries (min one), will log in details of the Mess-detector results
 - Support for alternative language frequency set in charset_normalizer.assets.FREQUENCIES
+- Add parameter `language_threshold` in `from_bytes`, `from_path` and `from_fp` to adjust the minimum expected coherence ratio
 
 ### Changed
 - Build with static metadata using 'build' frontend
