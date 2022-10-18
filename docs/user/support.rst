@@ -151,8 +151,6 @@ Bulgarian,
 Croatian,
 Hindi,
 Estonian,
-Simple English,
 Thai,
 Greek,
-Tamil,
-Classical Chinese.
+Tamil.
