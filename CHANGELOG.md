@@ -15,6 +15,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Fixed
 - CLI with opt --normalize fail when using full path for files
+- TooManyAccentuatedPlugin induce false positive on the mess detection when too few alpha character have been fed to it
 
 ### Removed
 - Coherence detector no longer return 'Simple English' instead return 'English'

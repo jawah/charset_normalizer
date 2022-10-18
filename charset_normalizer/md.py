@@ -128,7 +128,7 @@ class TooManyAccentuatedPlugin(MessDetectorPlugin):
 
     @property
     def ratio(self) -> float:
-        if self._character_count == 0:
+        if self._character_count == 0 or self._character_count < 8:
             return 0.0
         ratio_of_accentuation: float = self._accentuated_count / self._character_count
         return ratio_of_accentuation if ratio_of_accentuation >= 0.35 else 0.0
