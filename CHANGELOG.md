@@ -2,6 +2,34 @@
 All notable changes to charset-normalizer will be documented in this file. This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [3.0.0](https://github.com/Ousret/charset_normalizer/compare/2.1.1...3.0.0) (2022-10-18)
+
+### Added
+- Extend the capability of explain=True when cp_isolation contains at most two entries (min one), will log in details of the Mess-detector results
+- Support for alternative language frequency set in charset_normalizer.assets.FREQUENCIES
+- Add parameter `language_threshold` in `from_bytes`, `from_path` and `from_fp` to adjust the minimum expected coherence ratio
+- `normalizer --version` now specify if current version provide extra speedup (meaning mypyc compilation whl)
+
+### Changed
+- Build with static metadata using 'build' frontend
+- Make the language detection stricter
+- Optional: Module `md.py` can be compiled using Mypyc to provide an extra speedup up to 4x faster than v2.1
+
+### Fixed
+- CLI with opt --normalize fail when using full path for files
+- TooManyAccentuatedPlugin induce false positive on the mess detection when too few alpha character have been fed to it
+- Sphinx warnings when generating the documentation
+
+### Removed
+- Coherence detector no longer return 'Simple English' instead return 'English'
+- Coherence detector no longer return 'Classical Chinese' instead return 'Chinese'
+- Breaking: Method `first()` and `best()` from CharsetMatch
+- UTF-7 will no longer appear as "detected" without a recognized SIG/mark (is unreliable/conflict with ASCII)
+- Breaking: Class aliases CharsetDetector, CharsetDoctor, CharsetNormalizerMatch and CharsetNormalizerMatches
+- Breaking: Top-level function `normalize`
+- Breaking: Properties `chaos_secondary_pass`, `coherence_non_latin` and `w_counter` from CharsetMatch
+- Support for the backport `unicodedata2`
+
 ## [3.0.0rc1](https://github.com/Ousret/charset_normalizer/compare/3.0.0b2...3.0.0rc1) (2022-10-18)
 
 ### Added
