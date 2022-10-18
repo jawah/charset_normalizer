@@ -12,7 +12,7 @@ black==22.8.0; python_version < "3.7"
 black==22.10.0; python_version >= "3.7"
 
 mypy==0.982; python_version >= "3.7"
-mypy==0.970; python_version < "3.7"
+mypy==0.971; python_version < "3.7"
 
 Flask==2.2.2; python_version >= "3.7"
 Flask==2.0.3; python_version < "3.7"
