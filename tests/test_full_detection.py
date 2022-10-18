@@ -16,7 +16,7 @@ DIR_PATH = path.join(
         ('sample-arabic.txt', 'utf_8', 'Arabic'),
         ('sample-russian-3.txt', 'utf_8', 'Russian'),
         ('sample-french.txt', 'utf_8', 'French'),
-        ('sample-chinese.txt', 'big5', 'Classical Chinese'),
+        ('sample-chinese.txt', 'big5', 'Chinese'),
         ('sample-greek.txt', 'cp1253', 'Greek'),
         ('sample-greek-2.txt', 'cp1253', 'Greek'),
         ('sample-hebrew-2.txt', 'cp1255', 'Hebrew'),

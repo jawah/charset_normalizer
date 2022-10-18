@@ -105,7 +105,7 @@ def mb_encoding_languages(iana_name: str) -> List[str]:
     ):
         return ["Japanese"]
     if iana_name.startswith("gb") or iana_name in ZH_NAMES:
-        return ["Chinese", "Classical Chinese"]
+        return ["Chinese"]
     if iana_name.startswith("iso2022_kr") or iana_name in KO_NAMES:
         return ["Korean"]
 
@@ -179,22 +179,45 @@ def characters_popularity_compare(
     character_approved_count: int = 0
     FREQUENCIES_language_set = set(FREQUENCIES[language])
 
-    for character in ordered_characters:
+    ordered_characters_count: int = len(ordered_characters)
+    target_language_characters_count: int = len(FREQUENCIES[language])
+
+    large_alphabet: bool = target_language_characters_count > 26
+
+    for character, character_rank in zip(
+        ordered_characters, range(0, ordered_characters_count)
+    ):
         if character not in FREQUENCIES_language_set:
             continue
 
+        character_rank_in_language: int = FREQUENCIES[language].index(character)
+        expected_projection_ratio: float = (
+            target_language_characters_count / ordered_characters_count
+        )
+        character_rank_projection: int = int(character_rank * expected_projection_ratio)
+
+        if (
+            large_alphabet is False
+            and abs(character_rank_projection - character_rank_in_language) > 4
+        ):
+            continue
+
+        if (
+            large_alphabet is True
+            and abs(character_rank_projection - character_rank_in_language)
+            < target_language_characters_count / 3
+        ):
+            character_approved_count += 1
+            continue
+
         characters_before_source: List[str] = FREQUENCIES[language][
-            0 : FREQUENCIES[language].index(character)
+            0:character_rank_in_language
         ]
         characters_after_source: List[str] = FREQUENCIES[language][
-            FREQUENCIES[language].index(character) :
+            character_rank_in_language:
         ]
-        characters_before: List[str] = ordered_characters[
-            0 : ordered_characters.index(character)
-        ]
-        characters_after: List[str] = ordered_characters[
-            ordered_characters.index(character) :
-        ]
+        characters_before: List[str] = ordered_characters[0:character_rank]
+        characters_after: List[str] = ordered_characters[character_rank:]
 
         before_match_count: int = len(
             set(characters_before) & set(characters_before_source)
