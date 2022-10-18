@@ -25,7 +25,8 @@ jobs:
         pip uninstall -y charset-normalizer
     - name: Install the package
       run: |
-        python setup.py install
+        python -m build --no-isolation
+        pip install ./dist/*.whl
     - name: Run tests
       run: |
         pytest

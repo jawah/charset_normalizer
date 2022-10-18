@@ -2,7 +2,12 @@ import unittest
 from charset_normalizer.cli.normalizer import cli_detect, query_yes_no
 from unittest.mock import patch
 from os.path import exists
-from os import remove
+from os import remove, path, pardir
+
+DIR_PATH = path.join(
+    path.dirname(path.realpath(__file__)),
+    pardir
+)
 
 
 class TestCommandLineInterface(unittest.TestCase):
@@ -24,24 +29,33 @@ class TestCommandLineInterface(unittest.TestCase):
         self.assertEqual(
             0,
             cli_detect(
-                ['./data/sample-arabic-1.txt']
+                [DIR_PATH + '/data/sample-arabic-1.txt']
             )
         )
+
+    def test_version_output_success(self):
+        with self.assertRaises(SystemExit):
+            cli_detect(
+                ['--version']
+            )
 
     def test_single_file_normalize(self):
         self.assertEqual(
             0,
             cli_detect(
-                ['./data/sample-arabic-1.txt', '--normalize']
+                [
+                    DIR_PATH + '/data/sample-arabic-1.txt',
+                    '--normalize'
+                ]
             )
         )
 
         self.assertTrue(
-            exists('./data/sample-arabic-1.cp1256.txt')
+            exists(DIR_PATH + '/data/sample-arabic-1.cp1256.txt')
         )
 
         try:
-            remove('./data/sample-arabic-1.cp1256.txt')
+            remove(DIR_PATH + '/data/sample-arabic-1.cp1256.txt')
         except:
             pass
 
@@ -49,7 +63,7 @@ class TestCommandLineInterface(unittest.TestCase):
         self.assertEqual(
             0,
             cli_detect(
-                ['./data/sample-arabic-1.txt', '--verbose']
+                [DIR_PATH + '/data/sample-arabic-1.txt', '--verbose']
             )
         )
 
@@ -58,9 +72,9 @@ class TestCommandLineInterface(unittest.TestCase):
             0,
             cli_detect(
                 [
-                    './data/sample-arabic-1.txt',
-                    './data/sample-french.txt',
-                    './data/sample-chinese.txt'
+                    DIR_PATH + '/data/sample-arabic-1.txt',
+                    DIR_PATH + '/data/sample-french.txt',
+                    DIR_PATH + '/data/sample-chinese.txt'
                 ]
             )
         )
@@ -71,9 +85,9 @@ class TestCommandLineInterface(unittest.TestCase):
             cli_detect(
                 [
                     '-a',
-                    './data/sample-arabic-1.txt',
-                    './data/sample-french.txt',
-                    './data/sample-chinese.txt'
+                    DIR_PATH + '/data/sample-arabic-1.txt',
+                    DIR_PATH + '/data/sample-french.txt',
+                    DIR_PATH + '/data/sample-chinese.txt'
                 ]
             )
         )
@@ -84,9 +98,9 @@ class TestCommandLineInterface(unittest.TestCase):
             cli_detect(
                 [
                     '-m',
-                    './data/sample-arabic-1.txt',
-                    './data/sample-french.txt',
-                    './data/sample-chinese.txt'
+                    DIR_PATH + '/data/sample-arabic-1.txt',
+                    DIR_PATH + '/data/sample-french.txt',
+                    DIR_PATH + '/data/sample-chinese.txt'
                 ]
             )
         )
@@ -98,9 +112,9 @@ class TestCommandLineInterface(unittest.TestCase):
                 [
                     '-m',
                     '-a',
-                    './data/sample-arabic-1.txt',
-                    './data/sample-french.txt',
-                    './data/sample-chinese.txt'
+                    DIR_PATH + '/data/sample-arabic-1.txt',
+                    DIR_PATH + '/data/sample-french.txt',
+                    DIR_PATH + '/data/sample-chinese.txt'
                 ]
             )
         )
@@ -109,7 +123,7 @@ class TestCommandLineInterface(unittest.TestCase):
 
         with self.assertRaises(SystemExit) as cm:
             cli_detect(
-                ['./data/not_found_data.txt']
+                [DIR_PATH + '/data/not_found_data.txt']
             )
 
         self.assertEqual(cm.exception.code, 2)
@@ -119,7 +133,7 @@ class TestCommandLineInterface(unittest.TestCase):
         self.assertEqual(
             cli_detect(
                 [
-                    './data/sample-arabic-1.txt',
+                    DIR_PATH + '/data/sample-arabic-1.txt',
                     '--replace'
                 ]
             ),
@@ -130,7 +144,7 @@ class TestCommandLineInterface(unittest.TestCase):
         self.assertEqual(
             cli_detect(
                 [
-                    './data/sample-arabic-1.txt',
+                    DIR_PATH + '/data/sample-arabic-1.txt',
                     '--force'
                 ]
             ),

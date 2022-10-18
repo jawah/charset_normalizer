@@ -1,15 +1,15 @@
-name: Integration
+name: MYPYC Run
 
 on: [push, pull_request]
 
 jobs:
-  downstream:
+  detection_coverage:
     runs-on: ${{ matrix.os }}
 
     strategy:
       fail-fast: false
       matrix:
-        python-version: [3.9]
+        python-version: [3.6, 3.7, 3.8, 3.9, "3.10"]
         os: [ubuntu-latest]
 
     steps:
@@ -22,20 +22,19 @@ jobs:
       run: |
         pip install -U pip setuptools
         pip install -r dev-requirements.txt
-    - name: Remove Chardet & Charset-Normalizer
-      run: |
-        pip uninstall -y chardet
         pip uninstall -y charset-normalizer
     - name: Install the package
+      env:
+        CHARSET_NORMALIZER_USE_MYPYC: '1'
       run: |
-        python -m build
+        python -m build --no-isolation
         pip install ./dist/*.whl
     - name: Clone the complete dataset
       run: |
         git clone https://github.com/Ousret/char-dataset.git
-    - name: Start the Flask server
+    - name: Coverage WITH preemptive
       run: |
-        python ./bin/serve.py &
-    - name: Integration Tests with Requests
+        python ./bin/coverage.py --coverage 97 --with-preemptive
+    - name: Coverage WITHOUT preemptive
       run: |
-        python ./bin/integration.py
+        python ./bin/coverage.py --coverage 95

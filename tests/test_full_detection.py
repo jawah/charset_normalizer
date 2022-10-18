@@ -1,5 +1,11 @@
 from charset_normalizer.api import from_path
 import pytest
+from os import path, pardir
+
+DIR_PATH = path.join(
+    path.dirname(path.realpath(__file__)),
+    pardir
+)
 
 
 @pytest.mark.parametrize(
@@ -10,7 +16,7 @@ import pytest
         ('sample-arabic.txt', 'utf_8', 'Arabic'),
         ('sample-russian-3.txt', 'utf_8', 'Russian'),
         ('sample-french.txt', 'utf_8', 'French'),
-        ('sample-chinese.txt', 'big5', 'Classical Chinese'),
+        ('sample-chinese.txt', 'big5', 'Chinese'),
         ('sample-greek.txt', 'cp1253', 'Greek'),
         ('sample-greek-2.txt', 'cp1253', 'Greek'),
         ('sample-hebrew-2.txt', 'cp1255', 'Hebrew'),
@@ -30,7 +36,7 @@ def test_elementary_detection(
     expected_charset: str,
     expected_language: str,
 ):
-    best_guess = from_path("./data/{}".format(input_data_file)).best()
+    best_guess = from_path(DIR_PATH + "/data/{}".format(input_data_file)).best()
 
     assert best_guess is not None, "Elementary detection has failed upon '{}'".format(input_data_file)
     assert best_guess.encoding == expected_charset, "Elementary charset detection has failed upon '{}'".format(input_data_file)

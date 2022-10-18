@@ -1,5 +1,5 @@
 import pytest
-from charset_normalizer.cd import encoding_languages, mb_encoding_languages, is_multi_byte_encoding, get_target_features
+from charset_normalizer.cd import encoding_languages, mb_encoding_languages, is_multi_byte_encoding, get_target_features, filter_alt_coherence_matches
 
 
 @pytest.mark.parametrize(
@@ -39,3 +39,18 @@ def test_target_features(language, expected_have_accents, expected_pure_latin):
 
     assert target_have_accents is expected_have_accents
     assert target_pure_latin is expected_pure_latin
+
+
+@pytest.mark.parametrize(
+    "matches, expected_return",
+    [
+        ([("English", 0.88,), ("English—", 0.99)], [("English", 0.99)]),
+        ([("English", 0.88,), ("English—", 0.99), ("English——", 0.999)], [("English", 0.999)]),
+        ([("English", 0.88,), ("English—", 0.77)], [("English", 0.88)]),
+        ([("English", 0.88,), ("Italian", 0.77)], [("English", 0.88), ("Italian", 0.77)]),
+    ]
+)
+def test_filter_alt_coherence_matches(matches, expected_return):
+    results = filter_alt_coherence_matches(matches)
+
+    assert results == expected_return

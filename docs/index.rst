@@ -13,7 +13,6 @@ It aims to be as generic as possible.
 
 .. image:: https://repository-images.githubusercontent.com/200259335/d3da9600-dedc-11e9-83e8-081f597505df
    :width: 500px
-   :scale: 100 %
    :alt: CLI Charset Normalizer
    :align: right
 
@@ -72,6 +71,7 @@ Community Guide
 .. toctree::
     :maxdepth: 2
 
+    community/speedup
     community/faq
     community/why_migrate
 

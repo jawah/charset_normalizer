@@ -92,13 +92,10 @@ mac_iceland      maciceland
 mac_latin2       maccentraleurope, maclatin2
 mac_roman        macintosh, macroman
 mac_turkish      macturkish
-mbcs             ansi, dbcs
 ptcp154          csptcp154, pt154, cp154, cyrillic_asian
-rot_13           rot13
 shift_jis        csshiftjis, shiftjis, sjis, s_jis, x_mac_japanese
 shift_jis_2004   shiftjis2004, sjis_2004, s_jis_2004
 shift_jisx0213   shiftjisx0213, sjisx0213, s_jisx0213
-tactis           tis260
 tis_620          tis620, tis_620_0, tis_620_2529_0, tis_620_2529_1, iso_ir_166
 utf_16           u16, utf16
 utf_16_be        unicodebigunmarked, utf_16be
@@ -107,8 +104,10 @@ utf_32           u32, utf32
 utf_32_be        utf_32be
 utf_32_le        utf_32le
 utf_8            u8, utf, utf8, utf8_ucs2, utf8_ucs4 (+utf_8_sig)
-utf_7            u7, unicode-1-1-utf-7
+utf_7*            u7, unicode-1-1-utf-7
 ===============  ===============================================================================================================================
+
+*: Only if a SIG/mark is found.
 
 -------------------
 Supported Languages
