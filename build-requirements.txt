@@ -1,0 +1,6 @@
+# in the meantime we migrate to pyproject.toml
+# this represent the minimum requirement to build (for the optional speedup)
+mypy==0.982; python_version >= "3.7"
+mypy==0.971; python_version < "3.7"
+build==0.8.0
+wheel==0.37.1
