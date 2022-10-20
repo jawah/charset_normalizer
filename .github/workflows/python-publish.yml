@@ -217,10 +217,10 @@ jobs:
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.11.1
         env:
-          CIBW_BUILD_FRONTEND: "build"
+          #CIBW_BUILD_FRONTEND: "build"
           CIBW_ARCHS_MACOS: x86_64 arm64 universal2
           CIBW_ENVIRONMENT: CHARSET_NORMALIZER_USE_MYPYC='1'
-          CIBW_CONFIG_SETTINGS: "--build-option=--no-isolation"
+          #CIBW_CONFIG_SETTINGS: "--build-option=--no-isolation"
           CIBW_BEFORE_BUILD: pip install -r dev-requirements.txt
           CIBW_TEST_REQUIRES: pytest codecov pytest-cov
           CIBW_TEST_COMMAND: pytest {package}/tests
