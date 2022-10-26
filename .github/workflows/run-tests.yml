@@ -30,4 +30,4 @@ jobs:
     - name: Run tests
       run: |
         pytest
-    - uses: codecov/codecov-action@v1
+    - uses: codecov/codecov-action@v3
