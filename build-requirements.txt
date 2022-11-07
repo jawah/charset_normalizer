@@ -3,4 +3,4 @@
 mypy==0.982; python_version >= "3.7"
 mypy==0.971; python_version < "3.7"
 build==0.9.0
-wheel==0.37.1
+wheel==0.38.2
