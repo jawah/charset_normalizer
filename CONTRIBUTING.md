@@ -55,9 +55,6 @@ the backward-compatibility.
 
 ## What PR may be doomed?
 
-  - Dropping EOL Python 3.5
-> Scheduled for the 3.0 milestone.
-
   - Add support for a Python unsupported charset/encoding
 > If you looked carefully at the project, you would see that it aims to be generic whenever possible. So adding a specific prober is out of the question.
 
