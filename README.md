@@ -160,15 +160,6 @@ results = from_path('./my_subtitle.srt')
 print(str(results.best()))
 ```
 
-*Normalize any text file*
-```python
-from charset_normalizer import normalize
-try:
-    normalize('./my_subtitle.srt') # should write to disk my_subtitle-***.srt
-except IOError as e:
-    print('Sadly, we are unable to perform charset normalization.', str(e))
-```
-
 *Upgrade your code without effort*
 ```python
 from charset_normalizer import detect
