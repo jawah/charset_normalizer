@@ -52,7 +52,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [ 3.6, 3.7, 3.8, 3.9, "3.10", "3.11-dev" ]
+        python-version: [ 3.6, 3.7, 3.8, 3.9, "3.10", "3.11" ]
         os: [ ubuntu-latest ]
 
     steps:
@@ -222,8 +222,8 @@ jobs:
           CIBW_ENVIRONMENT: CHARSET_NORMALIZER_USE_MYPYC='1'
           CIBW_BEFORE_BUILD: pip install -r build-requirements.txt
           #CIBW_CONFIG_SETTINGS: "--build-option=--no-isolation"
-          CIBW_TEST_REQUIRES: pytest codecov pytest-cov
-          CIBW_TEST_COMMAND: pytest {package}/tests
+          CIBW_TEST_REQUIRES: pytest
+          CIBW_TEST_COMMAND: pytest -c {package} {package}/tests
           CIBW_SKIP: pp*
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
