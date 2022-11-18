@@ -7,7 +7,7 @@ from charset_normalizer.constant import TRACE
 
 
 class TestLogBehaviorClass:
-    def setup(self):
+    def setup_method(self):
         self.logger = logging.getLogger("charset_normalizer")
         self.logger.handlers.clear()
         self.logger.addHandler(logging.NullHandler())
