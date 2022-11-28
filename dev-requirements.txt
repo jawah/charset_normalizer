@@ -1,4 +1,4 @@
-flake8==5.0.4
+flake8==6.0.0
 chardet==5.0.0
 isort==5.10.1
 codecov==2.1.12
