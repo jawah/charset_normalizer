@@ -9,7 +9,7 @@ wheel==0.37.1
 # The vast majority of project dropped Python 3.6
 # This is to ensure build are reproducible >=3.6
 black==22.8.0; python_version < "3.7"
-black==22.10.0; python_version >= "3.7"
+black==22.12.0; python_version >= "3.7"
 
 mypy==0.991; python_version >= "3.7"
 mypy==0.971; python_version < "3.7"
