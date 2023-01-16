@@ -5,6 +5,7 @@ charset-normalizer ship with a CLI that should be available as `normalizer`.
 This is a great tool to fully exploit the detector capabilities without having to write Python code.
 
 Possible use cases:
+
 #. Quickly discover probable originating charset from a file.
 #. I want to quickly convert a non Unicode file to Unicode.
 #. Debug the charset-detector.
