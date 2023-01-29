@@ -221,7 +221,17 @@ Feel free to check [issues page](https://github.com/ousret/charset_normalizer/is
 
 ## 📝 License
 
-Copyright © 2019 [Ahmed TAHRI @Ousret](https://github.com/Ousret).<br />
+Copyright © [Ahmed TAHRI @Ousret](https://github.com/Ousret).<br />
 This project is [MIT](https://github.com/Ousret/charset_normalizer/blob/master/LICENSE) licensed.
 
 Characters frequencies used in this project © 2012 [Denny Vrandečić](http://simia.net/letters/)
+
+## For Enterprise
+
+Professional support for charset-normalizer is available as part of the [Tidelift
+Subscription][1].  Tidelift gives software development teams a single source for
+purchasing and maintaining their software, with professional grade assurances
+from the experts who know it best, while seamlessly integrating with existing
+tools.
+
+[1]: https://tidelift.com/subscription/pkg/pypi-charset-normalizer?utm_source=pypi-charset-normalizer&utm_medium=readme
