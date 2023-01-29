@@ -2,12 +2,20 @@
  Support
 =================
 
-Here are a list of supported encoding and supported language with latest update. Also this list
-may change depending of your python version.
+**If you are running:**
+
+- Python >=2.7,<3.5: Unsupported
+- Python 3.5: charset-normalizer < 2.1
+- Python 3.6: charset-normalizer < 3.1
+
+Upgrade your Python interpreter as soon as possible.
 
 -------------------
 Supported Encodings
 -------------------
+
+Here are a list of supported encoding and supported language with latest update. Also this list
+may change depending of your python version.
 
 Charset Normalizer is able to detect any of those encoding. This list is NOT static and depends heavily on what your
 current cPython version is shipped with. See https://docs.python.org/3/library/codecs.html#standard-encodings

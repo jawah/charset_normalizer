@@ -204,6 +204,16 @@ that intel is worth something here. So I use those records against decoded text 
   - Language detection is unreliable when text contains two or more languages sharing identical letters. (eg. HTML (english tags) + Turkish content (Sharing Latin characters))
   - Every charset detector heavily depends on sufficient content. In common cases, do not bother run detection on very tiny content.
 
+## ⚠️ About Python EOLs
+
+**If you are running:**
+
+- Python >=2.7,<3.5: Unsupported
+- Python 3.5: charset-normalizer < 2.1
+- Python 3.6: charset-normalizer < 3.1
+
+Upgrade your Python interpreter as soon as possible.
+
 ## 👤 Contributing
 
 Contributions, issues and feature requests are very much welcome.<br />
