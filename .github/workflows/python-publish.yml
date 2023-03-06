@@ -224,7 +224,7 @@ jobs:
           #CIBW_CONFIG_SETTINGS: "--build-option=--no-isolation"
           CIBW_TEST_REQUIRES: pytest
           CIBW_TEST_COMMAND: pytest -c {package} {package}/tests
-          CIBW_SKIP: pp*
+          CIBW_SKIP: pp* cp36*
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
