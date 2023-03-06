@@ -5,7 +5,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [3.1.0](https://github.com/Ousret/charset_normalizer/compare/3.0.1...3.1.0) (2023-03-06)
 
 ### Added
-- Argument `should_rename_legacy` for legacy function `detect` and disregard any new arguments without errors (PR #261)
+- Argument `should_rename_legacy` for legacy function `detect` and disregard any new arguments without errors (PR #262)
 
 ### Removed
 - Support for Python 3.6 (PR #260)
