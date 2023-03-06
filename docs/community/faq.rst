@@ -40,7 +40,7 @@ If you use the legacy `detect` function,
 Then this change is mostly backward-compatible, exception of a thing:
 
 - This new library support way more code pages (x3) than its counterpart Chardet.
-  - Based on the 30-ich charsets that Chardet support, expect roughly 85% BC results https://github.com/Ousret/charset_normalizer/pull/77/checks?check_run_id=3244585065
+- Based on the 30-ich charsets that Chardet support, expect roughly 80% BC results
 
 We do not guarantee this BC exact percentage through time. May vary but not by much.
 
@@ -56,3 +56,20 @@ detection.
 
 Any code page supported by your cPython is supported by charset-normalizer! It is that simple, no need to update the
 library. It is as generic as we could do.
+
+I can't build standalone executable
+-----------------------------------
+
+If you are using ``pyinstaller``, ``py2exe`` or alike, you may be encountering this or close to:
+
+    ModuleNotFoundError: No module named 'charset_normalizer.md__mypyc'
+
+Why?
+
+- Your package manager picked up a optimized (for speed purposes) wheel that match your architecture and operating system.
+- Finally, the module ``charset_normalizer.md__mypyc`` is imported via binaries and can't be seen using your tool.
+
+How to remedy?
+
+If your bundler program support it, set up a hook that implicitly import the hidden module.
+Otherwise, follow the guide on how to install the vanilla version of this package. (Section: *Optional speedup extension*)
