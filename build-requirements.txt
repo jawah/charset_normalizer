@@ -1,5 +1,5 @@
 # in the meantime we migrate to pyproject.toml
 # this represent the minimum requirement to build (for the optional speedup)
-mypy==1.0.1
+mypy==1.1.1
 build==0.10.0
 wheel==0.38.4
