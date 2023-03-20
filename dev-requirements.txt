@@ -4,7 +4,7 @@ isort==5.11.4
 codecov==2.1.12
 pytest-cov==4.0.0
 build==0.10.0
-wheel==0.38.4
+wheel==0.40.0
 
 black==23.1.0
 mypy==1.1.1
