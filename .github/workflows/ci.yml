@@ -1,0 +1,238 @@
+name: Continuous Integration
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: 🎨 Linters
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: |
+          pip install -U pip setuptools
+          pip install -r dev-requirements.txt
+          pip uninstall -y charset-normalizer
+      - name: Type checking (Mypy)
+        run: |
+          mypy --strict charset_normalizer
+      - name: Import sorting check (isort)
+        run: |
+          isort --check charset_normalizer
+      - name: Code format (Black)
+        run: |
+          black --check --diff --target-version=py37 charset_normalizer
+      - name: Style guide enforcement (Flake8)
+        run: |
+          flake8 charset_normalizer
+
+  tests:
+    name: ✅ Tests
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: [ "3.7", "3.8", "3.9", "3.10", "3.11", "3.12-dev" ]
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: |
+          pip install -U pip setuptools
+          pip install -r dev-requirements.txt
+          pip uninstall -y charset-normalizer
+      - name: Install the package
+        run: |
+          python -m build --no-isolation
+          pip install ./dist/*.whl
+      - name: Run tests
+        run: |
+          pytest
+      - uses: codecov/codecov-action@v3
+
+  detection_coverage:
+
+    needs:
+      - tests
+
+    name: 📈 Detection Coverage
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: |
+          pip install -U pip setuptools
+          pip install -r dev-requirements.txt
+          pip uninstall -y charset-normalizer
+      - name: Install the package
+        run: |
+          python -m build
+          pip install ./dist/*.whl
+      - name: Clone the complete dataset
+        run: |
+          git clone https://github.com/Ousret/char-dataset.git
+      - name: Coverage WITH preemptive
+        run: |
+          python ./bin/coverage.py --coverage 97 --with-preemptive
+      - name: Coverage WITHOUT preemptive
+        run: |
+          python ./bin/coverage.py --coverage 95
+
+  integration_test:
+
+    needs:
+      - tests
+
+    name: 🔗 Integration Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: |
+          pip install -U pip setuptools
+          pip install -r dev-requirements.txt
+      - name: Remove Chardet & Charset-Normalizer
+        run: |
+          pip uninstall -y chardet
+          pip uninstall -y charset-normalizer
+      - name: Install the package
+        run: |
+          python -m build
+          pip install ./dist/*.whl
+      - name: Clone the complete dataset
+        run: |
+          git clone https://github.com/Ousret/char-dataset.git
+      - name: Start the Flask server
+        run: |
+          python ./bin/serve.py &
+      - name: Integration Tests with Requests
+        run: |
+          python ./bin/integration.py
+
+  chardet_bc:
+
+    name: ⏪ Chardet Backward-Compatibility Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: |
+          pip install -U pip setuptools
+          pip install -r dev-requirements.txt
+          pip uninstall -y charset-normalizer
+      - name: Install the package
+        run: |
+          python -m build
+          pip install ./dist/*.whl
+      - name: Clone the complete dataset
+        run: |
+          git clone https://github.com/Ousret/char-dataset.git
+      - name: BC Coverage
+        run: |
+          python ./bin/bc.py --coverage 80
+
+  mypyc_test:
+
+    name: ⚡ MypyC Tests
+
+    needs:
+      - tests
+
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: [ "3.7", "3.8", "3.9", "3.10", "3.11" ]
+        os: [ ubuntu-latest, macos-latest, windows-latest ]
+    env:
+      PYTHONIOENCODING: utf8  # only needed for Windows (console IO output encoding)
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: |
+          pip install -U pip setuptools
+          pip install -r dev-requirements.txt
+          pip uninstall -y charset-normalizer
+      - name: Install the package
+        env:
+          CHARSET_NORMALIZER_USE_MYPYC: '1'
+        run: |
+          pip install .
+      - name: Clone the complete dataset
+        run: |
+          git clone https://github.com/Ousret/char-dataset.git
+      - name: Coverage WITH preemptive
+        run: |
+          python ./bin/coverage.py --coverage 97 --with-preemptive
+      - name: Performance (Normal)
+        run: |
+          python ./bin/performance.py
+
+  performance:
+    name: ⚡ Performance Test (no MypyC)
+    runs-on: ubuntu-latest
+
+    needs:
+      - mypyc_test
+      - chardet_bc
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: |
+          pip install -U pip setuptools
+          pip install -r dev-requirements.txt
+          pip uninstall -y charset-normalizer
+      - name: Install the package
+        run: |
+          python -m build
+          pip install ./dist/*.whl
+      - name: Clone the complete dataset
+        run: |
+          git clone https://github.com/Ousret/char-dataset.git
+      - name: Performance (Normal)
+        run: |
+          python ./bin/performance.py
+      - name: Performance (Medium)
+        run: |
+          python ./bin/performance.py --size-increase 2
