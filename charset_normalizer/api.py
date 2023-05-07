@@ -1,6 +1,6 @@
 import logging
 from os import PathLike
-from typing import AnyStr, BinaryIO, List, Optional, Set, Union
+from typing import BinaryIO, List, Optional, Set, Union
 
 from .cd import (
     coherence_ratio,
@@ -526,7 +526,7 @@ def from_fp(
 
 
 def from_path(
-    path: Union[str, bytes, PathLike[AnyStr]],
+    path: Union[str, bytes, PathLike],  # type: ignore[type-arg]
     steps: int = 5,
     chunk_size: int = 512,
     threshold: float = 0.20,
