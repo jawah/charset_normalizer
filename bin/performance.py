@@ -57,31 +57,35 @@ def performance_compare(arguments):
         )
         print("  --> Charset-Normalizer: " + str(charset_normalizer_results[-1]) + "s")
 
-    chardet_avg_delay = mean(chardet_results)
-    chardet_99p = calc_percentile(chardet_results, 99)
-    chardet_95p = calc_percentile(chardet_results, 95)
-    chardet_50p = calc_percentile(chardet_results, 50)
+    chardet_avg_delay = round(mean(chardet_results) * 1000)
+    chardet_99p = round(calc_percentile(chardet_results, 99) * 1000)
+    chardet_95p = round(calc_percentile(chardet_results, 95) * 1000)
+    chardet_50p = round(calc_percentile(chardet_results, 50) * 1000)
 
-    charset_normalizer_avg_delay = mean(charset_normalizer_results)
-    charset_normalizer_99p = calc_percentile(charset_normalizer_results, 99)
-    charset_normalizer_95p = calc_percentile(charset_normalizer_results, 95)
-    charset_normalizer_50p = calc_percentile(charset_normalizer_results, 50)
+    charset_normalizer_avg_delay = round(mean(charset_normalizer_results) * 1000)
+    charset_normalizer_99p = round(calc_percentile(charset_normalizer_results, 99) * 1000)
+    charset_normalizer_95p = round(calc_percentile(charset_normalizer_results, 95) * 1000)
+    charset_normalizer_50p = round(calc_percentile(charset_normalizer_results, 50) * 1000)
+
+    # mypyc can offer performance ~1ms in the 50p. When eq to 0 assume 1 due to imprecise nature of this test.
+    if charset_normalizer_50p == 0:
+        charset_normalizer_50p = 1
 
     print("")
 
     print("------------------------------")
     print("--> Chardet Conclusions")
-    print("   --> Avg: " + str(chardet_avg_delay) + "s")
-    print("   --> 99th: " + str(chardet_99p) + "s")
-    print("   --> 95th: " + str(chardet_95p) + "s")
-    print("   --> 50th: " + str(chardet_50p) + "s")
+    print("   --> Avg: " + str(chardet_avg_delay) + "ms")
+    print("   --> 99th: " + str(chardet_99p) + "ms")
+    print("   --> 95th: " + str(chardet_95p) + "ms")
+    print("   --> 50th: " + str(chardet_50p) + "ms")
 
     print("------------------------------")
     print("--> Charset-Normalizer Conclusions")
-    print("   --> Avg: " + str(charset_normalizer_avg_delay) + "s")
-    print("   --> 99th: " + str(charset_normalizer_99p) + "s")
-    print("   --> 95th: " + str(charset_normalizer_95p) + "s")
-    print("   --> 50th: " + str(charset_normalizer_50p) + "s")
+    print("   --> Avg: " + str(charset_normalizer_avg_delay) + "ms")
+    print("   --> 99th: " + str(charset_normalizer_99p) + "ms")
+    print("   --> 95th: " + str(charset_normalizer_95p) + "ms")
+    print("   --> 50th: " + str(charset_normalizer_50p) + "ms")
     
     print("------------------------------")
     print("--> Charset-Normalizer / Chardet: Performance Сomparison")
