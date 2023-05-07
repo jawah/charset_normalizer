@@ -8,6 +8,9 @@
   <a href="https://pepy.tech/project/charset-normalizer/">
     <img alt="Download Count Total" src="https://pepy.tech/badge/charset-normalizer/month" />
   </a>
+  <a href="https://bestpractices.coreinfrastructure.org/projects/7297">
+    <img src="https://bestpractices.coreinfrastructure.org/projects/7297/badge">
+  </a>
 </p>
 
 > A library that helps you read text from an unknown charset encoding.<br /> Motivated by `chardet`,
