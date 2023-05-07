@@ -2,6 +2,11 @@
 All notable changes to charset-normalizer will be documented in this file. This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [3.1.1.dev0](https://github.com/Ousret/charset_normalizer/compare/3.0.1...3.1.0) (2023-05-??)
+
+### Changed
+- Typehint for function `from_path` no longer enforce `PathLike` as its first argument
+
 ## [3.1.0](https://github.com/Ousret/charset_normalizer/compare/3.0.1...3.1.0) (2023-03-06)
 
 ### Added
