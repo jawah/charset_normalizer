@@ -444,6 +444,29 @@ class ArchaicUpperLowerPlugin(MessDetectorPlugin):
         return self._successive_upper_lower_count_final / self._character_count
 
 
+def japanese_exception(unicode_range_a: str, unicode_range_b: str) -> bool:
+    hir_kat_tup = ("Hiragana", "Katakana")
+
+    range_a_jp_chars = unicode_range_a in hir_kat_tup
+    range_b_jp_chars = unicode_range_b in hir_kat_tup
+
+    either_jp = range_a_jp_chars or range_b_jp_chars
+    either_CJK = "CJK" in unicode_range_a or "CJK" in unicode_range_b
+
+    if either_jp and either_CJK:
+        return False
+    if range_a_jp_chars and range_b_jp_chars:
+        return False
+
+    if "Hangul" in unicode_range_a or "Hangul" in unicode_range_b:
+        if either_CJK:
+            return False
+        if unicode_range_a == "Basic Latin" or unicode_range_b == "Basic Latin":
+            return False
+    
+    return True
+
+
 @lru_cache(maxsize=1024)
 def is_suspiciously_successive_range(
     unicode_range_a: Optional[str], unicode_range_b: Optional[str]
@@ -481,26 +504,8 @@ def is_suspiciously_successive_range(
             return False
 
     # Japanese Exception
-    range_a_jp_chars, range_b_jp_chars = (
-        unicode_range_a
-        in (
-            "Hiragana",
-            "Katakana",
-        ),
-        unicode_range_b in ("Hiragana", "Katakana"),
-    )
-    if (range_a_jp_chars or range_b_jp_chars) and (
-        "CJK" in unicode_range_a or "CJK" in unicode_range_b
-    ):
+    if japanese_exception(unicode_range_a, unicode_range_b) is False:
         return False
-    if range_a_jp_chars and range_b_jp_chars:
-        return False
-
-    if "Hangul" in unicode_range_a or "Hangul" in unicode_range_b:
-        if "CJK" in unicode_range_a or "CJK" in unicode_range_b:
-            return False
-        if unicode_range_a == "Basic Latin" or unicode_range_b == "Basic Latin":
-            return False
 
     # Chinese/Japanese use dedicated range for punctuation and/or separators.
     if ("CJK" in unicode_range_a or "CJK" in unicode_range_b) or (
