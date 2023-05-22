@@ -21,11 +21,15 @@ at <https://github.com/Ousret/charset_normalizer>.
 """
 import logging
 
-from .api import from_bytes, from_fp, from_path
-from .legacy import detect
-from .models import CharsetMatch, CharsetMatches
-from .utils import set_logging_handler
-from .version import VERSION, __version__
+from .api import from_bytes as from_bytes
+from .api import from_fp as from_fp
+from .api import from_path as from_path
+from .legacy import detect as detect
+from .models import CharsetMatch as CharsetMatch
+from .models import CharsetMatches as CharsetMatches
+from .utils import set_logging_handler as set_logging_handler
+from .version import VERSION as VERSION
+from .version import __version__ as __version__
 
 __all__ = (
     "from_fp",
