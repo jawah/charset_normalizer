@@ -121,7 +121,7 @@ jobs:
 
   provenance:
     needs: checksum
-    uses: slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v1.6.0
+    uses: slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v1.7.0
     permissions:
       actions: read
       id-token: write
