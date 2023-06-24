@@ -34,7 +34,7 @@ This project offers you an alternative to **Universal Charset Encoding Detector*
 | `Detect spoken language`                         |                       ❌                       |                                                   ✅                                                    |                       N/A                       |
 | `UnicodeDecodeError Safety`                      |                       ❌                       |                                                   ✅                                                    |                        ❌                        |
 | `Whl Size`                                       |                   193.6 kB                    |                                                 40 kB                                                  |                     ~200 kB                     |
-| `Supported Encoding`                             |                      33                       | :tada: [90](https://charset-normalizer.readthedocs.io/en/latest/user/support.html#supported-encodings) |                       40                        |
+| `Supported Encoding`                             |                      33                       | 🎉 [90](https://charset-normalizer.readthedocs.io/en/latest/user/support.html#supported-encodings) |                       40                        |
 
 <p align="center">
 <img src="https://i.imgflip.com/373iay.gif" alt="Reading Normalized Text" width="226"/><img src="https://media.tenor.com/images/c0180f70732a18b4965448d33adba3d0/tenor.gif" alt="Cat Reading Text" width="200"/>
@@ -112,7 +112,7 @@ optional arguments:
 normalizer ./data/sample.1.fr.srt
 ```
 
-:tada: Since version 1.4.0 the CLI produce easily usable stdout result in JSON format.
+🎉 Since version 1.4.0 the CLI produce easily usable stdout result in JSON format.
 
 ```json
 {
