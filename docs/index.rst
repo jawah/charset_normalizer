@@ -51,6 +51,7 @@ Features
 - Transpose any encoded content to Unicode the best we can.
 - Detect spoken language in text.
 - Ship with a great CLI.
+- Also, detect binaries.
 
 Start Guide
 -----------

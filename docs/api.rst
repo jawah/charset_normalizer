@@ -13,6 +13,7 @@ Those functions are publicly exposed and are protected through our BC guarantee.
 .. autofunction:: from_bytes
 .. autofunction:: from_fp
 .. autofunction:: from_path
+.. autofunction:: is_binary
 
 .. autoclass:: charset_normalizer.models.CharsetMatches
     :inherited-members:
@@ -100,5 +101,3 @@ Some reusable functions used across the project. We do not guarantee the BC in t
 
 
 .. class:: os.PathLike
-
-   Used as a generic way to accept AnyStr for paths.

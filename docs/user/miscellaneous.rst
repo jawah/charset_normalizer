@@ -44,3 +44,21 @@ On `DEBUG` only one entry will be observed and that is about the detection resul
 
 Then regarding the others log entries, they will be pushed as `Level 5`. Commonly known as TRACE level, but we do
 not register it globally.
+
+
+Detect binaries
+---------------
+
+This package offers a neat way to detect files that can be considered as 'binaries'
+meaning that it is not likely to be a text-file.
+
+ ::
+
+    from charset_normalizer import is_binary
+
+    # It can receive both a path or bytes or even a file pointer.
+    result = is_binary("./my-file.ext")
+
+    # This should print 'True' or 'False'
+    print(result)
+
