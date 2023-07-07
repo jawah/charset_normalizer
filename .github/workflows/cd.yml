@@ -12,6 +12,7 @@ permissions:
 
 jobs:
   pre_flight_check:
+    name: Preflight Checks
     uses: ./.github/workflows/ci.yml
 
   universal-wheel:
@@ -127,7 +128,7 @@ jobs:
       id-token: write
       contents: write
     with:
-      subject-base64: ${{ needs.checksum.outputs.hashes }}
+      base64-subjects: ${{ needs.checksum.outputs.hashes }}
       upload-assets: true
 
   deploy:
