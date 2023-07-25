@@ -13,3 +13,8 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+
+  - package-ecosystem: pip
+    directory: /docs
+    schedule:
+      interval: daily
