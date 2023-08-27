@@ -1,5 +1,5 @@
 import unittest
-from charset_normalizer.cli.normalizer import cli_detect, query_yes_no
+from charset_normalizer.cli import cli_detect, query_yes_no
 from unittest.mock import patch
 from os.path import exists
 from os import remove, path, pardir
