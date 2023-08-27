@@ -64,7 +64,7 @@ def cli_bc(arguments: List[str]):
             print("✅✅ '{}' (BC)".format(tbt_path))
             continue
 
-        if (chardet_encoding is None and charset_normalizer_encoding is None) or (iana_name(chardet_encoding) == iana_name(charset_normalizer_encoding)):
+        if (chardet_encoding is None and charset_normalizer_encoding is None) or (iana_name(chardet_encoding, False) == iana_name(charset_normalizer_encoding, False)):
             success_count += 1
             print("✅✅ '{}' (BC)".format(tbt_path))
             continue

@@ -331,11 +331,23 @@ RE_POSSIBLE_ENCODING_INDICATION = re_compile(
     IGNORECASE,
 )
 
+IANA_NO_ALIASES = [
+    "cp720",
+    "cp737",
+    "cp856",
+    "cp874",
+    "cp875",
+    "cp1006",
+    "koi8_r",
+    "koi8_t",
+    "koi8_u",
+]
+
 IANA_SUPPORTED: List[str] = sorted(
     filter(
         lambda x: x.endswith("_codec") is False
         and x not in {"rot_13", "tactis", "mbcs"},
-        list(set(aliases.values())),
+        list(set(aliases.values())) + IANA_NO_ALIASES,
     )
 )
 

@@ -112,7 +112,16 @@ utf_32           u32, utf32
 utf_32_be        utf_32be
 utf_32_le        utf_32le
 utf_8            u8, utf, utf8, utf8_ucs2, utf8_ucs4 (+utf_8_sig)
-utf_7*            u7, unicode-1-1-utf-7
+utf_7*           u7, unicode-1-1-utf-7
+cp720            N.A.
+cp737            N.A.
+cp856            N.A.
+cp874            N.A.
+cp875            N.A.
+cp1006           N.A.
+koi8_r           N.A.
+koi8_t           N.A.
+koi8_u           N.A.
 ===============  ===============================================================================================================================
 
 *: Only if a SIG/mark is found.
