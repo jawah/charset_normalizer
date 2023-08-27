@@ -26,8 +26,8 @@ if USE_MYPYC:
     from mypyc.build import mypycify
 
     MYPYC_MODULES = mypycify([
-        "charset_normalizer/md.py"
-    ])
+        "charset_normalizer/md.py",
+    ], debug_level="0")
 else:
     MYPYC_MODULES = None
 
