@@ -20,7 +20,7 @@ It aims to be as generic as possible.
 It is released under MIT license, see LICENSE for more
 details. Be aware that no warranty of any kind is provided with this package.
 
-Copyright (C) 2019 Ahmed TAHRI @Ousret <ahmed(dot)tahri(at)cloudnursery.dev>
+Copyright (C) 2023 Ahmed TAHRI <ahmed(dot)tahri(at)cloudnursery.dev>
 
 Introduction
 ============
@@ -75,6 +75,7 @@ Community Guide
     community/speedup
     community/faq
     community/why_migrate
+    community/featured
 
 Developer Guide
 ---------------

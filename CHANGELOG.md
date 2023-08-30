@@ -5,7 +5,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [3.3.0](https://github.com/Ousret/charset_normalizer/compare/3.2.0...master) (2023-09-??)
 
 ### Added
-- Allow to execute the CLI (e.g. normalizer) through `python -m charset_normalizer.cli`
+- Allow to execute the CLI (e.g. normalizer) through `python -m charset_normalizer.cli` or `python -m charset_normalizer`
 - Support for 9 forgotten encoding that are supported by Python but unlisted in `encoding.aliases` as they have no alias (#323)
 
 ### Removed
@@ -14,6 +14,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Changed
 - (internal) Unicode code blocks in constants are updated using the latest v15.0.0 definition to improve detection
+- Optional mypyc compilation upgraded to version 1.5.1 for Python >= 3.7
 
 ## [3.2.0](https://github.com/Ousret/charset_normalizer/compare/3.1.0...3.2.0) (2023-06-07)
 

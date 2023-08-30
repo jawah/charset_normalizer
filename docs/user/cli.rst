@@ -52,6 +52,13 @@ You may simply invoke `normalizer -h` (with the h(elp) flag) to understand the b
 
    normalizer ./data/sample.1.fr.srt
 
+You may also run the command line interface using:
+
+.. code:: bash
+
+   python -m charset_normalizer ./data/sample.1.fr.srt
+
+
 Main JSON Output
 ----------------
 
