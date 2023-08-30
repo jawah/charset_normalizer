@@ -10,6 +10,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Removed
 - (internal) Redundant utils.is_ascii function and unused function is_private_use_only
+- (internal) charset_normalizer.assets is moved inside charset_normalizer.constant
+
+### Changed
+- (internal) Unicode code blocks in constants are updated using the latest v15.0.0 definition to improve detection
 
 ## [3.2.0](https://github.com/Ousret/charset_normalizer/compare/3.1.0...3.2.0) (2023-06-07)
 
