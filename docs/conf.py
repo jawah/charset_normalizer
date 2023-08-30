@@ -64,8 +64,8 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'charset_normalizer'
-copyright = '2019, Ahmed TAHRI'
-author = 'Ahmed TAHRI @Ousret'
+copyright = '2023, Ahmed TAHRI'
+author = 'Ahmed TAHRI'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the

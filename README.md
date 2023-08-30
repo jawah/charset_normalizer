@@ -12,6 +12,21 @@
     <img src="https://bestpractices.coreinfrastructure.org/projects/7297/badge">
   </a>
 </p>
+<p align="center">
+  <sup><i>Featured Packages</i></sup><br>
+  <a href="https://github.com/jawah/niquests">
+   <img alt="Static Badge" src="https://img.shields.io/badge/Niquests-HTTP_1.1%2C%202%2C_and_3_Client-cyan">
+  </a>
+  <a href="https://github.com/Ousret/httpie-next">
+   <img alt="Static Badge" src="https://img.shields.io/badge/HTTPie_Next-HTTP_2_and_3_plugin-cyan">
+  </a>
+  <a href="https://github.com/Ousret/kiss-headers">
+   <img alt="Static Badge" src="https://img.shields.io/badge/kiss--headers-Email_and_HTTP_headers_toolkit-cyan">
+  </a>
+  <a href="https://github.com/jawah/qh3">
+   <img alt="Static Badge" src="https://img.shields.io/badge/qh3-Lightweight_QUIC_and_HTTP_3-cyan">
+  </a>
+</p>
 
 > A library that helps you read text from an unknown charset encoding.<br /> Motivated by `chardet`,
 > I'm trying to resolve the issue by taking a new approach.
@@ -110,6 +125,12 @@ optional arguments:
 
 ```bash
 normalizer ./data/sample.1.fr.srt
+```
+
+or
+
+```bash
+python -m charset_normalizer ./data/sample.1.fr.srt
 ```
 
 🎉 Since version 1.4.0 the CLI produce easily usable stdout result in JSON format.
