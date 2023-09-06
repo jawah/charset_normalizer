@@ -66,7 +66,7 @@ def performance_compare(arguments):
         charset_normalizer_time = charset_normalizer_time or 0.000005
         cn_faster = (chardet_time / charset_normalizer_time) * 100 - 100
         print(
-            f"{idx+1:>3}/{total_files} {tbt_path:<82} C:{chardet_time:.6f}  CN:{charset_normalizer_time:.6f}  {cn_faster:.1f} %"
+            f"{idx+1:>3}/{total_files} {tbt_path:<82} C:{chardet_time:.5f}  CN:{charset_normalizer_time:.5f}  {cn_faster:.1f} %"
         )
 
     chardet_avg_delay = round(mean(chardet_results) * 1000)
