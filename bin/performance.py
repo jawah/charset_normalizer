@@ -55,15 +55,15 @@ def performance_compare(arguments):
 
         before = perf_counter_ns()
         chardet_detect(content)
-        chardet_time = round((perf_counter_ns() - before) / 1000000000, 6)
+        chardet_time = round((perf_counter_ns() - before) / 1000000000, 5)
         chardet_results.append(chardet_time)
 
         before = perf_counter_ns()
         detect(content)
-        charset_normalizer_time = round((perf_counter_ns() - before) / 1000000000, 6)
+        charset_normalizer_time = round((perf_counter_ns() - before) / 1000000000, 5)
         charset_normalizer_results.append(charset_normalizer_time)
 
-        charset_normalizer_time = charset_normalizer_time or 0.000001
+        charset_normalizer_time = charset_normalizer_time or 0.000005
         cn_faster = (chardet_time / charset_normalizer_time) * 100 - 100
         print(
             f"{idx+1:>3}/{total_files} {tbt_path:<82} C:{chardet_time:.6f}  CN:{charset_normalizer_time:.6f}  {cn_faster:.1f} %"
