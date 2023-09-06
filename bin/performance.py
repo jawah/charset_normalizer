@@ -1,6 +1,6 @@
 #!/bin/python
 from glob import glob
-from time import time_ns
+from time import perf_counter_ns
 import argparse
 from sys import argv
 from os.path import isdir
@@ -53,19 +53,20 @@ def performance_compare(arguments):
         with open(tbt_path, "rb") as fp:
             content = fp.read() * args.size_coeff
 
-        before = time_ns()
+        before = perf_counter_ns()
         chardet_detect(content)
-        chardet_time = (time_ns() - before) / 1000000000
-        chardet_results.append(round(chardet_time, 5))
+        chardet_time = round((perf_counter_ns() - before) / 1000000000, 6)
+        chardet_results.append(chardet_time)
 
-        before = time_ns()
+        before = perf_counter_ns()
         detect(content)
-        charset_normalizer_time = (time_ns() - before) / 1000000000
-        charset_normalizer_results.append(round(charset_normalizer_time, 5))
+        charset_normalizer_time = round((perf_counter_ns() - before) / 1000000000, 6)
+        charset_normalizer_results.append(charset_normalizer_time)
 
+        charset_normalizer_time = charset_normalizer_time or 0.000001
         cn_faster = (chardet_time / charset_normalizer_time) * 100 - 100
         print(
-            f"{idx+1:>3}/{total_files} {tbt_path:<82} C:{chardet_time:.5f}  CN:{charset_normalizer_time:.5f}  {cn_faster:.1f} %"
+            f"{idx+1:>3}/{total_files} {tbt_path:<82} C:{chardet_time:.6f}  CN:{charset_normalizer_time:.6f}  {cn_faster:.1f} %"
         )
 
     chardet_avg_delay = round(mean(chardet_results) * 1000)
