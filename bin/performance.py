@@ -55,17 +55,17 @@ def performance_compare(arguments):
 
         before = time_ns()
         chardet_detect(content)
-        chardet_time = round((time_ns() - before) / 1000000000, 5)
-        chardet_results.append(chardet_time)
+        chardet_time = (time_ns() - before) / 1000000000
+        chardet_results.append(round(chardet_time, 5))
 
         before = time_ns()
         detect(content)
-        charset_normalizer_time = round((time_ns() - before) / 1000000000, 5)
-        charset_normalizer_results.append(charset_normalizer_time)
+        charset_normalizer_time = (time_ns() - before) / 1000000000
+        charset_normalizer_results.append(round(charset_normalizer_time, 5))
 
         cn_faster = (chardet_time / charset_normalizer_time) * 100 - 100
         print(
-            f"{idx+1:>3}/{total_files} {tbt_path:<82} C:{chardet_time:<10} CN:{charset_normalizer_time:<10} {cn_faster:.1f} %"
+            f"{idx+1:>3}/{total_files} {tbt_path:<82} C:{chardet_time:.5f}  CN:{charset_normalizer_time:.5f}  {cn_faster:.1f} %"
         )
 
     chardet_avg_delay = round(mean(chardet_results) * 1000)
