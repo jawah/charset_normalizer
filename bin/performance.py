@@ -8,7 +8,7 @@ from os.path import isdir
 from charset_normalizer import detect
 from chardet import detect as chardet_detect
 
-from statistics import mean
+from statistics import mean, stdev
 from math import ceil
 
 
@@ -69,6 +69,31 @@ def performance_compare(arguments):
             f"{idx+1:>3}/{total_files} {tbt_path:<82} C:{chardet_time:.5f}  CN:{charset_normalizer_time:.5f}  {cn_faster:.1f} %"
         )
 
+    # Print the top 10 rows with the slowest execution time
+    print(
+        f"\n{'-' * 102}\nTop 10 rows with the slowest execution time of charset_normalizer:\n"
+    )
+    sorted_results = sorted(
+        enumerate(charset_normalizer_results), key=lambda x: x[1], reverse=True
+    )
+    for idx, time in sorted_results[:10]:
+        tbt_path = file_list[idx]
+        print(f"{idx+1:>3}/{total_files} {tbt_path:<82}  CN:{time:.5f}")
+
+    # Print charset normalizer statistics
+    min_time = min(charset_normalizer_results)
+    max_time = max(charset_normalizer_results)
+    stdev_time = stdev(charset_normalizer_results)
+    mean_time = mean(charset_normalizer_results)
+    cv = (stdev_time / mean_time) * 100  # Coefficient of variation
+    print(f"\n{'-' * 102}\nCharset Normalizer statistics:\n")
+    print(f"Minimum Execution Time: {min_time:.5f} seconds")
+    print(f"Maximum Execution Time: {max_time:.5f} seconds")
+    print(f"Mean Execution Time: {mean_time:.5f} seconds")
+    print(f"Standard Deviation: {stdev_time:.5f} seconds")
+    print(f"Coefficient of Variation (CV): {cv:.1f} %")
+
+    # Print comparison statistics for chardet and charset normalizer
     chardet_avg_delay = round(mean(chardet_results) * 1000)
     chardet_99p = round(calc_percentile(chardet_results, 99) * 1000)
     chardet_95p = round(calc_percentile(chardet_results, 95) * 1000)
@@ -89,7 +114,7 @@ def performance_compare(arguments):
     if charset_normalizer_50p == 0:
         charset_normalizer_50p = 1
 
-    print("")
+    print(f"\n{'-' * 102}\nCharset Normalizer vs Chardet statistics:\n")
 
     print("------------------------------")
     print("--> Chardet Conclusions")
