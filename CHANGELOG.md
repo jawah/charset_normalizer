@@ -16,6 +16,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - (internal) Unicode code blocks in constants are updated using the latest v15.0.0 definition to improve detection
 - Optional mypyc compilation upgraded to version 1.5.1 for Python >= 3.7
 
+### Fixed
+- Unable to properly sort CharsetMatch when both chaos/noise and coherence were close due to an unreachable condition in \_\_lt\_\_ (#350)
+
 ## [3.2.0](https://github.com/Ousret/charset_normalizer/compare/3.1.0...3.2.0) (2023-06-07)
 
 ### Changed
