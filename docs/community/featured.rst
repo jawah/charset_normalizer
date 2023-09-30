@@ -37,3 +37,18 @@ Enjoy HTTPie refreshed!
 
 .. image:: https://dabuttonfactory.com/button.png?t=Get+HTTPie-Next+Now&f=Ubuntu-Bold&ts=26&tc=fff&hp=45&vp=20&c=11&bgt=unicolored&bgc=15d798&be=1
    :target: https://github.com/Ousret/httpie-next
+
+Wassima
+-------
+
+Did you ever wonder how would it feel like to leave the headache with root CAs (certificate authority)?
+Well, you may, starting today, use your operating system trusted root CAs to verify
+peer certificates with the at most comfort.
+
+It is enabled by default in Niquests, but you can use that awesome feature by itself.
+
+.. image:: https://dabuttonfactory.com/button.png?t=OS+root+CAs+for+Python&f=Ubuntu-Bold&ts=26&tc=fff&hp=45&vp=20&c=11&bgt=unicolored&bgc=15d798&be=1
+   :target: https://github.com/jawah/wassima
+
+The solution is universal and served for (almost) every possible case.
+You may remove the certifi package, let it rest in peace.

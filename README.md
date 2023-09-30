@@ -17,14 +17,14 @@
   <a href="https://github.com/jawah/niquests">
    <img alt="Static Badge" src="https://img.shields.io/badge/Niquests-HTTP_1.1%2C%202%2C_and_3_Client-cyan">
   </a>
-  <a href="https://github.com/Ousret/httpie-next">
-   <img alt="Static Badge" src="https://img.shields.io/badge/HTTPie_Next-HTTP_2_and_3_plugin-cyan">
+  <a href="https://github.com/jawah/wassima">
+   <img alt="Static Badge" src="https://img.shields.io/badge/Wassima-Certifi_Killer-cyan">
   </a>
-  <a href="https://github.com/Ousret/kiss-headers">
-   <img alt="Static Badge" src="https://img.shields.io/badge/kiss--headers-Email_and_HTTP_headers_toolkit-cyan">
-  </a>
-  <a href="https://github.com/jawah/qh3">
-   <img alt="Static Badge" src="https://img.shields.io/badge/qh3-Lightweight_QUIC_and_HTTP_3-cyan">
+</p>
+<p align="center">
+  <sup><i>In other language (unofficial port - by the community)</i></sup><br>
+  <a href="https://github.com/nickspring/charset-normalizer-rs">
+   <img alt="Static Badge" src="https://img.shields.io/badge/Rust-red">
   </a>
 </p>
 
@@ -53,6 +53,7 @@ This project offers you an alternative to **Universal Charset Encoding Detector*
 
 <p align="center">
 <img src="https://i.imgflip.com/373iay.gif" alt="Reading Normalized Text" width="226"/><img src="https://media.tenor.com/images/c0180f70732a18b4965448d33adba3d0/tenor.gif" alt="Cat Reading Text" width="200"/>
+</p>
 
 *\*\* : They are clearly using specific code for a specific encoding even if covering most of used one*<br> 
 Did you got there because of the logs? See [https://charset-normalizer.readthedocs.io/en/latest/user/miscellaneous.html](https://charset-normalizer.readthedocs.io/en/latest/user/miscellaneous.html)
