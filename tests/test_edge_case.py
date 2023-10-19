@@ -1,6 +1,8 @@
 from charset_normalizer import from_bytes
+import pytest
+import platform
 
-
+@pytest.mark.xfail(platform.python_version_tuple()[0] == "3" and platform.python_version_tuple()[1] == "7", reason="Unicode database is too old for this case (Python 3.7)")
 def test_unicode_edge_case():
     payload = b'\xef\xbb\xbf\xf0\x9f\xa9\xb3'
 
