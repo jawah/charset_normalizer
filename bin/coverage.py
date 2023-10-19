@@ -5,7 +5,7 @@ from sys import argv
 from typing import List
 import argparse
 
-from charset_normalizer import from_path
+from charset_normalizer import from_path, __version__
 from charset_normalizer.utils import iana_name
 
 from os import sep
@@ -39,6 +39,8 @@ def cli_coverage(arguments: List[str]):
     if not isdir("./char-dataset"):
         print("This script require https://github.com/Ousret/char-dataset to be cloned on package root directory")
         exit(1)
+
+    print(f"> using charset-normalizer {__version__}")
 
     success_count = 0
     total_count = 0

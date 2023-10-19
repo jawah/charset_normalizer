@@ -96,7 +96,7 @@ def is_symbol(character: str) -> bool:
     if character_range is None:
         return False
 
-    return "Forms" in character_range
+    return "Forms" in character_range and character_category != "Lo"
 
 
 @lru_cache(maxsize=UTF8_MAXIMAL_ALLOCATION)
@@ -106,7 +106,7 @@ def is_emoticon(character: str) -> bool:
     if character_range is None:
         return False
 
-    return "Emoticons" in character_range
+    return "Emoticons" in character_range or "Pictographs" in character_range
 
 
 @lru_cache(maxsize=UTF8_MAXIMAL_ALLOCATION)
