@@ -2,10 +2,10 @@
 All notable changes to charset-normalizer will be documented in this file. This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [3.3.1](https://github.com/Ousret/charset_normalizer/compare/3.3.0...3.3.1) (2023-10-??)
+## [3.3.1](https://github.com/Ousret/charset_normalizer/compare/3.3.0...3.3.1) (2023-10-22)
 
 ### Changed
-- Optional mypyc compilation upgraded to version 1.6.0 for Python >= 3.8
+- Optional mypyc compilation upgraded to version 1.6.1 for Python >= 3.8
 - Improved the general detection reliability based on reports from the community
 
 ## [3.3.0](https://github.com/Ousret/charset_normalizer/compare/3.2.0...3.3.0) (2023-09-30)
