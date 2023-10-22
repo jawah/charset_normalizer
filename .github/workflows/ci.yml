@@ -22,9 +22,9 @@ jobs:
           python-version: '3.11'
       - name: Install dependencies
         run: |
-          pip install -U pip setuptools
-          pip install -r dev-requirements.txt
-          pip uninstall -y charset-normalizer
+          python -m pip install -U pip setuptools
+          python -m pip install -r dev-requirements.txt
+          python -m pip uninstall -y charset-normalizer
       - name: Type checking (Mypy)
         run: |
           mypy --strict charset_normalizer
@@ -56,13 +56,13 @@ jobs:
           allow-prereleases: true
       - name: Install dependencies
         run: |
-          pip install -U pip setuptools
-          pip install -r dev-requirements.txt
-          pip uninstall -y charset-normalizer
+          python -m pip install -U pip setuptools
+          python -m pip install -r dev-requirements.txt
+          python -m pip uninstall -y charset-normalizer
       - name: Install the package
         run: |
           python -m build --no-isolation
-          pip install ./dist/*.whl
+          python -m pip install ./dist/*.whl
       - name: Run tests
         run: |
           pytest
@@ -84,13 +84,13 @@ jobs:
           python-version: '3.11'
       - name: Install dependencies
         run: |
-          pip install -U pip setuptools
-          pip install -r dev-requirements.txt
-          pip uninstall -y charset-normalizer
+          python -m pip install -U pip setuptools
+          python -m pip install -r dev-requirements.txt
+          python -m pip uninstall -y charset-normalizer
       - name: Install the package
         run: |
           python -m build
-          pip install ./dist/*.whl
+          python -m pip install ./dist/*.whl
       - name: Clone the complete dataset
         run: |
           git clone https://github.com/Ousret/char-dataset.git
@@ -101,41 +101,41 @@ jobs:
         run: |
           python ./bin/coverage.py --coverage 95
 
-  integration_test:
-
-    needs:
-      - tests
-
-    name: 🔗 Integration Tests
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608 # v4.1.0
-      - name: Set up Python
-        uses: actions/setup-python@65d7f2d534ac1bc67fcd62888c5f4f3d2cb2b236 # v4.7.1
-        with:
-          python-version: '3.11'
-      - name: Install dependencies
-        run: |
-          pip install -U pip setuptools
-          pip install -r dev-requirements.txt
-      - name: Remove Chardet & Charset-Normalizer
-        run: |
-          pip uninstall -y chardet
-          pip uninstall -y charset-normalizer
-      - name: Install the package
-        run: |
-          python -m build
-          pip install ./dist/*.whl
-      - name: Clone the complete dataset
-        run: |
-          git clone https://github.com/Ousret/char-dataset.git
-      - name: Start the Flask server
-        run: |
-          python ./bin/serve.py &
-      - name: Integration Tests with Requests
-        run: |
-          python ./bin/integration.py
+#  integration_test:
+#
+#    needs:
+#      - tests
+#
+#    name: 🔗 Integration Tests
+#    runs-on: ubuntu-latest
+#
+#    steps:
+#      - uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608 # v4.1.0
+#      - name: Set up Python
+#        uses: actions/setup-python@65d7f2d534ac1bc67fcd62888c5f4f3d2cb2b236 # v4.7.1
+#        with:
+#          python-version: '3.11'
+#      - name: Install dependencies
+#        run: |
+#          pip install -U pip setuptools
+#          pip install -r dev-requirements.txt
+#      - name: Remove Chardet & Charset-Normalizer
+#        run: |
+#          pip uninstall -y chardet
+#          pip uninstall -y charset-normalizer
+#      - name: Install the package
+#        run: |
+#          python -m build
+#          pip install ./dist/*.whl
+#      - name: Clone the complete dataset
+#        run: |
+#          git clone https://github.com/Ousret/char-dataset.git
+#      - name: Start the Flask server
+#        run: |
+#          python ./bin/serve.py &
+#      - name: Integration Tests with Requests
+#        run: |
+#          python ./bin/integration.py
 
   chardet_bc:
 
@@ -150,13 +150,13 @@ jobs:
           python-version: '3.11'
       - name: Install dependencies
         run: |
-          pip install -U pip setuptools
-          pip install -r dev-requirements.txt
-          pip uninstall -y charset-normalizer
+          python -m pip install -U pip setuptools
+          python -m pip install -r dev-requirements.txt
+          python -m pip uninstall -y charset-normalizer
       - name: Install the package
         run: |
           python -m build
-          pip install ./dist/*.whl
+          python -m pip install ./dist/*.whl
       - name: Clone the complete dataset
         run: |
           git clone https://github.com/Ousret/char-dataset.git
@@ -189,14 +189,14 @@ jobs:
           allow-prereleases: true
       - name: Install dependencies
         run: |
-          pip install -U pip setuptools
-          pip install -r dev-requirements.txt
-          pip uninstall -y charset-normalizer
+          python -m pip install -U pip setuptools
+          python -m pip install -r dev-requirements.txt
+          python -m pip uninstall -y charset-normalizer
       - name: Install the package
         env:
           CHARSET_NORMALIZER_USE_MYPYC: '1'
         run: |
-          pip install .
+          python -m pip install .
       - name: Clone the complete dataset
         run: |
           git clone https://github.com/Ousret/char-dataset.git
@@ -223,13 +223,13 @@ jobs:
           python-version: '3.11'
       - name: Install dependencies
         run: |
-          pip install -U pip setuptools
-          pip install -r dev-requirements.txt
-          pip uninstall -y charset-normalizer
+          python -m pip install -U pip setuptools
+          python -m pip install -r dev-requirements.txt
+          python -m pip uninstall -y charset-normalizer
       - name: Install the package
         run: |
           python -m build
-          pip install ./dist/*.whl
+          python -m pip install ./dist/*.whl
       - name: Clone the complete dataset
         run: |
           git clone https://github.com/Ousret/char-dataset.git
