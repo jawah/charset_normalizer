@@ -6,7 +6,7 @@ pytest-cov==4.1.0
 build==0.10.0
 wheel==0.41.2
 
-black==23.3.0
+black==23.10.1
 mypy==1.6.1; python_version >= '3.8'
 mypy==1.4.1; python_version < '3.8'
 Flask==2.2.3
