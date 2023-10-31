@@ -32,6 +32,8 @@ def is_accentuated(character: str) -> bool:
         or "WITH DIAERESIS" in description
         or "WITH CIRCUMFLEX" in description
         or "WITH TILDE" in description
+        or "WITH MACRON" in description
+        or "WITH RING ABOVE" in description
     )
 
 
@@ -172,6 +174,26 @@ def is_thai(character: str) -> bool:
         return False
 
     return "THAI" in character_name
+
+
+@lru_cache(maxsize=UTF8_MAXIMAL_ALLOCATION)
+def is_arabic(character: str) -> bool:
+    try:
+        character_name = unicodedata.name(character)
+    except ValueError:
+        return False
+
+    return "ARABIC" in character_name
+
+
+@lru_cache(maxsize=UTF8_MAXIMAL_ALLOCATION)
+def is_arabic_isolated_form(character: str) -> bool:
+    try:
+        character_name = unicodedata.name(character)
+    except ValueError:
+        return False
+
+    return "ARABIC" in character_name and "ISOLATED FORM" in character_name
 
 
 @lru_cache(maxsize=len(UNICODE_RANGES_COMBINED))

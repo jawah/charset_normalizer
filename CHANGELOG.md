@@ -6,7 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Fixed
 - Unintentional memory usage regression when using large payload that match several encoding (#376)
+- Regression on some detection case showcased in the documentation (#371)
 
+### Added
+- Noise (md) probe that identify malformed arabic representation due to the presence of letters in isolated form (credit to my wife)
 
 ## [3.3.1](https://github.com/Ousret/charset_normalizer/compare/3.3.0...3.3.1) (2023-10-22)
 
