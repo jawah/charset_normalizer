@@ -115,3 +115,11 @@ def test_alphabets_property():
     assert "Basic Latin" in best_guess.alphabets
     assert "Emoticons range(Emoji)" in best_guess.alphabets
     assert best_guess.alphabets.count("Basic Latin") == 1
+
+
+def test_doc_example_short_cp1251():
+    best_guess = from_bytes(
+        'Bсеки човек има право на образование.'.encode('cp1251')
+    ).best()
+
+    assert best_guess.encoding == "cp1251"

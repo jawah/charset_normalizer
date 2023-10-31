@@ -12,6 +12,7 @@ def test_large_payload_u8_sig_basic_entry():
     assert best_guess.encoding == "utf_8", "Large U8 payload case detection wrongly detected!"
     assert best_guess.bom is True, "SIG/BOM property should be True"
     assert len(best_guess.raw) == len(payload), "Large payload should remain untouched when accessed through .raw"
+    assert best_guess._string is not None, "str should be decoded before direct access (sig available)"
 
 
 def test_large_payload_ascii_basic_entry():
@@ -22,6 +23,7 @@ def test_large_payload_ascii_basic_entry():
     assert best_guess.encoding == "ascii", "Large ASCII payload case detection wrongly detected!"
     assert best_guess.bom is False, "SIG/BOM property should be False"
     assert len(best_guess.raw) == len(payload), "Large payload should remain untouched when accessed through .raw"
+    assert best_guess._string is None, "str should not be decoded until direct access"
 
 
 def test_misleading_large_sequence():
@@ -32,5 +34,6 @@ def test_misleading_large_sequence():
     assert len(guesses) > 0
     match = guesses.best()
     assert match is not None
+    assert match._string is not None, "str should be cached as only match"
     assert match.encoding == 'utf_8'
     assert str(match) is not None

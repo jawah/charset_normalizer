@@ -9,6 +9,8 @@ from .constant import (
 )
 from .utils import (
     is_accentuated,
+    is_arabic,
+    is_arabic_isolated_form,
     is_case_variable,
     is_cjk,
     is_emoticon,
@@ -127,8 +129,9 @@ class TooManyAccentuatedPlugin(MessDetectorPlugin):
 
     @property
     def ratio(self) -> float:
-        if self._character_count == 0 or self._character_count < 8:
+        if self._character_count < 8:
             return 0.0
+
         ratio_of_accentuation: float = self._accentuated_count / self._character_count
         return ratio_of_accentuation if ratio_of_accentuation >= 0.35 else 0.0
 
@@ -453,6 +456,34 @@ class ArchaicUpperLowerPlugin(MessDetectorPlugin):
             return 0.0
 
         return self._successive_upper_lower_count_final / self._character_count
+
+
+class ArabicIsolatedFormPlugin(MessDetectorPlugin):
+    def __init__(self) -> None:
+        self._character_count: int = 0
+        self._isolated_form_count: int = 0
+
+    def reset(self) -> None:  # pragma: no cover
+        self._character_count = 0
+        self._isolated_form_count = 0
+
+    def eligible(self, character: str) -> bool:
+        return is_arabic(character)
+
+    def feed(self, character: str) -> None:
+        self._character_count += 1
+
+        if is_arabic_isolated_form(character):
+            self._isolated_form_count += 1
+
+    @property
+    def ratio(self) -> float:
+        if self._character_count < 8:
+            return 0.0
+
+        isolated_form_usage: float = self._isolated_form_count / self._character_count
+
+        return isolated_form_usage
 
 
 @lru_cache(maxsize=1024)
