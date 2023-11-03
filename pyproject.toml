@@ -1,0 +1,7 @@
+[project]
+name = "charset-normalizer"
+dynamic = ["version", "description", "authors", "license", "readme", "urls", "classifiers", "requires-python", "keywords"]
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
