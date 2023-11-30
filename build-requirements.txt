@@ -3,4 +3,4 @@
 mypy==1.6.1; python_version >= '3.8'
 mypy==1.4.1; python_version < '3.8'
 build==0.10.0
-wheel==0.41.3
+wheel==0.42.0
