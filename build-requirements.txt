@@ -1,6 +1,6 @@
 # in the meantime we migrate to pyproject.toml
 # this represent the minimum requirement to build (for the optional speedup)
-mypy==1.7.1; python_version >= '3.8'
+mypy==1.8.0; python_version >= '3.8'
 mypy==1.4.1; python_version < '3.8'
 build==0.10.0
 wheel==0.42.0
