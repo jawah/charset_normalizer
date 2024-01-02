@@ -7,7 +7,7 @@ build==0.10.0
 wheel==0.42.0
 
 black==23.3.0
-mypy==1.7.1; python_version >= '3.8'
+mypy==1.8.0; python_version >= '3.8'
 mypy==1.4.1; python_version < '3.8'
 Flask==2.2.3
 pytest==7.4.4
