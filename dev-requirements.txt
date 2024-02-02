@@ -10,5 +10,5 @@ black==23.3.0
 mypy==1.8.0; python_version >= '3.8'
 mypy==1.4.1; python_version < '3.8'
 Flask==2.2.3
-pytest==8.0.0
+pytest>=7.4.4,<=8.1
 requests==2.31.0
