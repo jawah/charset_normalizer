@@ -3,7 +3,7 @@ chardet==5.1.0
 isort==5.11.4
 codecov==2.1.13
 pytest-cov==4.1.0
-build==0.10.0
+build==1.1.1
 wheel==0.42.0
 
 black==23.3.0
