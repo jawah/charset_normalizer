@@ -123,3 +123,14 @@ def test_doc_example_short_cp1251():
     ).best()
 
     assert best_guess.encoding == "cp1251"
+
+
+def test_direct_cmp_charset_match():
+    best_guess = from_bytes(
+        "😀 Hello World! How affairs are going? 😀".encode("utf_8")
+    ).best()
+
+    assert best_guess == "utf_8"
+    assert best_guess == "utf-8"
+    assert best_guess != 8
+    assert best_guess != None

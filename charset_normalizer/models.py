@@ -35,11 +35,9 @@ class CharsetMatch:
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, CharsetMatch):
-            raise TypeError(
-                "__eq__ cannot be invoked on {} and {}.".format(
-                    str(other.__class__), str(self.__class__)
-                )
-            )
+            if isinstance(other, str):
+                return iana_name(other) == self.encoding
+            return False
         return self.encoding == other.encoding and self.fingerprint == other.fingerprint
 
     def __lt__(self, other: object) -> bool:
