@@ -1,5 +1,6 @@
 from __future__ import annotations
-from typing import Any, Dict, Optional, Union, TYPE_CHECKING
+
+from typing import TYPE_CHECKING, Any, Optional
 from warnings import warn
 
 from .api import from_bytes
@@ -13,7 +14,6 @@ if TYPE_CHECKING:
         encoding: Optional[str]
         language: str
         confidence: Optional[float]
-
 
 
 def detect(
