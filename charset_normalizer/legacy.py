@@ -1,21 +1,19 @@
-import sys
-from typing import Any, Dict, Optional, Union
+from __future__ import annotations
+from typing import Any, Dict, Optional, Union, TYPE_CHECKING
 from warnings import warn
 
 from .api import from_bytes
 from .constant import CHARDET_CORRESPONDENCE
 
 # TODO: remove this check when dropping Python 3.7 support
-if sys.version_info >= (3, 8):
-    from typing import TypedDict
+if TYPE_CHECKING:
+    from typing_extensions import TypedDict
 
     class ResultDict(TypedDict):
         encoding: Optional[str]
         language: str
         confidence: Optional[float]
 
-else:
-    ResultDict = Dict[str, Optional[Union[str, float]]]
 
 
 def detect(
