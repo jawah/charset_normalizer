@@ -4,7 +4,7 @@ isort==5.11.4
 codecov==2.1.13
 pytest-cov==4.1.0
 build==0.10.0
-wheel==0.42.0
+wheel==0.44.0
 
 black==23.3.0
 mypy==1.9.0; python_version >= '3.8'
