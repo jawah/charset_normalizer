@@ -221,16 +221,20 @@ def from_bytes(
         try:
             if is_too_large_sequence and is_multi_byte_decoder is False:
                 str(
-                    sequences[: int(50e4)]
-                    if strip_sig_or_bom is False
-                    else sequences[len(sig_payload) : int(50e4)],
+                    (
+                        sequences[: int(50e4)]
+                        if strip_sig_or_bom is False
+                        else sequences[len(sig_payload) : int(50e4)]
+                    ),
                     encoding=encoding_iana,
                 )
             else:
                 decoded_payload = str(
-                    sequences
-                    if strip_sig_or_bom is False
-                    else sequences[len(sig_payload) :],
+                    (
+                        sequences
+                        if strip_sig_or_bom is False
+                        else sequences[len(sig_payload) :]
+                    ),
                     encoding=encoding_iana,
                 )
         except (UnicodeDecodeError, LookupError) as e:
