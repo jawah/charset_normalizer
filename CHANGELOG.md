@@ -2,13 +2,11 @@
 All notable changes to charset-normalizer will be documented in this file. This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [3.3.3](https://github.com/Ousret/charset_normalizer/compare/3.3.2...master) (2024-03-??)
+## [3.3.3](https://github.com/Ousret/charset_normalizer/compare/3.3.2...master) (2024-09-??)
 
 ### Fixed
 - Relax the TypeError exception thrown when trying to compare a CharsetMatch with anything else than a CharsetMatch.
-
-### Changed
-- Optional mypyc compilation upgraded to version 1.9.0 for Python >= 3.8
+- Improved the general reliability of the detector based on user feedbacks. (#520) (#509) (#498) (#407)
 
 ## [3.3.2](https://github.com/Ousret/charset_normalizer/compare/3.3.1...3.3.2) (2023-10-31)
 
