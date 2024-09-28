@@ -1,6 +1,7 @@
 import pytest
 
 from charset_normalizer.utils import any_specified_encoding
+from charset_normalizer import CharsetMatch
 
 
 @pytest.mark.parametrize(
@@ -24,3 +25,42 @@ def test_detect_most_common_body_encoding(payload, expected_encoding):
     )
 
     assert specified_encoding == expected_encoding, "Unable to determine properly encoding from given body"
+
+
+@pytest.mark.parametrize(
+    "payload, expected_outcome",
+    [
+        (b'<?xml version="1.0" encoding="EUC-JP"?>', b'<?xml version="1.0" encoding="utf_8"?>'),
+        (b'<html><head><meta charset="utf-8"></head></html>', b'<html><head><meta charset="utf-8"></head></html>'),
+        (b'<html><head><meta charset="utf-57"></head></html>', b'<html><head><meta charset="utf-57"></head></html>'),
+        (b'# coding: utf-8', b'# coding: utf-8'),
+        (b'<?xml version="1.0" encoding="UTF-8"?>', b'<?xml version="1.0" encoding="UTF-8"?>'),
+        (b'<?xml version="1.0" encoding="US-ASCII"?>', b'<?xml version="1.0" encoding="utf_8"?>'),
+        (b'<?xml version="1.0" encoding="JohaB"?>', b'<?xml version="1.0" encoding="utf_8"?>'),
+        (b'<html><head><meta charset=WINDOWS-1252></head></html>', b'<html><head><meta charset=utf_8></head></html>'),
+        (b'<html><head><meta charset="WINDOWS-1256"></head></html>', b'<html><head><meta charset="utf_8"></head></html>'),
+    ]
+)
+def test_preemptive_mark_replacement(payload, expected_outcome):
+    """
+    When generating (to Unicode converted) bytes, we want to change any potential declarative charset
+    to utf-8. This test that.
+    """
+    specified_encoding = any_specified_encoding(
+        payload
+    )
+
+    detected_encoding = specified_encoding if specified_encoding is not None else "utf-8"
+
+    m = CharsetMatch(
+        payload,
+        detected_encoding,
+        0.,
+        False,
+        [],
+        preemptive_declaration=specified_encoding,
+    )
+
+    transformed_output = m.output()
+
+    assert transformed_output == expected_outcome

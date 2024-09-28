@@ -4,9 +4,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [3.3.3](https://github.com/Ousret/charset_normalizer/compare/3.3.2...master) (2024-09-??)
 
+### Added
+- Argument `--no-preemptive` in the CLI to prevent the detector to search for hints.
+
 ### Fixed
 - Relax the TypeError exception thrown when trying to compare a CharsetMatch with anything else than a CharsetMatch.
 - Improved the general reliability of the detector based on user feedbacks. (#520) (#509) (#498) (#407)
+- Declared charset in content (preemptive detection) not changed when converting to utf-8 bytes. (#381)
 
 ## [3.3.2](https://github.com/Ousret/charset_normalizer/compare/3.3.1...3.3.2) (2023-10-31)
 
