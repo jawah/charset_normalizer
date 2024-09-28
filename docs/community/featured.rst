@@ -9,10 +9,7 @@ your level or opinions.
 Niquests
 --------
 
-Started as a simple though..
-
-.. image:: https://i.imgflip.com/7xet0f.jpg
-   :width: 200
+Started as a simple though.. IE 11 has built-in HTTP/2 support while Requests 2.32 does not!
 
 Most of our programs that interact with HTTP server are built with ``requests`` and
 we aren't likely to switch without a substantial effort.

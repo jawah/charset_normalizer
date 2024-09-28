@@ -10,3 +10,33 @@ def test_unicode_edge_case():
 
     assert best_guess is not None, "Payload should have given something, detection failure"
     assert best_guess.encoding == "utf_8", "UTF-8 payload wrongly detected"
+
+
+def test_issue_gh520():
+    """Verify that minorities does not strip basic latin characters!"""
+    payload = b"/includes/webform.compon\xd2\xaants.inc/"
+
+    best_guess = from_bytes(payload).best()
+
+    assert best_guess is not None, "Payload should have given something, detection failure"
+    assert "Basic Latin" in best_guess.alphabets
+
+
+def test_issue_gh509():
+    """Two common ASCII punctuations should render as-is."""
+    payload = b");"
+
+    best_guess = from_bytes(payload).best()
+
+    assert best_guess is not None, "Payload should have given something, detection failure"
+    assert "ascii" == best_guess.encoding
+
+
+def test_issue_gh498():
+    """This case was mistaken for utf-16-le, this should never happen again."""
+    payload = b'\x84\xae\xaa\xe3\xac\xa5\xad\xe2 Microsoft Word.docx'
+
+    best_guess = from_bytes(payload).best()
+
+    assert best_guess is not None, "Payload should have given something, detection failure"
+    assert "Cyrillic" in best_guess.alphabets
