@@ -285,7 +285,7 @@ class CharsetMatches:
                 )
             )
         # We should disable the submatch factoring when the input file is too heavy (conserve RAM usage)
-        if len(item.raw) <= TOO_BIG_SEQUENCE:
+        if len(item.raw) < TOO_BIG_SEQUENCE:
             for match in self._results:
                 if match.fingerprint == item.fingerprint and match.chaos == item.chaos:
                     match.add_submatch(item)
