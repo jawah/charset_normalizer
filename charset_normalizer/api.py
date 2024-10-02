@@ -159,6 +159,8 @@ def from_bytes(
 
     results: CharsetMatches = CharsetMatches()
 
+    early_stop_results: CharsetMatches = CharsetMatches()
+
     sig_encoding, sig_payload = identify_sig_or_bom(sequences)
 
     if sig_encoding is not None:
@@ -431,29 +433,47 @@ def from_bytes(
                 ),
             )
 
-        results.append(
-            CharsetMatch(
-                sequences,
-                encoding_iana,
-                mean_mess_ratio,
-                bom_or_sig_available,
-                cd_ratios_merged,
-                decoded_payload,
-                preemptive_declaration=specified_encoding,
-            )
+        current_match = CharsetMatch(
+            sequences,
+            encoding_iana,
+            mean_mess_ratio,
+            bom_or_sig_available,
+            cd_ratios_merged,
+            (
+                decoded_payload
+                if (
+                    is_too_large_sequence is False
+                    or encoding_iana in [specified_encoding, "ascii", "utf_8"]
+                )
+                else None
+            ),
+            preemptive_declaration=specified_encoding,
         )
+
+        results.append(current_match)
 
         if (
             encoding_iana in [specified_encoding, "ascii", "utf_8"]
             and mean_mess_ratio < 0.1
         ):
+            early_stop_results.append(current_match)
+
+        if (
+            len(early_stop_results)
+            and (specified_encoding is None or specified_encoding in tested)
+            and "ascii" in tested
+            and "utf_8" in tested
+        ):
+            probable_result: CharsetMatch = early_stop_results.best()  # type: ignore[assignment]
             logger.debug(
-                "Encoding detection: %s is most likely the one.", encoding_iana
+                "Encoding detection: %s is most likely the one.",
+                probable_result.encoding,
             )
             if explain:
                 logger.removeHandler(explain_handler)
                 logger.setLevel(previous_logger_level)
-            return CharsetMatches([results[encoding_iana]])
+
+            return CharsetMatches([probable_result])
 
         if encoding_iana == sig_encoding:
             logger.debug(
