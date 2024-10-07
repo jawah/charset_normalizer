@@ -153,7 +153,7 @@ jobs:
         run: |
           tree dist
       - name: Publish package distributions to PyPI
-        uses: pypa/gh-action-pypi-publish@897895f1e160c830e369f9779632ebc134688e1b # release/v1
+        uses: pypa/gh-action-pypi-publish@f7600683efdcb7656dec5b29656edb7bc586e597 # release/v1
       - name: Upload dists to GitHub Release
         env:
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
