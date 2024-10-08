@@ -4,7 +4,7 @@ chardet==5.1.0
 isort==5.11.4
 codecov==2.1.13
 pytest-cov==4.1.0
-build==0.10.0
+build>=0.10.0,<2
 wheel==0.42.0
 black==23.3.0
 mypy==1.11.2; python_version >= '3.8' and python_version < '3.13'
