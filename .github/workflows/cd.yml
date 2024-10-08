@@ -42,11 +42,11 @@ jobs:
 
   build-wheels:
     name: Build wheels on ${{ matrix.os }} ${{ matrix.qemu }}
-    runs-on: ${{ matrix.os }}-latest
+    runs-on: ${{ matrix.os }}
     needs: pre_flight_check
     strategy:
       matrix:
-        os: [ ubuntu, windows, macos ]
+        os: [ ubuntu-latest, windows-latest, macos-12 ]
         qemu: [ '' ]
         include:
           # Split ubuntu job for the sake of speed-up
