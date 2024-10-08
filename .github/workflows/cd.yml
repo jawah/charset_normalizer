@@ -83,7 +83,7 @@ jobs:
       - name: Build wheels
         uses: pypa/cibuildwheel@f1859528322d7b29d4493ee241a167807661dfb4 # v2.21.2
         env:
-          CIBW_BUILD_FRONTEND: "build; args: --no-isolation"
+          CIBW_BUILD_FRONTEND: "pip; args: --no-build-isolation"
           CIBW_ARCHS_MACOS: x86_64 arm64 universal2
           CIBW_ENVIRONMENT: CHARSET_NORMALIZER_USE_MYPYC='1'
           CIBW_BEFORE_BUILD: pip install -r build-requirements.txt
