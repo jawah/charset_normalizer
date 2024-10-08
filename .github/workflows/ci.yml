@@ -73,7 +73,7 @@ jobs:
       - name: Run tests
         run: |
           pytest
-      - uses: codecov/codecov-action@4fe8c5f003fae66aa5ebb77cfd3e7bfbbda0b6b0 # v3.1.5
+      - uses: codecov/codecov-action@b9fd7d16f6d7d1b5d2bec1a2887e65ceed900238 # v4.6.0
 
   detection_coverage:
 
