@@ -129,6 +129,7 @@ jobs:
     with:
       base64-subjects: ${{ needs.checksum.outputs.hashes }}
       upload-assets: true
+      compile-generator: true
 
   deploy:
     name: 🚀 Deploy to PyPi
