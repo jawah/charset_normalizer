@@ -1,15 +1,17 @@
 #!/bin/python
-from glob import glob
-from time import perf_counter_ns
-import argparse
-from sys import argv
-from os.path import isdir
+from __future__ import annotations
 
-from charset_normalizer import detect
+import argparse
+from glob import glob
+from math import ceil
+from os.path import isdir
+from statistics import mean, stdev
+from sys import argv
+from time import perf_counter_ns
+
 from chardet import detect as chardet_detect
 
-from statistics import mean, stdev
-from math import ceil
+from charset_normalizer import detect
 
 
 def calc_percentile(data, percentile):
@@ -66,7 +68,8 @@ def performance_compare(arguments):
         charset_normalizer_time = charset_normalizer_time or 0.000005
         cn_faster = (chardet_time / charset_normalizer_time) * 100 - 100
         print(
-            f"{idx+1:>3}/{total_files} {tbt_path:<82} C:{chardet_time:.5f}  CN:{charset_normalizer_time:.5f}  {cn_faster:.1f} %"
+            f"{idx + 1:>3}/{total_files} {tbt_path:<82} C:{chardet_time:.5f}  "
+            f"CN:{charset_normalizer_time:.5f}  {cn_faster:.1f} %"
         )
 
     # Print the top 10 rows with the slowest execution time
@@ -78,7 +81,7 @@ def performance_compare(arguments):
     )
     for idx, time in sorted_results[:10]:
         tbt_path = file_list[idx]
-        print(f"{idx+1:>3}/{total_files} {tbt_path:<82}  CN:{time:.5f}")
+        print(f"{idx + 1:>3}/{total_files} {tbt_path:<82}  CN:{time:.5f}")
 
     # Print charset normalizer statistics
     min_time = min(charset_normalizer_results)

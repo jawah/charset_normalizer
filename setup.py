@@ -1,18 +1,11 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
+
+from __future__ import annotations
 
 import os
 import sys
-from re import search
 
 from setuptools import setup
-
-
-def get_version():
-    with open('charset_normalizer/version.py') as version_file:
-        return search(r"""__version__\s+=\s+(['"])(?P<version>.+?)\1""",
-                      version_file.read()).group('version')
-
 
 USE_MYPYC = False
 
@@ -25,14 +18,13 @@ if os.getenv("CHARSET_NORMALIZER_USE_MYPYC", None) == "1":
 if USE_MYPYC:
     from mypyc.build import mypycify
 
-    MYPYC_MODULES = mypycify([
-        "charset_normalizer/md.py",
-    ], debug_level="0")
+    MYPYC_MODULES = mypycify(
+        [
+            "charset_normalizer/md.py",
+        ],
+        debug_level="0",
+    )
 else:
     MYPYC_MODULES = None
 
-setup(
-    name="charset-normalizer",
-    version=get_version(),
-    ext_modules=MYPYC_MODULES
-)
+setup(name="charset-normalizer", ext_modules=MYPYC_MODULES)

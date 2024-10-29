@@ -1,6 +1,7 @@
+from __future__ import annotations
+
 from functools import lru_cache
 from logging import getLogger
-from typing import List, Optional
 
 from .constant import (
     COMMON_SAFE_ASCII_CHARACTERS,
@@ -68,7 +69,7 @@ class TooManySymbolOrPunctuationPlugin(MessDetectorPlugin):
         self._symbol_count: int = 0
         self._character_count: int = 0
 
-        self._last_printable_char: Optional[str] = None
+        self._last_printable_char: str | None = None
         self._frenzy_symbol_in_word: bool = False
 
     def eligible(self, character: str) -> bool:
@@ -165,7 +166,7 @@ class SuspiciousDuplicateAccentPlugin(MessDetectorPlugin):
         self._successive_count: int = 0
         self._character_count: int = 0
 
-        self._last_latin_character: Optional[str] = None
+        self._last_latin_character: str | None = None
 
     def eligible(self, character: str) -> bool:
         return character.isalpha() and is_latin(character)
@@ -201,7 +202,7 @@ class SuspiciousRange(MessDetectorPlugin):
     def __init__(self) -> None:
         self._suspicious_successive_range_count: int = 0
         self._character_count: int = 0
-        self._last_printable_seen: Optional[str] = None
+        self._last_printable_seen: str | None = None
 
     def eligible(self, character: str) -> bool:
         return character.isprintable()
@@ -221,8 +222,8 @@ class SuspiciousRange(MessDetectorPlugin):
             self._last_printable_seen = character
             return
 
-        unicode_range_a: Optional[str] = unicode_range(self._last_printable_seen)
-        unicode_range_b: Optional[str] = unicode_range(character)
+        unicode_range_a: str | None = unicode_range(self._last_printable_seen)
+        unicode_range_b: str | None = unicode_range(character)
 
         if is_suspiciously_successive_range(unicode_range_a, unicode_range_b):
             self._suspicious_successive_range_count += 1
@@ -406,7 +407,7 @@ class ArchaicUpperLowerPlugin(MessDetectorPlugin):
 
         self._character_count: int = 0
 
-        self._last_alpha_seen: Optional[str] = None
+        self._last_alpha_seen: str | None = None
         self._current_ascii_only: bool = True
 
     def eligible(self, character: str) -> bool:
@@ -501,7 +502,7 @@ class ArabicIsolatedFormPlugin(MessDetectorPlugin):
 
 @lru_cache(maxsize=1024)
 def is_suspiciously_successive_range(
-    unicode_range_a: Optional[str], unicode_range_b: Optional[str]
+    unicode_range_a: str | None, unicode_range_b: str | None
 ) -> bool:
     """
     Determine if two Unicode range seen next to each other can be considered as suspicious.
@@ -580,7 +581,7 @@ def mess_ratio(
     Compute a mess ratio given a decoded bytes sequence. The maximum threshold does stop the computation earlier.
     """
 
-    detectors: List[MessDetectorPlugin] = [
+    detectors: list[MessDetectorPlugin] = [
         md_class() for md_class in MessDetectorPlugin.__subclasses__()
     ]
 

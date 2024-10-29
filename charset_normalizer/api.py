@@ -1,6 +1,8 @@
+from __future__ import annotations
+
 import logging
 from os import PathLike
-from typing import BinaryIO, List, Optional, Set, Union
+from typing import BinaryIO
 
 from .cd import (
     coherence_ratio,
@@ -31,12 +33,12 @@ explain_handler.setFormatter(
 
 
 def from_bytes(
-    sequences: Union[bytes, bytearray],
+    sequences: bytes | bytearray,
     steps: int = 5,
     chunk_size: int = 512,
     threshold: float = 0.2,
-    cp_isolation: Optional[List[str]] = None,
-    cp_exclusion: Optional[List[str]] = None,
+    cp_isolation: list[str] | None = None,
+    cp_exclusion: list[str] | None = None,
     preemptive_behaviour: bool = True,
     explain: bool = False,
     language_threshold: float = 0.1,
@@ -62,7 +64,7 @@ def from_bytes(
 
     if not isinstance(sequences, (bytearray, bytes)):
         raise TypeError(
-            "Expected object of type bytes or bytearray, got: {0}".format(
+            "Expected object of type bytes or bytearray, got: {}".format(
                 type(sequences)
             )
         )
@@ -135,9 +137,9 @@ def from_bytes(
             ),
         )
 
-    prioritized_encodings: List[str] = []
+    prioritized_encodings: list[str] = []
 
-    specified_encoding: Optional[str] = (
+    specified_encoding: str | None = (
         any_specified_encoding(sequences) if preemptive_behaviour else None
     )
 
@@ -149,13 +151,13 @@ def from_bytes(
             specified_encoding,
         )
 
-    tested: Set[str] = set()
-    tested_but_hard_failure: List[str] = []
-    tested_but_soft_failure: List[str] = []
+    tested: set[str] = set()
+    tested_but_hard_failure: list[str] = []
+    tested_but_soft_failure: list[str] = []
 
-    fallback_ascii: Optional[CharsetMatch] = None
-    fallback_u8: Optional[CharsetMatch] = None
-    fallback_specified: Optional[CharsetMatch] = None
+    fallback_ascii: CharsetMatch | None = None
+    fallback_u8: CharsetMatch | None = None
+    fallback_specified: CharsetMatch | None = None
 
     results: CharsetMatches = CharsetMatches()
 
@@ -189,7 +191,7 @@ def from_bytes(
 
         tested.add(encoding_iana)
 
-        decoded_payload: Optional[str] = None
+        decoded_payload: str | None = None
         bom_or_sig_available: bool = sig_encoding == encoding_iana
         strip_sig_or_bom: bool = bom_or_sig_available and should_strip_sig_or_bom(
             encoding_iana
@@ -292,7 +294,7 @@ def from_bytes(
         early_stop_count: int = 0
         lazy_str_hard_failure = False
 
-        md_chunks: List[str] = []
+        md_chunks: list[str] = []
         md_ratios = []
 
         try:
@@ -397,7 +399,7 @@ def from_bytes(
         )
 
         if not is_multi_byte_decoder:
-            target_languages: List[str] = encoding_languages(encoding_iana)
+            target_languages: list[str] = encoding_languages(encoding_iana)
         else:
             target_languages = mb_encoding_languages(encoding_iana)
 
@@ -546,8 +548,8 @@ def from_fp(
     steps: int = 5,
     chunk_size: int = 512,
     threshold: float = 0.20,
-    cp_isolation: Optional[List[str]] = None,
-    cp_exclusion: Optional[List[str]] = None,
+    cp_isolation: list[str] | None = None,
+    cp_exclusion: list[str] | None = None,
     preemptive_behaviour: bool = True,
     explain: bool = False,
     language_threshold: float = 0.1,
@@ -572,12 +574,12 @@ def from_fp(
 
 
 def from_path(
-    path: Union[str, bytes, PathLike],  # type: ignore[type-arg]
+    path: str | bytes | PathLike,  # type: ignore[type-arg]
     steps: int = 5,
     chunk_size: int = 512,
     threshold: float = 0.20,
-    cp_isolation: Optional[List[str]] = None,
-    cp_exclusion: Optional[List[str]] = None,
+    cp_isolation: list[str] | None = None,
+    cp_exclusion: list[str] | None = None,
     preemptive_behaviour: bool = True,
     explain: bool = False,
     language_threshold: float = 0.1,
@@ -603,12 +605,12 @@ def from_path(
 
 
 def is_binary(
-    fp_or_path_or_payload: Union[PathLike, str, BinaryIO, bytes],  # type: ignore[type-arg]
+    fp_or_path_or_payload: PathLike | str | BinaryIO | bytes,  # type: ignore[type-arg]
     steps: int = 5,
     chunk_size: int = 512,
     threshold: float = 0.20,
-    cp_isolation: Optional[List[str]] = None,
-    cp_exclusion: Optional[List[str]] = None,
+    cp_isolation: list[str] | None = None,
+    cp_exclusion: list[str] | None = None,
     preemptive_behaviour: bool = True,
     explain: bool = False,
     language_threshold: float = 0.1,
