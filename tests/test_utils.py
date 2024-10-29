@@ -1,6 +1,10 @@
+from __future__ import annotations
+
 import logging
+
 import pytest
-from charset_normalizer.utils import is_accentuated, cp_similarity, set_logging_handler
+
+from charset_normalizer.utils import cp_similarity, is_accentuated, set_logging_handler
 
 
 @pytest.mark.parametrize(

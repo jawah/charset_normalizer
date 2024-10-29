@@ -25,18 +25,9 @@ jobs:
           python -m pip install -U pip setuptools
           python -m pip install -r dev-requirements.txt
           python -m pip uninstall -y charset-normalizer
-      - name: Type checking (Mypy)
+      - name: Pre-commit checks
         run: |
-          mypy --strict charset_normalizer
-      - name: Import sorting check (isort)
-        run: |
-          isort --check charset_normalizer
-      - name: Code format (Black)
-        run: |
-          black --check --diff --target-version=py37 charset_normalizer
-      - name: Style guide enforcement (Flake8)
-        run: |
-          flake8 charset_normalizer
+          pre-commit run --all
 
   tests:
     name: ✅ Tests
@@ -68,7 +59,7 @@ jobs:
           python -m pip uninstall -y charset-normalizer
       - name: Install the package
         run: |
-          python -m build --no-isolation
+          python -m build
           python -m pip install ./dist/*.whl
       - name: Run tests
         run: |
