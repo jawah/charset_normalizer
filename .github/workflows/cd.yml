@@ -81,7 +81,7 @@ jobs:
         run: |
           python -m pip install -U pip wheel setuptools build twine
       - name: Build wheels
-        uses: pypa/cibuildwheel@7940a4c0e76eb2030e473a5f864f291f63ee879b # v2.21.3
+        uses: pypa/cibuildwheel@ee63bf16da6cddfb925f542f2c7b59ad50e93969 # v2.22.0
         env:
           CIBW_BUILD_FRONTEND: build
           CIBW_ARCHS_MACOS: x86_64 arm64 universal2
