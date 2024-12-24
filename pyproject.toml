@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools", "setuptools-scm", "mypy>=1.4.1,<=1.13.0"]
+requires = ["setuptools", "setuptools-scm", "mypy>=1.4.1,<=1.14.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -40,6 +40,10 @@ dynamic = ["version", "readme"]
 [project.optional-dependencies]
 unicode_backport = []
 
+[tool.setuptools]
+package-dir = {"" = "src"}
+packages = ["charset_normalizer", "charset_normalizer.cli", ]
+
 [tool.setuptools.dynamic]
 version = {attr = "charset_normalizer.__version__"}
 readme = {file = ["README.md", "CHANGELOG.md", "LICENSE"]}
@@ -53,11 +57,11 @@ normalizer = "charset_normalizer:cli.cli_detect"
 "Code" = "https://github.com/jawah/charset_normalizer"
 "Issue tracker" = "https://github.com/jawah/charset_normalizer/issues"
 
-[tool.setuptools.packages.find]
-exclude = ["tests*"]
-
 [tool.pytest.ini_options]
-addopts = "--cov=charset_normalizer --cov-report=term-missing -rxXs"
+log_level = "DEBUG"
+filterwarnings = [
+    "error",
+]
 
 [tool.isort]
 profile = "black"

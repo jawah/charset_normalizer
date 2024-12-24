@@ -67,6 +67,10 @@ the backward-compatibility.
 ## How to run tests locally?
 
 It is essential that you run, prior to any submissions the mandatory checks.
-Run the script `./bin/run_checks.sh` to verify that your modification are not breaking anything.
 
-Also, make sure to run the `./bin/run_autofix.sh` to comply with the style format and import sorting.
+```shell
+pip install nox
+nox -s test
+nox -s lint
+nox -s coverage
+```
