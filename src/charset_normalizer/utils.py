@@ -292,6 +292,7 @@ def should_strip_sig_or_bom(iana_encoding: str) -> bool:
 
 
 def iana_name(cp_name: str, strict: bool = True) -> str:
+    """Returns the Python normalized encoding name (Not the IANA official name)."""
     cp_name = cp_name.lower().replace("-", "_")
 
     encoding_alias: str
