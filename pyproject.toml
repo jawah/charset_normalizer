@@ -46,7 +46,7 @@ packages = ["charset_normalizer", "charset_normalizer.cli", ]
 
 [tool.setuptools.dynamic]
 version = {attr = "charset_normalizer.__version__"}
-readme = {file = ["README.md", "CHANGELOG.md", "LICENSE"]}
+readme = {file = ["README.md", "CHANGELOG.md", "LICENSE"], content-type = "text/markdown"}
 
 [project.scripts]
 normalizer = "charset_normalizer:cli.cli_detect"
