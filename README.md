@@ -79,7 +79,7 @@ Chardet's performance on larger file (1MB+) are very poor. Expect huge differenc
 > And yes, these results might change at any time. The dataset can be updated to include more files.
 > The actual delays heavily depends on your CPU capabilities. The factors should remain the same.
 > Keep in mind that the stats are generous and that Chardet accuracy vs our is measured using Chardet initial capability
-> (eg. Supported Encoding) Challenge-them if you want.
+> (e.g. Supported Encoding) Challenge-them if you want.
 
 ## ✨ Installation
 
