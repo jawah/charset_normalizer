@@ -225,7 +225,7 @@ class CharsetMatch:
                         iana_name(self._output_encoding),  # type: ignore[arg-type]
                     ),
                     decoded_string[:8192],
-                    1,
+                    count=1,
                 )
 
                 decoded_string = patched_header + decoded_string[8192:]
