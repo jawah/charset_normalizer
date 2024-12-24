@@ -34,7 +34,7 @@ def test_detect_most_common_body_encoding(payload, expected_encoding):
     [
         (
             b'<?xml version="1.0" encoding="EUC-JP"?>',
-            b'<?xml version="1.0" encoding="utf_8"?>',
+            b'<?xml version="1.0" encoding="utf-8"?>',
         ),
         (
             b'<html><head><meta charset="utf-8"></head></html>',
@@ -51,19 +51,19 @@ def test_detect_most_common_body_encoding(payload, expected_encoding):
         ),
         (
             b'<?xml version="1.0" encoding="US-ASCII"?>',
-            b'<?xml version="1.0" encoding="utf_8"?>',
+            b'<?xml version="1.0" encoding="utf-8"?>',
         ),
         (
             b'<?xml version="1.0" encoding="JohaB"?>',
-            b'<?xml version="1.0" encoding="utf_8"?>',
+            b'<?xml version="1.0" encoding="utf-8"?>',
         ),
         (
             b"<html><head><meta charset=WINDOWS-1252></head></html>",
-            b"<html><head><meta charset=utf_8></head></html>",
+            b"<html><head><meta charset=utf-8></head></html>",
         ),
         (
             b'<html><head><meta charset="WINDOWS-1256"></head></html>',
-            b'<html><head><meta charset="utf_8"></head></html>',
+            b'<html><head><meta charset="utf-8"></head></html>',
         ),
     ],
 )

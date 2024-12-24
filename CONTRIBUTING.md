@@ -1,12 +1,12 @@
 # Contribution Guidelines
 
-If you’re reading this, you’re probably interested in contributing to Charset Normalizer. 
-Thank you very much! Open source projects live-and-die based on the support they receive from others, 
+If you’re reading this, you’re probably interested in contributing to Charset Normalizer.
+Thank you very much! Open source projects live-and-die based on the support they receive from others,
 and the fact that you’re even considering contributing to this project is very generous of you.
 
 ## Questions
 
-The GitHub issue tracker is for *bug reports* and *feature requests*. 
+The GitHub issue tracker is for *bug reports* and *feature requests*.
 Questions are allowed only when no answer are provided in docs.
 
 ## Good Bug Reports
@@ -67,6 +67,10 @@ the backward-compatibility.
 ## How to run tests locally?
 
 It is essential that you run, prior to any submissions the mandatory checks.
-Run the script `./bin/run_checks.sh` to verify that your modification are not breaking anything.
 
-Also, make sure to run the `./bin/run_autofix.sh` to comply with the style format and import sorting.
+```shell
+pip install nox
+nox -s test
+nox -s lint
+nox -s coverage
+```

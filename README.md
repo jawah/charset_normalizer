@@ -15,7 +15,7 @@
 <p align="center">
   <sup><i>Featured Packages</i></sup><br>
   <a href="https://github.com/jawah/niquests">
-   <img alt="Static Badge" src="https://img.shields.io/badge/Niquests-HTTP_1.1%2C%202%2C_and_3_Client-cyan">
+   <img alt="Static Badge" src="https://img.shields.io/badge/Niquests-Best_HTTP_Client-cyan">
   </a>
   <a href="https://github.com/jawah/wassima">
    <img alt="Static Badge" src="https://img.shields.io/badge/Wassima-Certifi_Killer-cyan">
@@ -55,8 +55,7 @@ This project offers you an alternative to **Universal Charset Encoding Detector*
 <img src="https://i.imgflip.com/373iay.gif" alt="Reading Normalized Text" width="226"/><img src="https://media.tenor.com/images/c0180f70732a18b4965448d33adba3d0/tenor.gif" alt="Cat Reading Text" width="200"/>
 </p>
 
-*\*\* : They are clearly using specific code for a specific encoding even if covering most of used one*<br> 
-Did you got there because of the logs? See [https://charset-normalizer.readthedocs.io/en/latest/user/miscellaneous.html](https://charset-normalizer.readthedocs.io/en/latest/user/miscellaneous.html)
+*\*\* : They are clearly using specific code for a specific encoding even if covering most of used one*<br>
 
 ## ⚡ Performance
 
@@ -64,13 +63,15 @@ This package offer better performance than its counterpart Chardet. Here are som
 
 | Package                                       | Accuracy | Mean per file (ms) | File per sec (est) |
 |-----------------------------------------------|:--------:|:------------------:|:------------------:|
-| [chardet](https://github.com/chardet/chardet) |   86 %   |       200 ms       |     5 file/sec     |
+| [chardet](https://github.com/chardet/chardet) |   86 %   |       63 ms        |    16 file/sec     |
 | charset-normalizer                            | **98 %** |     **10 ms**      |    100 file/sec    |
 
 | Package                                       | 99th percentile | 95th percentile | 50th percentile |
 |-----------------------------------------------|:---------------:|:---------------:|:---------------:|
-| [chardet](https://github.com/chardet/chardet) |     1200 ms     |     287 ms      |      23 ms      |
+| [chardet](https://github.com/chardet/chardet) |     265 ms      |      71 ms      |      7 ms       |
 | charset-normalizer                            |     100 ms      |      50 ms      |      5 ms       |
+
+_updated as of december 2024 using CPython 3.12_
 
 Chardet's performance on larger file (1MB+) are very poor. Expect huge difference on large payload.
 
@@ -78,7 +79,7 @@ Chardet's performance on larger file (1MB+) are very poor. Expect huge differenc
 > And yes, these results might change at any time. The dataset can be updated to include more files.
 > The actual delays heavily depends on your CPU capabilities. The factors should remain the same.
 > Keep in mind that the stats are generous and that Chardet accuracy vs our is measured using Chardet initial capability
-> (eg. Supported Encoding) Challenge-them if you want.
+> (e.g. Supported Encoding) Challenge-them if you want.
 
 ## ✨ Installation
 
@@ -195,11 +196,11 @@ reliable alternative using a completely different method. Also! I never back dow
 
 I **don't care** about the **originating charset** encoding, because **two different tables** can
 produce **two identical rendered string.**
-What I want is to get readable text, the best I can. 
+What I want is to get readable text, the best I can.
 
 In a way, **I'm brute forcing text decoding.** How cool is that ? 😎
 
-Don't confuse package **ftfy** with charset-normalizer or chardet. ftfy goal is to repair unicode string whereas charset-normalizer to convert raw file in unknown encoding to unicode.
+Don't confuse package **ftfy** with charset-normalizer or chardet. ftfy goal is to repair Unicode string whereas charset-normalizer to convert raw file in unknown encoding to unicode.
 
 ## 🍰 How
 
@@ -211,7 +212,7 @@ Don't confuse package **ftfy** with charset-normalizer or chardet. ftfy goal is 
 **Wait a minute**, what is noise/mess and coherence according to **YOU ?**
 
 *Noise :* I opened hundred of text files, **written by humans**, with the wrong encoding table. **I observed**, then
-**I established** some ground rules about **what is obvious** when **it seems like** a mess.
+**I established** some ground rules about **what is obvious** when **it seems like** a mess (aka. defining noise in rendered text).
  I know that my interpretation of what is noise is probably incomplete, feel free to contribute in order to
  improve or rewrite it.
 
@@ -255,3 +256,5 @@ from the experts who know it best, while seamlessly integrating with existing
 tools.
 
 [1]: https://tidelift.com/subscription/pkg/pypi-charset-normalizer?utm_source=pypi-charset-normalizer&utm_medium=readme
+
+[![OpenSSF Best Practices](https://www.bestpractices.dev/projects/7297/badge)](https://www.bestpractices.dev/projects/7297)

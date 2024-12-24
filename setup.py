@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 from __future__ import annotations
 
 import os
@@ -12,7 +11,7 @@ USE_MYPYC = False
 if len(sys.argv) > 1 and sys.argv[1] == "--use-mypyc":
     sys.argv.pop(1)
     USE_MYPYC = True
-if os.getenv("CHARSET_NORMALIZER_USE_MYPYC", None) == "1":
+elif os.getenv("CHARSET_NORMALIZER_USE_MYPYC", None) == "1":
     USE_MYPYC = True
 
 if USE_MYPYC:
@@ -20,9 +19,10 @@ if USE_MYPYC:
 
     MYPYC_MODULES = mypycify(
         [
-            "charset_normalizer/md.py",
+            "src/charset_normalizer/md.py",
         ],
         debug_level="0",
+        opt_level="3",
     )
 else:
     MYPYC_MODULES = None

@@ -18,6 +18,7 @@ at <https://github.com/Ousret/charset_normalizer>.
 :copyright: (c) 2021 by Ahmed TAHRI
 :license: MIT, see LICENSE for more details.
 """
+
 from __future__ import annotations
 
 import logging

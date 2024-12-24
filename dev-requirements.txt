@@ -1,7 +1,2 @@
-chardet==5.1.0
-pytest-cov==4.1.0
-Flask==2.2.3
-pytest>=7.4.4,<=8.3.4
-requests==2.31.0
-pre-commit
-build
+coverage>=7.2.7,<7.7
+pytest>=7.4.4,<9

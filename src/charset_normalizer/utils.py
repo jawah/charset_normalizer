@@ -27,7 +27,7 @@ from .constant import (
 def is_accentuated(character: str) -> bool:
     try:
         description: str = unicodedata.name(character)
-    except ValueError:
+    except ValueError:  # Defensive: unicode database outdated?
         return False
     return (
         "WITH GRAVE" in description
@@ -70,7 +70,7 @@ def unicode_range(character: str) -> str | None:
 def is_latin(character: str) -> bool:
     try:
         description: str = unicodedata.name(character)
-    except ValueError:
+    except ValueError:  # Defensive: unicode database outdated?
         return False
     return "LATIN" in description
 
@@ -134,7 +134,7 @@ def is_case_variable(character: str) -> bool:
 def is_cjk(character: str) -> bool:
     try:
         character_name = unicodedata.name(character)
-    except ValueError:
+    except ValueError:  # Defensive: unicode database outdated?
         return False
 
     return "CJK" in character_name
@@ -144,7 +144,7 @@ def is_cjk(character: str) -> bool:
 def is_hiragana(character: str) -> bool:
     try:
         character_name = unicodedata.name(character)
-    except ValueError:
+    except ValueError:  # Defensive: unicode database outdated?
         return False
 
     return "HIRAGANA" in character_name
@@ -154,7 +154,7 @@ def is_hiragana(character: str) -> bool:
 def is_katakana(character: str) -> bool:
     try:
         character_name = unicodedata.name(character)
-    except ValueError:
+    except ValueError:  # Defensive: unicode database outdated?
         return False
 
     return "KATAKANA" in character_name
@@ -164,7 +164,7 @@ def is_katakana(character: str) -> bool:
 def is_hangul(character: str) -> bool:
     try:
         character_name = unicodedata.name(character)
-    except ValueError:
+    except ValueError:  # Defensive: unicode database outdated?
         return False
 
     return "HANGUL" in character_name
@@ -174,7 +174,7 @@ def is_hangul(character: str) -> bool:
 def is_thai(character: str) -> bool:
     try:
         character_name = unicodedata.name(character)
-    except ValueError:
+    except ValueError:  # Defensive: unicode database outdated?
         return False
 
     return "THAI" in character_name
@@ -184,7 +184,7 @@ def is_thai(character: str) -> bool:
 def is_arabic(character: str) -> bool:
     try:
         character_name = unicodedata.name(character)
-    except ValueError:
+    except ValueError:  # Defensive: unicode database outdated?
         return False
 
     return "ARABIC" in character_name
@@ -194,7 +194,7 @@ def is_arabic(character: str) -> bool:
 def is_arabic_isolated_form(character: str) -> bool:
     try:
         character_name = unicodedata.name(character)
-    except ValueError:
+    except ValueError:  # Defensive: unicode database outdated?
         return False
 
     return "ARABIC" in character_name and "ISOLATED FORM" in character_name
@@ -210,7 +210,7 @@ def is_unprintable(character: str) -> bool:
     return (
         character.isspace() is False  # includes \n \t \r \v
         and character.isprintable() is False
-        and character != "\x1A"  # Why? Its the ASCII substitute character.
+        and character != "\x1a"  # Why? Its the ASCII substitute character.
         and character != "\ufeff"  # bug discovered in Python,
         # Zero Width No-Break Space located in 	Arabic Presentation Forms-B, Unicode 1.1 not acknowledged as space.
     )
@@ -292,6 +292,7 @@ def should_strip_sig_or_bom(iana_encoding: str) -> bool:
 
 
 def iana_name(cp_name: str, strict: bool = True) -> str:
+    """Returns the Python normalized encoding name (Not the IANA official name)."""
     cp_name = cp_name.lower().replace("-", "_")
 
     encoding_alias: str
@@ -305,20 +306,6 @@ def iana_name(cp_name: str, strict: bool = True) -> str:
         raise ValueError(f"Unable to retrieve IANA for '{cp_name}'")
 
     return cp_name
-
-
-def range_scan(decoded_sequence: str) -> list[str]:
-    ranges: set[str] = set()
-
-    for character in decoded_sequence:
-        character_range: str | None = unicode_range(character)
-
-        if character_range is None:
-            continue
-
-        ranges.add(character_range)
-
-    return list(ranges)
 
 
 def cp_similarity(iana_name_a: str, iana_name_b: str) -> float:
