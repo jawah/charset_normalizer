@@ -361,7 +361,7 @@ def cut_sequence_chunks(
     sig_payload: bytes,
     is_multi_byte_decoder: bool,
     decoded_payload: str | None = None,
-) -> Generator[str, None, None]:
+) -> Generator[str]:
     if decoded_payload and is_multi_byte_decoder is False:
         for i in offsets:
             chunk = decoded_payload[i : i + chunk_size]
