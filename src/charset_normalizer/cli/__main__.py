@@ -125,7 +125,7 @@ def cli_detect(argv: list[str] | None = None) -> int:
         default=0.2,
         type=float,
         dest="threshold",
-        help="Define a custom maximum amount of chaos allowed in decoded content. 0. <= chaos <= 1.",
+        help="Define a custom maximum amount of noise allowed in decoded content. 0. <= noise <= 1.",
     )
     parser.add_argument(
         "--version",
