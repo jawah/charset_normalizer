@@ -76,7 +76,7 @@ def from_bytes(
 
     if length == 0:
         logger.debug("Encoding detection on empty bytes, assuming utf_8 intention.")
-        if explain:
+        if explain:  # Defensive: ensure exit path clean handler
             logger.removeHandler(explain_handler)
             logger.setLevel(previous_logger_level or logging.WARNING)
         return CharsetMatches([CharsetMatch(sequences, "utf_8", 0.0, False, [], "")])
@@ -462,7 +462,7 @@ def from_bytes(
                     "Encoding detection: %s is most likely the one.",
                     current_match.encoding,
                 )
-                if explain:
+                if explain:  # Defensive: ensure exit path clean handler
                     logger.removeHandler(explain_handler)
                     logger.setLevel(previous_logger_level)
                 return CharsetMatches([current_match])
@@ -480,7 +480,7 @@ def from_bytes(
                 "Encoding detection: %s is most likely the one.",
                 probable_result.encoding,
             )
-            if explain:
+            if explain:  # Defensive: ensure exit path clean handler
                 logger.removeHandler(explain_handler)
                 logger.setLevel(previous_logger_level)
 
@@ -492,7 +492,7 @@ def from_bytes(
                 "the beginning of the sequence.",
                 encoding_iana,
             )
-            if explain:
+            if explain:  # Defensive: ensure exit path clean handler
                 logger.removeHandler(explain_handler)
                 logger.setLevel(previous_logger_level)
             return CharsetMatches([results[encoding_iana]])

@@ -623,7 +623,7 @@ def mess_ratio(
             logger.log(TRACE, f"Starting with: {decoded_sequence[:16]}")
             logger.log(TRACE, f"Ending with: {decoded_sequence[-16::]}")
 
-        for dt in detectors:  # pragma: nocover
+        for dt in detectors:
             logger.log(TRACE, f"{dt.__class__}: {dt.ratio}")
 
     return round(mean_mess_ratio, 3)
