@@ -46,7 +46,7 @@ jobs:
     needs: pre_flight_check
     strategy:
       matrix:
-        os: [ ubuntu-latest, windows-latest, macos-13 ]
+        os: [ ubuntu-22.04, windows-latest, macos-13 ]
         qemu: [ '' ]
         include:
           # Split ubuntu job for the sake of speed-up
