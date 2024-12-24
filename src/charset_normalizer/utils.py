@@ -27,7 +27,7 @@ from .constant import (
 def is_accentuated(character: str) -> bool:
     try:
         description: str = unicodedata.name(character)
-    except ValueError:
+    except ValueError:  # Defensive: unicode database outdated?
         return False
     return (
         "WITH GRAVE" in description
@@ -70,7 +70,7 @@ def unicode_range(character: str) -> str | None:
 def is_latin(character: str) -> bool:
     try:
         description: str = unicodedata.name(character)
-    except ValueError:
+    except ValueError:  # Defensive: unicode database outdated?
         return False
     return "LATIN" in description
 
@@ -134,7 +134,7 @@ def is_case_variable(character: str) -> bool:
 def is_cjk(character: str) -> bool:
     try:
         character_name = unicodedata.name(character)
-    except ValueError:
+    except ValueError:  # Defensive: unicode database outdated?
         return False
 
     return "CJK" in character_name
@@ -144,7 +144,7 @@ def is_cjk(character: str) -> bool:
 def is_hiragana(character: str) -> bool:
     try:
         character_name = unicodedata.name(character)
-    except ValueError:
+    except ValueError:  # Defensive: unicode database outdated?
         return False
 
     return "HIRAGANA" in character_name
@@ -154,7 +154,7 @@ def is_hiragana(character: str) -> bool:
 def is_katakana(character: str) -> bool:
     try:
         character_name = unicodedata.name(character)
-    except ValueError:
+    except ValueError:  # Defensive: unicode database outdated?
         return False
 
     return "KATAKANA" in character_name
@@ -164,7 +164,7 @@ def is_katakana(character: str) -> bool:
 def is_hangul(character: str) -> bool:
     try:
         character_name = unicodedata.name(character)
-    except ValueError:
+    except ValueError:  # Defensive: unicode database outdated?
         return False
 
     return "HANGUL" in character_name
@@ -174,7 +174,7 @@ def is_hangul(character: str) -> bool:
 def is_thai(character: str) -> bool:
     try:
         character_name = unicodedata.name(character)
-    except ValueError:
+    except ValueError:  # Defensive: unicode database outdated?
         return False
 
     return "THAI" in character_name
@@ -184,7 +184,7 @@ def is_thai(character: str) -> bool:
 def is_arabic(character: str) -> bool:
     try:
         character_name = unicodedata.name(character)
-    except ValueError:
+    except ValueError:  # Defensive: unicode database outdated?
         return False
 
     return "ARABIC" in character_name
@@ -194,7 +194,7 @@ def is_arabic(character: str) -> bool:
 def is_arabic_isolated_form(character: str) -> bool:
     try:
         character_name = unicodedata.name(character)
-    except ValueError:
+    except ValueError:  # Defensive: unicode database outdated?
         return False
 
     return "ARABIC" in character_name and "ISOLATED FORM" in character_name

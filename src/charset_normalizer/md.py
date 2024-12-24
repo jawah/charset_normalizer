@@ -93,7 +93,7 @@ class TooManySymbolOrPunctuationPlugin(MessDetectorPlugin):
 
         self._last_printable_char = character
 
-    def reset(self) -> None:  # pragma: no cover
+    def reset(self) -> None:  # Abstract
         self._punctuation_count = 0
         self._character_count = 0
         self._symbol_count = 0
@@ -124,7 +124,7 @@ class TooManyAccentuatedPlugin(MessDetectorPlugin):
         if is_accentuated(character):
             self._accentuated_count += 1
 
-    def reset(self) -> None:  # pragma: no cover
+    def reset(self) -> None:  # Abstract
         self._character_count = 0
         self._accentuated_count = 0
 
@@ -150,7 +150,7 @@ class UnprintablePlugin(MessDetectorPlugin):
             self._unprintable_count += 1
         self._character_count += 1
 
-    def reset(self) -> None:  # pragma: no cover
+    def reset(self) -> None:  # Abstract
         self._unprintable_count = 0
 
     @property
@@ -185,7 +185,7 @@ class SuspiciousDuplicateAccentPlugin(MessDetectorPlugin):
                 self._successive_count += 1
         self._last_latin_character = character
 
-    def reset(self) -> None:  # pragma: no cover
+    def reset(self) -> None:  # Abstract
         self._successive_count = 0
         self._character_count = 0
         self._last_latin_character = None
@@ -230,7 +230,7 @@ class SuspiciousRange(MessDetectorPlugin):
 
         self._last_printable_seen = character
 
-    def reset(self) -> None:  # pragma: no cover
+    def reset(self) -> None:  # Abstract
         self._character_count = 0
         self._suspicious_successive_range_count = 0
         self._last_printable_seen = None
@@ -347,7 +347,7 @@ class SuperWeirdWordPlugin(MessDetectorPlugin):
             self._is_current_word_bad = True
             self._buffer += character
 
-    def reset(self) -> None:  # pragma: no cover
+    def reset(self) -> None:  # Abstract
         self._buffer = ""
         self._is_current_word_bad = False
         self._foreign_long_watch = False
@@ -385,7 +385,7 @@ class CjkInvalidStopPlugin(MessDetectorPlugin):
         if is_cjk(character):
             self._cjk_character_count += 1
 
-    def reset(self) -> None:  # pragma: no cover
+    def reset(self) -> None:  # Abstract
         self._wrong_stop_count = 0
         self._cjk_character_count = 0
 
@@ -455,7 +455,7 @@ class ArchaicUpperLowerPlugin(MessDetectorPlugin):
         self._character_count_since_last_sep += 1
         self._last_alpha_seen = character
 
-    def reset(self) -> None:  # pragma: no cover
+    def reset(self) -> None:  # Abstract
         self._character_count = 0
         self._character_count_since_last_sep = 0
         self._successive_upper_lower_count = 0
@@ -477,7 +477,7 @@ class ArabicIsolatedFormPlugin(MessDetectorPlugin):
         self._character_count: int = 0
         self._isolated_form_count: int = 0
 
-    def reset(self) -> None:  # pragma: no cover
+    def reset(self) -> None:  # Abstract
         self._character_count = 0
         self._isolated_form_count = 0
 
