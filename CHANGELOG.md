@@ -2,7 +2,7 @@
 All notable changes to charset-normalizer will be documented in this file. This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [3.4.1](https://github.com/Ousret/charset_normalizer/compare/3.4.0...master) (2024-10-??)
+## [3.4.1](https://github.com/Ousret/charset_normalizer/compare/3.4.0...master) (2024-12-24)
 
 ### Changed
 - Project metadata are now stored using `pyproject.toml` instead of `setup.cfg` using setuptools as the build backend.
@@ -10,9 +10,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 - pre-commit configuration.
+- noxfile.
 
 ### Removed
 - `build-requirements.txt` as per using `pyproject.toml` native build configuration.
+- `bin/integration.py` and `bin/serve.py` in favor of downstream integration test (see noxfile).
+- `setup.cfg` in favor of `pyproject.toml` metadata configuration.
+- unused `util.unicode_range` function.
 
 ## [3.4.0](https://github.com/Ousret/charset_normalizer/compare/3.3.2...3.4.0) (2024-10-08)
 
