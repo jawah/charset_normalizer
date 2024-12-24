@@ -76,9 +76,9 @@ jobs:
       - name: Install dependencies
         run: python -m pip install nox
       - name: Coverage WITH preemptive
-        run: nox -s coverage --coverage 97 --with-preemptive
+        run: nox -s coverage -- --coverage 97 --with-preemptive
       - name: Coverage WITHOUT preemptive
-        run: nox -s coverage --coverage 95
+        run: nox -s coverage -- --coverage 95
       - name: "Upload artifact"
         uses: "actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce"
         with:
@@ -126,7 +126,7 @@ jobs:
       - name: Install dependencies
         run: pip install nox
       - name: BC Coverage
-        run: nox -s backward_compatibility --coverage 80
+        run: nox -s backward_compatibility -- --coverage 80
 
   mypyc_test:
 
