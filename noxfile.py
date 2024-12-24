@@ -114,6 +114,13 @@ def coverage(session: nox.Session) -> None:
 
     session.install(".", silent=False)
 
+    # Show the pip version.
+    session.run("pip", "--version")
+    # Print the Python version and bytesize.
+    session.run("python", "--version")
+    # Show charset-normalizer cli info
+    session.run("normalizer", "--version")
+
     session.run(
         "python",
         "-m",
