@@ -222,7 +222,7 @@ class CharsetMatch:
                     RE_POSSIBLE_ENCODING_INDICATION,
                     lambda m: m.string[m.span()[0] : m.span()[1]].replace(
                         m.groups()[0],
-                        iana_name(self._output_encoding),  # type: ignore[arg-type]
+                        iana_name(self._output_encoding).replace("_", "-"),  # type: ignore[arg-type]
                     ),
                     decoded_string[:8192],
                     count=1,

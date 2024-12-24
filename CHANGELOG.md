@@ -16,7 +16,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - `build-requirements.txt` as per using `pyproject.toml` native build configuration.
 - `bin/integration.py` and `bin/serve.py` in favor of downstream integration test (see noxfile).
 - `setup.cfg` in favor of `pyproject.toml` metadata configuration.
-- unused `util.unicode_range` function.
+- unused `utils.unicode_range` function.
+
+### Fixed
+- converting content to Unicode bytes may insert non-IANA compliant encoding name (e.g. `utf_8` instead of `utf-8`). (#572)
 
 ## [3.4.0](https://github.com/Ousret/charset_normalizer/compare/3.3.2...3.4.0) (2024-10-08)
 
