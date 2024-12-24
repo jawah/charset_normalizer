@@ -196,7 +196,7 @@ reliable alternative using a completely different method. Also! I never back dow
 
 I **don't care** about the **originating charset** encoding, because **two different tables** can
 produce **two identical rendered string.**
-What I want is to get readable text, the best I can. 
+What I want is to get readable text, the best I can.
 
 In a way, **I'm brute forcing text decoding.** How cool is that ? 😎
 

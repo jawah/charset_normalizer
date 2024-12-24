@@ -1,12 +1,12 @@
 # Contribution Guidelines
 
-If you’re reading this, you’re probably interested in contributing to Charset Normalizer. 
-Thank you very much! Open source projects live-and-die based on the support they receive from others, 
+If you’re reading this, you’re probably interested in contributing to Charset Normalizer.
+Thank you very much! Open source projects live-and-die based on the support they receive from others,
 and the fact that you’re even considering contributing to this project is very generous of you.
 
 ## Questions
 
-The GitHub issue tracker is for *bug reports* and *feature requests*. 
+The GitHub issue tracker is for *bug reports* and *feature requests*.
 Questions are allowed only when no answer are provided in docs.
 
 ## Good Bug Reports

@@ -197,7 +197,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [2.0.12](https://github.com/Ousret/charset_normalizer/compare/2.0.11...2.0.12) (2022-02-12)
 
 ### Fixed
-- ASCII miss-detection on rare cases (PR #170) 
+- ASCII miss-detection on rare cases (PR #170)
 
 ## [2.0.11](https://github.com/Ousret/charset_normalizer/compare/2.0.10...2.0.11) (2022-01-30)
 
@@ -229,7 +229,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - MD improvement on trailing data and long foreign (non-pure latin) data (PR #124)
 - Efficiency improvements in cd/alphabet_languages from [@adbar](https://github.com/adbar) (PR #122)
 - call sum() without an intermediary list following PEP 289 recommendations from [@adbar](https://github.com/adbar) (PR #129)
-- Code style as refactored by Sourcery-AI (PR #131) 
+- Code style as refactored by Sourcery-AI (PR #131)
 - Minor adjustment on the MD around european words (PR #133)
 - Remove and replace SRTs from assets / tests (PR #139)
 - Initialize the library logger with a `NullHandler` by default from [@nmaynes](https://github.com/nmaynes) (PR #135)
@@ -302,7 +302,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [2.0.2](https://github.com/Ousret/charset_normalizer/compare/2.0.1...2.0.2) (2021-07-15)
 ### Fixed
-- Empty/Too small JSON payload miss-detection fixed. Report from [@tseaver](https://github.com/tseaver) (PR #59) 
+- Empty/Too small JSON payload miss-detection fixed. Report from [@tseaver](https://github.com/tseaver) (PR #59)
 
 ### Changed
 - Don't inject unicodedata2 into sys.modules from [@akx](https://github.com/akx) (PR #57)

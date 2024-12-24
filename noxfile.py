@@ -17,9 +17,7 @@ def test_impl(
     session.install(
         ".",
         silent=False,
-        env={
-            "CHARSET_NORMALIZER_USE_MYPYC": "1" if use_mypyc else "0"
-        }
+        env={"CHARSET_NORMALIZER_USE_MYPYC": "1" if use_mypyc else "0"},
     )
 
     # Show the pip version.
@@ -54,16 +52,12 @@ def test_impl(
     )
 
 
-@nox.session(
-    python=["3.7", "3.8", "3.9", "3.10", "3.11", "3.12", "3.13", "pypy"]
-)
+@nox.session(python=["3.7", "3.8", "3.9", "3.10", "3.11", "3.12", "3.13", "pypy"])
 def test(session: nox.Session) -> None:
     test_impl(session)
 
 
-@nox.session(
-    python=["3.7", "3.8", "3.9", "3.10", "3.11", "3.12", "3.13"]
-)
+@nox.session(python=["3.7", "3.8", "3.9", "3.10", "3.11", "3.12", "3.13"])
 def test_mypyc(session: nox.Session) -> None:
     test_impl(session, True)
 
@@ -141,13 +135,7 @@ def performance(session: nox.Session) -> None:
     session.install("-r", "dev-requirements.txt", silent=False)
 
     session.install("chardet")
-    session.install(
-        ".",
-        silent=False,
-        env={
-            "CHARSET_NORMALIZER_USE_MYPYC": "1"
-        }
-    )
+    session.install(".", silent=False, env={"CHARSET_NORMALIZER_USE_MYPYC": "1"})
 
     session.run(
         "python",
@@ -173,7 +161,11 @@ def downstream_niquests(session: nox.Session) -> None:
     session.install(".", silent=False)
     session.cd(f"{tmp_dir}/niquests")
 
-    session.run("python", "-c", "import charset_normalizer; print(charset_normalizer.__version__)")
+    session.run(
+        "python",
+        "-c",
+        "import charset_normalizer; print(charset_normalizer.__version__)",
+    )
     session.run(
         "python",
         "-m",
@@ -202,7 +194,11 @@ def downstream_requests(session: nox.Session) -> None:
     session.install(".", silent=False)
     session.cd(f"{tmp_dir}/requests")
 
-    session.run("python", "-c", "import charset_normalizer; print(charset_normalizer.__version__)")
+    session.run(
+        "python",
+        "-c",
+        "import charset_normalizer; print(charset_normalizer.__version__)",
+    )
     session.run(
         "python",
         "-m",

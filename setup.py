@@ -22,7 +22,7 @@ if USE_MYPYC:
             "src/charset_normalizer/md.py",
         ],
         debug_level="0",
-        opt_level="3"
+        opt_level="3",
     )
 else:
     MYPYC_MODULES = None

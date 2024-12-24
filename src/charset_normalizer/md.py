@@ -526,9 +526,10 @@ def is_suspiciously_successive_range(
     ):
         return False
 
-    keywords_range_a, keywords_range_b = unicode_range_a.split(
-        " "
-    ), unicode_range_b.split(" ")
+    keywords_range_a, keywords_range_b = (
+        unicode_range_a.split(" "),
+        unicode_range_b.split(" "),
+    )
 
     for el in keywords_range_a:
         if el in UNICODE_SECONDARY_RANGE_KEYWORD:
