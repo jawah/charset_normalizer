@@ -7,6 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Changed
 - Project metadata are now stored using `pyproject.toml` instead of `setup.cfg` using setuptools as the build backend.
 - Enforce annotation delayed loading for a simpler and consistent types in the project.
+- Optional mypyc compilation upgraded to version 1.14 for Python >= 3.8
 
 ### Added
 - pre-commit configuration.
@@ -16,10 +17,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - `build-requirements.txt` as per using `pyproject.toml` native build configuration.
 - `bin/integration.py` and `bin/serve.py` in favor of downstream integration test (see noxfile).
 - `setup.cfg` in favor of `pyproject.toml` metadata configuration.
-- unused `utils.unicode_range` function.
+- Unused `utils.range_scan` function.
 
 ### Fixed
-- converting content to Unicode bytes may insert `utf_8` instead of preferred `utf-8`. (#572)
+- Converting content to Unicode bytes may insert `utf_8` instead of preferred `utf-8`. (#572)
+- Deprecation warning "'count' is passed as positional argument" when converting to Unicode bytes on Python 3.13+
 
 ## [3.4.0](https://github.com/Ousret/charset_normalizer/compare/3.3.2...3.4.0) (2024-10-08)
 
