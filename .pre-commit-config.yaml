@@ -1,31 +1,30 @@
 exclude: 'docs/|data/|tests/'
 
 repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: check-yaml
+      - id: debug-statements
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.3.1
+    rev: v3.19.1
     hooks:
       - id: pyupgrade
-        args: ["--py37-plus"]
-
-  - repo: https://github.com/psf/black
-    rev: 23.1.0
+        args: [ --py37-plus ]
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    # Ruff version.
+    rev: v0.8.4
     hooks:
-      - id: black
-        args: ["--target-version", "py37"]
-
-  - repo: https://github.com/PyCQA/isort
-    rev: 5.12.0
-    hooks:
-      - id: isort
-
-  - repo: https://github.com/PyCQA/flake8
-    rev: 6.1.0
-    hooks:
-      - id: flake8
-        additional_dependencies: [flake8-2020]
-
+      # Run the linter.
+      - id: ruff
+        args: [ --fix ]
+      # Run the formatter.
+      - id: ruff-format
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.13.0
+    rev: v1.14.0
     hooks:
       - id: mypy
-        exclude: 'tests/|bin/'
+        args: [ --check-untyped-defs ]
+        exclude: 'tests/|noxfile.py|setup.py|bin/'
