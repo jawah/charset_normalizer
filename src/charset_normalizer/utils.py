@@ -307,20 +307,6 @@ def iana_name(cp_name: str, strict: bool = True) -> str:
     return cp_name
 
 
-def range_scan(decoded_sequence: str) -> list[str]:
-    ranges: set[str] = set()
-
-    for character in decoded_sequence:
-        character_range: str | None = unicode_range(character)
-
-        if character_range is None:
-            continue
-
-        ranges.add(character_range)
-
-    return list(ranges)
-
-
 def cp_similarity(iana_name_a: str, iana_name_b: str) -> float:
     if is_multi_byte_encoding(iana_name_a) or is_multi_byte_encoding(iana_name_b):
         return 0.0
