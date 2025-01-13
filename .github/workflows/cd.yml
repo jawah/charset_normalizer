@@ -35,7 +35,7 @@ jobs:
           CHARSET_NORMALIZER_USE_MYPYC: '0'
         run: python -m build
       - name: Upload artifacts
-        uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08
         with:
           name: dist
           path: dist
@@ -87,7 +87,7 @@ jobs:
           CIBW_TEST_COMMAND: pytest -c {package} {package}/tests
           CIBW_SKIP: pp*
       - name: Upload artifacts
-        uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08
         with:
           name: dist
           path: ./wheelhouse/*.whl
