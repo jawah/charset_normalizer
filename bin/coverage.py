@@ -86,7 +86,7 @@ def cli_coverage(arguments: list[str]):
         if calc_eq >= 0.98:
             success_count += 1
             print(
-                f"️✅ ️'{tbt_path}' (got '{result.encoding}' but equivalence {round(calc_eq * 100., 3)} %)"
+                f"️✅ ️'{tbt_path}' (got '{result.encoding}' but equivalence {round(calc_eq * 100.0, 3)} %)"
             )
             continue
 

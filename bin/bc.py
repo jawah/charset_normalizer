@@ -89,7 +89,7 @@ def cli_bc(arguments: list[str]):
             success_count += 1
             print(
                 f"️✅ ️'{tbt_path}' (got '{charset_normalizer_encoding}' but "
-                f"eq {chardet_encoding} WITH {round(calc_eq * 100., 3)} %)"
+                f"eq {chardet_encoding} WITH {round(calc_eq * 100.0, 3)} %)"
             )
             continue
 
