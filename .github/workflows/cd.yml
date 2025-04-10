@@ -78,7 +78,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38 # v5.4.0
       - name: Build wheels
-        uses: pypa/cibuildwheel@ee63bf16da6cddfb925f542f2c7b59ad50e93969 # v2.22.0
+        uses: pypa/cibuildwheel@d04cacbc9866d432033b1d09142936e6a0e2121a # v2.23.2
         env:
           CIBW_BUILD_FRONTEND: build
           CIBW_ARCHS_MACOS: universal2
