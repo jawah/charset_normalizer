@@ -2,10 +2,14 @@
 All notable changes to charset-normalizer will be documented in this file. This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [3.4.2](https://github.com/Ousret/charset_normalizer/compare/3.4.1...master) (2025-??-??)
+## [3.4.2](https://github.com/Ousret/charset_normalizer/compare/3.4.1...3.4.2) (2025-04-??)
 
 ### Fixed
-- Addressed the DeprecationWarning in our CLI regarding `argparse.FileType` by backporting the target class into the package.
+- Addressed the DeprecationWarning in our CLI regarding `argparse.FileType` by backporting the target class into the package. (#591)
+- Improved the overall reliability of the detector with CJK Ideographs. (#605) (#587)
+
+### Changed
+- Optional mypyc compilation upgraded to version 1.15 for Python >= 3.8
 
 ## [3.4.1](https://github.com/Ousret/charset_normalizer/compare/3.4.0...3.4.1) (2024-12-24)
 
