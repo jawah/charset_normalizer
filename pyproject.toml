@@ -49,7 +49,7 @@ version = {attr = "charset_normalizer.__version__"}
 readme = {file = ["README.md", "CHANGELOG.md", "LICENSE"], content-type = "text/markdown"}
 
 [project.scripts]
-normalizer = "charset_normalizer:cli.cli_detect"
+normalizer = "charset_normalizer.cli:cli_detect"
 
 [project.urls]
 "Changelog" = "https://github.com/jawah/charset_normalizer/blob/master/CHANGELOG.md"
