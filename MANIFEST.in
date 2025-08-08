@@ -1,4 +1,4 @@
-include LICENSE README.md CHANGELOG.md src/charset_normalizer/py.typed dev-requirements.txt SECURITY.md noxfile.py
+include LICENSE README.md CHANGELOG.md src/charset_normalizer/py.typed dev-requirements.txt SECURITY.md noxfile.py _mypyc_hook/*.py
 recursive-include data *.md
 recursive-include data *.txt
 recursive-include docs *

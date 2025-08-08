@@ -1,6 +1,7 @@
 [build-system]
-requires = ["setuptools", "setuptools-scm", "mypy>=1.4.1,<=1.17.1"]
-build-backend = "setuptools.build_meta"
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "backend"
+backend-path = ["_mypyc_hook"]
 
 [project]
 name = "charset-normalizer"
@@ -27,6 +28,7 @@ classifiers = [
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
   "Programming Language :: Python :: 3 :: Only",
   "Programming Language :: Python :: Implementation :: CPython",
   "Programming Language :: Python :: Implementation :: PyPy",
