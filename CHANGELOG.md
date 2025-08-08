@@ -2,6 +2,22 @@
 All notable changes to charset-normalizer will be documented in this file. This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [3.4.3](https://github.com/Ousret/charset_normalizer/compare/3.4.2...3.4.3) (2025-08-08)
+
+### Changed
+- mypy(c) is no longer a required dependency at build time if `CHARSET_NORMALIZER_USE_MYPYC` isn't set to `1`. (#595) (#583)
+
+### Added
+- Custom build backend to overcome inability to mark mypy as an optional dependency in the build phase.
+- Support for Python 3.14
+
+### Fixed
+- sdist archive contained useless directories.
+
+### Misc
+- SBOM are automatically published to the relevant GitHub release to comply with regulatory changes.
+  Each published wheel comes with its SBOM. We choose CycloneDX as the format.
+
 ## [3.4.2](https://github.com/Ousret/charset_normalizer/compare/3.4.1...3.4.2) (2025-05-02)
 
 ### Fixed
