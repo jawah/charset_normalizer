@@ -6,8 +6,7 @@ backend-path = ["_mypyc_hook"]
 [project]
 name = "charset-normalizer"
 description = "The Real First Universal Charset Detector. Open, modern and actively maintained alternative to Chardet."
-license-files = ["LICENSE"]
-license = "MIT"
+license = {text = "MIT"}
 keywords = ["encoding", "charset", "charset-detector", "detector", "normalization", "unicode", "chardet", "detect"]
 authors = [
   {name = "Ahmed R. TAHRI", email="tahri.ahmed@proton.me"},
