@@ -3,3 +3,6 @@ recursive-include data *.md
 recursive-include data *.txt
 recursive-include docs *
 recursive-include tests *
+recursive-exclude .github/ *
+recursive-exclude __pycache__/ *
+global-exclude *.pyc
