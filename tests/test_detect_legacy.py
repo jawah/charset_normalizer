@@ -41,3 +41,20 @@ class TestDetectLegacy(unittest.TestCase):
 
         with self.subTest("Verify that UTF-8-SIG is returned when using legacy detect"):
             self.assertEqual(r["encoding"], "UTF-8-SIG")
+
+    def test_small_payload_confidence_altered(self):
+
+        with self.subTest("Unicode should yield 1. confidence even on small bytes string"):
+            r = detect("#表 10-1 クラスタ設定".encode("utf_16"))
+
+            self.assertTrue(r["confidence"] == 1.0)
+
+        with self.subTest("ShiftJis should not yield 1. confidence on small bytes string"):
+            r = detect("#表 10-1 クラスタ設定".encode("cp932"))
+
+            self.assertTrue(r["confidence"] < 1.0)
+
+        with self.subTest("ShiftJis should yield 1. confidence on sufficient bytes string"):
+            r = detect("#表 10-1 クラスタ設定　…　リソース同居制約".encode("cp932"))
+
+            self.assertTrue(r["confidence"] == 1.0)

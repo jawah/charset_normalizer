@@ -54,6 +54,30 @@ def test_empty_but_with_bom_or_sig(payload, expected_encoding):
 @pytest.mark.parametrize(
     "payload, expected_encoding",
     [
+        # https://github.com/jawah/charset_normalizer/issues/633
+        # we want to fallback on utf/8/16/32 if md is unhappy
+        # with content anyway.
+        ("▶hello".encode("utf_32"), "utf_32"),
+        ("▶hello".encode("utf_16"), "utf_16"),
+    ],
+)
+def test_md_triggered_but_with_bom_or_sig(payload, expected_encoding):
+    best_guess = from_bytes(payload).best()
+
+    assert best_guess is not None, "Detect/fallback with SIG/BOM has failed!"
+    assert (
+        best_guess.encoding == expected_encoding
+    ), "Detection SIG/BOM is wrongly detected!"
+    assert (
+        best_guess.raw == payload
+    ), "The RAW property should contain the original payload given for detection."
+    assert best_guess.byte_order_mark is True, "The BOM/SIG property should return True"
+    assert str(best_guess) == "▶hello"
+
+
+@pytest.mark.parametrize(
+    "payload, expected_encoding",
+    [
         (
             ("\uFEFF" + "我没有埋怨，磋砣的只是一些时间。").encode("gb18030"),
             "gb18030",
