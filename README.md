@@ -15,10 +15,10 @@
 <p align="center">
   <sup><i>Featured Packages</i></sup><br>
   <a href="https://github.com/jawah/niquests">
-   <img alt="Static Badge" src="https://img.shields.io/badge/Niquests-Best_HTTP_Client-cyan">
+   <img alt="Static Badge" src="https://img.shields.io/badge/Niquests-Most_Advanced_HTTP_Client-cyan">
   </a>
   <a href="https://github.com/jawah/wassima">
-   <img alt="Static Badge" src="https://img.shields.io/badge/Wassima-Certifi_Killer-cyan">
+   <img alt="Static Badge" src="https://img.shields.io/badge/Wassima-Certifi_Replacement-cyan">
   </a>
 </p>
 <p align="center">
