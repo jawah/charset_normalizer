@@ -6,6 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Changed
 - mypy(c) is no longer a required dependency at build time if `CHARSET_NORMALIZER_USE_MYPYC` isn't set to `1`. (#595) (#583)
+- automatically lower confidence on small bytes samples that are not Unicode in `detect` output legacy function. (#391)
 
 ### Added
 - Custom build backend to overcome inability to mark mypy as an optional dependency in the build phase.
