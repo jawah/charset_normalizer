@@ -13,6 +13,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Fixed
 - sdist archive contained useless directories.
+- automatically fallback on valid UTF-16 or UTF-32 even if the md says it's noisy. (#633)
 
 ### Misc
 - SBOM are automatically published to the relevant GitHub release to comply with regulatory changes.
