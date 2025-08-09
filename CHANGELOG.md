@@ -19,6 +19,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Misc
 - SBOM are automatically published to the relevant GitHub release to comply with regulatory changes.
   Each published wheel comes with its SBOM. We choose CycloneDX as the format.
+- Prebuilt optimized wheel are no longer distributed by default for CPython 3.7 due to a change in cibuildwheel.
 
 ## [3.4.2](https://github.com/Ousret/charset_normalizer/compare/3.4.1...3.4.2) (2025-05-02)
 
