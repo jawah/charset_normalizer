@@ -3,7 +3,7 @@ from __future__ import annotations
 import os
 from typing import Any
 
-from setuptools import build_meta as _orig  # type: ignore[import-not-found]
+from setuptools import build_meta as _orig  # type: ignore[import-untyped]
 
 USE_MYPYC = os.getenv("CHARSET_NORMALIZER_USE_MYPYC", "0") == "1"
 MYPYC_SPEC = "mypy>=1.4.1,<=1.17.1"
