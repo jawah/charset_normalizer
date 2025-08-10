@@ -47,15 +47,15 @@ jobs:
     needs: pre_flight_check
     strategy:
       matrix:
-        os: [ ubuntu-22.04, windows-latest, macos-13 ]
+        os: [ ubuntu-latest, windows-latest, macos-14 ]
         qemu: [ '' ]
         include:
           # Split ubuntu job for the sake of speed-up
-          - os: ubuntu-22.04
+          - os: ubuntu-latest
             qemu: aarch64
-          - os: ubuntu-22.04
+          - os: ubuntu-latest
             qemu: ppc64le
-          - os: ubuntu-22.04
+          - os: ubuntu-latest
             qemu: s390x
     steps:
       - name: Checkout
