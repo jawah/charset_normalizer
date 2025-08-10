@@ -18,4 +18,3 @@ updates:
     directory: "/"
     schedule:
       interval: "monthly"
-
