@@ -2,20 +2,20 @@ exclude: 'docs/|data/|tests/'
 
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v5.0.0
+    rev: v6.0.0
     hooks:
       - id: check-yaml
       - id: debug-statements
       - id: end-of-file-fixer
       - id: trailing-whitespace
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.19.1
+    rev: v3.20.0
     hooks:
       - id: pyupgrade
         args: [ --py37-plus, --keep-runtime-typing ]
   - repo: https://github.com/astral-sh/ruff-pre-commit
     # Ruff version.
-    rev: v0.9.1
+    rev: v0.12.8
     hooks:
       # Run the linter.
       - id: ruff
@@ -23,7 +23,7 @@ repos:
       # Run the formatter.
       - id: ruff-format
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.14.1
+    rev: v1.17.1
     hooks:
       - id: mypy
         args: [ --check-untyped-defs ]
