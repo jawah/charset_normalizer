@@ -12,7 +12,7 @@ def test_impl(
 ):
     # Install deps and the package itself.
     session.install("-U", "pip", "setuptools", silent=False)
-    session.install("-r", "dev-requirements.txt", silent=False)
+    session.install("-r", "dev-requirements.txt", "--require-hashes", silent=False)
 
     session.install(
         ".",
@@ -87,8 +87,7 @@ def backward_compatibility(session: nox.Session) -> None:
     git_clone(session, "https://github.com/ousret/char-dataset")
 
     # Install deps and the package itself.
-    session.install("-U", "pip", "setuptools", silent=False)
-    session.install("-r", "dev-requirements.txt", silent=False)
+    session.install("-r", "dev-requirements.txt", "--require-hashes", silent=False)
 
     session.install(".", silent=False)
     session.install("chardet")
@@ -105,8 +104,7 @@ def coverage(session: nox.Session) -> None:
     git_clone(session, "https://github.com/ousret/char-dataset")
 
     # Install deps and the package itself.
-    session.install("-U", "pip", "setuptools", silent=False)
-    session.install("-r", "dev-requirements.txt", silent=False)
+    session.install("-r", "dev-requirements.txt", "--require-hashes", silent=False)
 
     session.install(".", silent=False)
 
@@ -134,7 +132,7 @@ def performance(session: nox.Session) -> None:
 
     # Install deps and the package itself.
     session.install("-U", "pip", "setuptools", silent=False)
-    session.install("-r", "dev-requirements.txt", silent=False)
+    session.install("-r", "dev-requirements.txt", "--require-hashes", silent=False)
 
     session.install("chardet")
     session.install(".", silent=False, env={"CHARSET_NORMALIZER_USE_MYPYC": "1"})
