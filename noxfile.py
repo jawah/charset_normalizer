@@ -11,7 +11,6 @@ def test_impl(
     use_mypyc: bool = False,
 ):
     # Install deps and the package itself.
-    session.install("-U", "pip", "setuptools", silent=False)
     session.install("-r", "dev-requirements.txt", "--require-hashes", silent=False)
 
     session.install(
@@ -131,7 +130,6 @@ def performance(session: nox.Session) -> None:
     git_clone(session, "https://github.com/ousret/char-dataset")
 
     # Install deps and the package itself.
-    session.install("-U", "pip", "setuptools", silent=False)
     session.install("-r", "dev-requirements.txt", "--require-hashes", silent=False)
 
     session.install("chardet")
