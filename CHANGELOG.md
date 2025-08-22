@@ -2,6 +2,17 @@
 All notable changes to charset-normalizer will be documented in this file. This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [3.4.4](https://github.com/Ousret/charset_normalizer/compare/3.4.2...master) (2025-09-??)
+
+### Changed
+- Bound `setuptools` to a specific constraint `setuptools>=68,<=81`.
+
+### Removed
+- `setuptools-scm` as a build dependency.
+
+### Misc
+- Enforced hashes in `dev-requirements.txt` and created `ci-requirements.txt` for security purposes.
+
 ## [3.4.3](https://github.com/Ousret/charset_normalizer/compare/3.4.2...3.4.3) (2025-08-09)
 
 ### Changed
