@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 from os import PathLike
-from typing import BinaryIO
+from typing import BinaryIO, Iterable
 
 from .cd import (
     coherence_ratio,
@@ -35,8 +35,8 @@ def from_bytes(
     steps: int = 5,
     chunk_size: int = 512,
     threshold: float = 0.2,
-    cp_isolation: list[str] | None = None,
-    cp_exclusion: list[str] | None = None,
+    cp_isolation: Iterable[str] | None = None,
+    cp_exclusion: Iterable[str] | None = None,
     preemptive_behaviour: bool = True,
     explain: bool = False,
     language_threshold: float = 0.1,
@@ -88,9 +88,9 @@ def from_bytes(
             "limited list of encoding allowed : %s.",
             ", ".join(cp_isolation),
         )
-        cp_isolation = [iana_name(cp, False) for cp in cp_isolation]
+        cp_isolation = {iana_name(cp, False) for cp in cp_isolation}
     else:
-        cp_isolation = []
+        cp_isolation = set()
 
     if cp_exclusion is not None:
         logger.log(
@@ -99,9 +99,9 @@ def from_bytes(
             "limited list of encoding excluded : %s.",
             ", ".join(cp_exclusion),
         )
-        cp_exclusion = [iana_name(cp, False) for cp in cp_exclusion]
+        cp_exclusion = {iana_name(cp, False) for cp in cp_exclusion}
     else:
-        cp_exclusion = []
+        cp_exclusion = set()
 
     if length <= (chunk_size * steps):
         logger.log(
@@ -177,13 +177,9 @@ def from_bytes(
     if "utf_8" not in prioritized_encodings:
         prioritized_encodings.append("utf_8")
 
-    for encoding_iana in prioritized_encodings + IANA_SUPPORTED:
-        if cp_isolation and encoding_iana not in cp_isolation:
-            continue
-
-        if cp_exclusion and encoding_iana in cp_exclusion:
-            continue
-
+    for encoding_iana in (
+        set(prioritized_encodings + IANA_SUPPORTED) & cp_isolation
+    ) - cp_exclusion:
         if encoding_iana in tested:
             continue
 
@@ -547,8 +543,8 @@ def from_fp(
     steps: int = 5,
     chunk_size: int = 512,
     threshold: float = 0.20,
-    cp_isolation: list[str] | None = None,
-    cp_exclusion: list[str] | None = None,
+    cp_isolation: Iterable[str] | None = None,
+    cp_exclusion: Iterable[str] | None = None,
     preemptive_behaviour: bool = True,
     explain: bool = False,
     language_threshold: float = 0.1,
@@ -577,8 +573,8 @@ def from_path(
     steps: int = 5,
     chunk_size: int = 512,
     threshold: float = 0.20,
-    cp_isolation: list[str] | None = None,
-    cp_exclusion: list[str] | None = None,
+    cp_isolation: Iterable[str] | None = None,
+    cp_exclusion: Iterable[str] | None = None,
     preemptive_behaviour: bool = True,
     explain: bool = False,
     language_threshold: float = 0.1,
@@ -608,8 +604,8 @@ def is_binary(
     steps: int = 5,
     chunk_size: int = 512,
     threshold: float = 0.20,
-    cp_isolation: list[str] | None = None,
-    cp_exclusion: list[str] | None = None,
+    cp_isolation: Iterable[str] | None = None,
+    cp_exclusion: Iterable[str] | None = None,
     preemptive_behaviour: bool = True,
     explain: bool = False,
     language_threshold: float = 0.1,
