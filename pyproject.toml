@@ -55,7 +55,7 @@ dev = [
   "pytest==8.4.1; python_version >= '3.9'",
   "coverage==7.2.7; python_version == '3.7'",
   "coverage==7.6.1; python_version == '3.8'",
-  "coverage==7.10.4; python_version >= '3.9'",
+  "coverage==7.10.7; python_version >= '3.9'",
 ]
 
 [tool.setuptools]
