@@ -6,7 +6,7 @@ from typing import Any
 from setuptools import build_meta as _orig  # type: ignore[import-untyped]
 
 USE_MYPYC = os.getenv("CHARSET_NORMALIZER_USE_MYPYC", "0") == "1"
-MYPYC_SPEC = "mypy>=1.4.1,<=1.17.1"
+MYPYC_SPEC = "mypy>=1.4.1,<=1.18.2"
 
 # Expose all the PEP 517 hooks from setuptools
 get_requires_for_build_sdist = _orig.get_requires_for_build_sdist
