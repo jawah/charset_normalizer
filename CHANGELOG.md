@@ -6,6 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Changed
 - Bound `setuptools` to a specific constraint `setuptools>=68,<=81`.
+- Raised upper bound of mypyc for the optional pre-built extension to v1.18.2
 
 ### Removed
 - `setuptools-scm` as a build dependency.
