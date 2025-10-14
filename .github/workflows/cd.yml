@@ -49,37 +49,16 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-14, ubuntu-24.04-arm]
         qemu: [ '' ]
-        musl: [ '' ]
         include:
           # Split ubuntu job for the sake of speed-up
           - os: ubuntu-latest
             qemu: ppc64le
-            musl: ""
-          - os: ubuntu-latest
-            qemu: ppc64le
-            musl: musllinux
           - os: ubuntu-latest
             qemu: riscv64
-            musl: ""
-          - os: ubuntu-latest
-            qemu: riscv64
-            musl: musllinux
           - os: ubuntu-latest
             qemu: s390x
-            musl: ""
-          - os: ubuntu-latest
-            qemu: s390x
-            musl: musllinux
           - os: ubuntu-latest
             qemu: armv7l
-            musl: ""
-          - os: ubuntu-latest
-            qemu: armv7l
-            musl: musllinux
-          - os: ubuntu-latest
-            musl: musllinux
-          - os: ubuntu-24.04-arm
-            musl: musllinux
     steps:
       - name: Checkout
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
@@ -92,12 +71,9 @@ jobs:
           platforms: all
         id: qemu
       - name: Prepare emulation
+        if: ${{ matrix.qemu }}
         run: |
-          if [[ -n "${{ matrix.qemu }}" ]]; then
-            # Build emulated architectures only if QEMU is set,
-            # use default "auto" otherwise
-            echo "CIBW_ARCHS_LINUX=${{ matrix.qemu }}" >> $GITHUB_ENV
-          fi
+          echo "CIBW_ARCHS_LINUX=${{ matrix.qemu }}" >> $GITHUB_ENV
         shell: bash
       - name: Setup Python
         uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6.0.0
@@ -109,7 +85,7 @@ jobs:
           CIBW_ENVIRONMENT: CHARSET_NORMALIZER_USE_MYPYC='1'
           CIBW_TEST_REQUIRES: pytest
           CIBW_TEST_COMMAND: pytest -c {package} {package}/tests
-          CIBW_SKIP: "cp31?t-* ${{ matrix.musl == 'musllinux' && '*manylinux*' || '*musllinux*' }}"
+          CIBW_SKIP: "cp31?t-*"
       - name: Upload artifacts
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
