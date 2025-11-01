@@ -297,9 +297,9 @@ importlib-metadata==6.7.0 ; python_full_version < '3.8' \
     #   pluggy
     #   pytest
     #   virtualenv
-importlib-metadata==8.5.0 ; python_full_version == '3.8.*' \
-    --hash=sha256:45e54197d28b7a7f1559e60b95e7c567032b602131fbd588f1497f47880aa68b \
-    --hash=sha256:71522656f0abace1d072b9e5481a48f07c138e00f079c38c8f883823f9c26bd7
+importlib-metadata==8.7.0 ; python_full_version == '3.8.*' \
+    --hash=sha256:d13b81ad223b890aa16c5471f2ac3056cf76c5f10f82d6f9292f0b415f389000 \
+    --hash=sha256:e5dd1551894c77868a30651cef00984d50e1002d06942a7101d34870c5f02afd
     # via build
 importlib-metadata==8.7.0 ; python_full_version >= '3.9' and python_full_version < '3.10.2' \
     --hash=sha256:d13b81ad223b890aa16c5471f2ac3056cf76c5f10f82d6f9292f0b415f389000 \
