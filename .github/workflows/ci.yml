@@ -60,7 +60,7 @@ jobs:
       - name: Run tests
         run: nox -s test-${{ matrix.python-version }}
       - name: "Upload artifact"
-        uses: "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02"
+        uses: "actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4"
         with:
           name: coverage-data-${{ matrix.python-version }}
           path: ".coverage.*"
@@ -91,7 +91,7 @@ jobs:
       - name: Coverage WITHOUT preemptive
         run: nox -s coverage -- --coverage 95
       - name: "Upload artifact"
-        uses: "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02"
+        uses: "actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4"
         with:
           name: coverage-data-using-internal-coverage
           path: ".coverage.*"
@@ -191,7 +191,7 @@ jobs:
       - name: Run tests with mypyc enabled
         run: nox -s test_mypyc-${{ matrix.python-version }}
       - name: "Upload artifact"
-        uses: "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02"
+        uses: "actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4"
         with:
           name: coverage-data-mypyc-${{ matrix.os }}-${{ matrix.python-version }}
           path: ".coverage.*"
@@ -231,7 +231,7 @@ jobs:
           python -m coverage report --ignore-errors --show-missing --fail-under=92
 
       - name: "Upload report"
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4
         with:
           name: coverage-report
           path: htmlcov
