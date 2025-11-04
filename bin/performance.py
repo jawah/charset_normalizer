@@ -239,7 +239,9 @@ def analyse(file_list, charset_normalizer_results, chardet_results, num_threads=
     stdev_time = stdev(charset_normalizer_results)
     mean_time = mean(charset_normalizer_results)
     cv = (stdev_time / mean_time) * 100  # Coefficient of variation
-    print(f"\n{'-' * 102}\nCharset Normalizer statistics (using {num_threads} thread(s)):\n")
+    print(
+        f"\n{'-' * 102}\nCharset Normalizer statistics (using {num_threads} thread(s)):\n"
+    )
     print(f"Minimum Execution Time: {min_time:.5f} seconds")
     print(f"Maximum Execution Time: {max_time:.5f} seconds")
     print(f"Mean Execution Time: {mean_time:.5f} seconds")
