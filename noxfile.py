@@ -52,13 +52,26 @@ def test_impl(
 
 
 @nox.session(
-    python=["3.7", "3.8", "3.9", "3.10", "3.11", "3.12", "3.13", "3.14", "pypy"]
+    python=[
+        "3.7",
+        "3.8",
+        "3.9",
+        "3.10",
+        "3.11",
+        "3.12",
+        "3.13",
+        "3.14",
+        "3.14t",
+        "pypy",
+    ]
 )
 def test(session: nox.Session) -> None:
     test_impl(session)
 
 
-@nox.session(python=["3.7", "3.8", "3.9", "3.10", "3.11", "3.12", "3.13", "3.14"])
+@nox.session(
+    python=["3.7", "3.8", "3.9", "3.10", "3.11", "3.12", "3.13", "3.14", "3.14t"]
+)
 def test_mypyc(session: nox.Session) -> None:
     test_impl(session, True)
 
@@ -130,15 +143,20 @@ def performance(session: nox.Session) -> None:
     git_clone(session, "https://github.com/ousret/char-dataset")
 
     # Install deps and the package itself.
-    session.install("-r", "dev-requirements.txt", "--require-hashes", silent=False)
+    no_rebuild = "--no-rebuild" in session.posargs
+    perf_args = [arg for arg in session.posargs if arg != "--no-rebuild"]
+    if no_rebuild:
+        print("Skipping re-installing chardet and rebuilding charset_normalizer")
+    else:
+        session.install("-r", "dev-requirements.txt", "--require-hashes", silent=False)
 
-    session.install("chardet")
-    session.install(".", silent=False, env={"CHARSET_NORMALIZER_USE_MYPYC": "1"})
+        session.install("chardet")
+        session.install(".", silent=False, env={"CHARSET_NORMALIZER_USE_MYPYC": "1"})
 
     session.run(
         "python",
         "bin/performance.py",
-        *(session.posargs or ()),
+        *(perf_args or ()),
     )
 
 
