@@ -171,8 +171,6 @@ jobs:
           - python-version: "3.7"
             os: ubuntu-22.04
           - python-version: "3.7"
-            os: macos-14
-          - python-version: "3.7"
             os: windows-latest
     env:
       PYTHONIOENCODING: utf8  # only needed for Windows (console IO output encoding)
