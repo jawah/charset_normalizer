@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import os
+import sys
 
 from setuptools import setup
 
@@ -23,6 +24,12 @@ if USE_MYPYC and mypycify is not None:
         debug_level="0",
         opt_level="3",
     )
+    # explicit link to libmath in optimized build
+    # tell to do "gcc -lm"
+    if sys.platform not in ("win32", "cygwin"):
+        for ext in MYPYC_MODULES:
+            if "m" not in ext.libraries:
+                ext.libraries.append("m")
 else:
     MYPYC_MODULES = None
 
