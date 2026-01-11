@@ -171,7 +171,7 @@ jobs:
           - python-version: "3.7"
             os: ubuntu-22.04
           - python-version: "3.7"
-            os: macos-13
+            os: macos-14
           - python-version: "3.7"
             os: windows-latest
     env:
