@@ -217,7 +217,7 @@ jobs:
           python -m pip install -r ci-requirements.txt --require-hashes
 
       - name: "Download artifact"
-        uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131
         with:
           pattern: coverage-data*
           merge-multiple: true
