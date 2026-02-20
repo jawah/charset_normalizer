@@ -341,9 +341,9 @@ def cli_detect(argv: list[str] | None = None) -> int:
                     continue
 
                 try:
-                    x_[0].unicode_path = join(dir_path, ".".join(o_))
+                    x_[-1].unicode_path = join(dir_path, ".".join(o_))
 
-                    with open(x_[0].unicode_path, "wb") as fp:
+                    with open(x_[-1].unicode_path, "wb") as fp:
                         fp.write(best_guess.output())
                 except OSError as e:
                     print(str(e), file=sys.stderr)
