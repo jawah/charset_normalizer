@@ -78,7 +78,7 @@ def from_bytes(
         logger.debug("Encoding detection on empty bytes, assuming utf_8 intention.")
         if explain:  # Defensive: ensure exit path clean handler
             logger.removeHandler(explain_handler)
-            logger.setLevel(previous_logger_level or logging.WARNING)
+            logger.setLevel(previous_logger_level)
         return CharsetMatches([CharsetMatch(sequences, "utf_8", 0.0, False, [], "")])
 
     if cp_isolation is not None:
