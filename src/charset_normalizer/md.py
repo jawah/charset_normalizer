@@ -1,14 +1,18 @@
 from __future__ import annotations
 
+import sys
 from functools import lru_cache
 from logging import getLogger
 
-try:
+if sys.version_info >= (3, 8):
     from typing import final
-except ImportError:
+else:
+    try:
+        from typing_extensions import final
+    except ImportError:
 
-    def final(cls):  # type: ignore[no-untyped-def,misc]
-        return cls
+        def final(cls):  # type: ignore[misc,no-untyped-def]
+            return cls
 
 
 from .constant import (

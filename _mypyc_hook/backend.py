@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import sys
 from typing import Any
 
 from setuptools import build_meta as _orig  # type: ignore[import-untyped]
@@ -31,4 +32,6 @@ def get_requires_for_build_wheel(
     if USE_MYPYC and MYPYC_SPEC not in requires:
         requires = list(requires) if requires else []
         requires.append(MYPYC_SPEC)
+        if sys.version_info < (3, 8):
+            requires.append("typing_extensions==4.7.1")
     return requires  # type: ignore[no-any-return]
