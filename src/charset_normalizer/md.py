@@ -2,7 +2,14 @@ from __future__ import annotations
 
 from functools import lru_cache
 from logging import getLogger
-from typing import final
+
+try:
+    from typing import final
+except ImportError:
+
+    def final(cls):  # type: ignore[no-untyped-def,misc]
+        return cls
+
 
 from .constant import (
     COMMON_SAFE_ASCII_CHARACTERS,
