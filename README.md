@@ -57,7 +57,7 @@ This project offers you an alternative to **Universal Charset Encoding Detector*
 </p>
 
 *\*\* : They are clearly using specific code for a specific encoding even if covering most of used one.*<br>
-*\*\*\* : The vast majority of the code is issued from an LLM agent (Claude), even if the author label this project now as MIT, it's clearly debatable. Most jurisdictions on copyright laws would nullify the license. With my personal education, **Public Domain or/and LGPL-2.1** is the most likely one based on Anthropic declarations about how they train their LLMs.*<br>
+*\*\*\* : The vast majority of the code is issued from an LLM agent (Claude), even if the author label this project now as MIT, it's clearly debatable. Most jurisdictions on copyright laws would nullify the license. With my personal education, **Public Domain or/and LGPL-2.1** is the most likely one based on Anthropic declarations about how they train their LLMs and the LGPL-2.1 itself (the original license).*<br>
 
 ## ⚡ Performance
 
