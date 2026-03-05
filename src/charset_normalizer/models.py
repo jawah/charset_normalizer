@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from encodings.aliases import aliases
-from hashlib import sha256
 from json import dumps
 from re import sub
 from typing import Any, Iterator, List, Tuple
@@ -79,7 +78,7 @@ class CharsetMatch:
         return self._string
 
     def __repr__(self) -> str:
-        return f"<CharsetMatch '{self.encoding}' bytes({self.fingerprint})>"
+        return f"<CharsetMatch '{self.encoding}' fp({self.fingerprint})>"
 
     def add_submatch(self, other: CharsetMatch) -> None:
         if not isinstance(other, CharsetMatch) or other == self:
@@ -235,11 +234,11 @@ class CharsetMatch:
         return self._output_payload  # type: ignore
 
     @property
-    def fingerprint(self) -> str:
+    def fingerprint(self) -> int:
         """
-        Retrieve the unique SHA256 computed using the transformed (re-encoded) payload. Not the original one.
+        Retrieve a hash fingerprint of the decoded payload, used for deduplication.
         """
-        return sha256(self.output()).hexdigest()
+        return hash(str(self))
 
 
 class CharsetMatches:
