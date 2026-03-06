@@ -2,7 +2,7 @@
 All notable changes to charset-normalizer will be documented in this file. This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [3.4.5](https://github.com/Ousret/charset_normalizer/compare/3.4.4...3.4.5) (2026-03-05)
+## [3.4.5](https://github.com/Ousret/charset_normalizer/compare/3.4.4...3.4.5) (2026-03-06)
 
 ### Changed
 - Update `setuptools` constraint to `setuptools>=68,<=82`.
@@ -10,6 +10,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Fixed
 - Add explicit link to lib math in our optimized build. (#692)
+- Logger level not restored correctly for empty byte sequences. (#701)
+- TypeError when passing bytearray to from_bytes. (#703)
 
 ### Misc
 - Applied safe micro-optimizations in both our noise detector and language detector.
