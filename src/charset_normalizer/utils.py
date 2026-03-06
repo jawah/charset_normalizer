@@ -226,7 +226,7 @@ def any_specified_encoding(sequence: bytes, search_zone: int = 8192) -> str | No
     """
     Extract using ASCII-only decoder any specified encoding in the first n-bytes.
     """
-    if not isinstance(sequence, bytes):
+    if not isinstance(sequence, (bytes, bytearray)):
         raise TypeError
 
     seq_len: int = len(sequence)
