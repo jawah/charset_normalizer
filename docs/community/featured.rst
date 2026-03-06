@@ -23,18 +23,6 @@ we never interacted with a HTTP/2 over TCP or HTTP/3 over QUIC capable server in
 It is a fork of ``requests`` and no breaking changes are to be expected. We made sure that
 your migration is effortless and safe.
 
-httpie-next
------------
-
-Easy solution are cool, let us introduce you to HTTPie but with built-in support
-for HTTP/2 and HTTP/3.
-It is made available as a plugin, no effort required beside installing the said plugin.
-
-Enjoy HTTPie refreshed!
-
-.. image:: https://dabuttonfactory.com/button.png?t=Get+HTTPie-Next+Now&f=Ubuntu-Bold&ts=26&tc=fff&hp=45&vp=20&c=11&bgt=unicolored&bgc=15d798&be=1
-   :target: https://github.com/Ousret/httpie-next
-
 Wassima
 -------
 

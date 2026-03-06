@@ -12,6 +12,8 @@ from .constant import (
     LANGUAGE_SUPPORTED_COUNT,
     TOO_SMALL_SEQUENCE,
     ZH_NAMES,
+    _FREQUENCIES_SET,
+    _FREQUENCIES_RANK,
 )
 from .md import is_suspiciously_successive_range
 from .models import CoherenceMatches
@@ -142,6 +144,7 @@ def alphabet_languages(
     """
     languages: list[tuple[str, float]] = []
 
+    characters_set: frozenset[str] = frozenset(characters)
     source_have_accents = any(is_accentuated(character) for character in characters)
 
     for language, language_characters in FREQUENCIES.items():
@@ -155,9 +158,7 @@ def alphabet_languages(
 
         character_count: int = len(language_characters)
 
-        character_match_count: int = len(
-            [c for c in language_characters if c in characters]
-        )
+        character_match_count: int = len(_FREQUENCIES_SET[language] & characters_set)
 
         ratio: float = character_match_count / character_count
 
@@ -181,23 +182,36 @@ def characters_popularity_compare(
         raise ValueError(f"{language} not available")
 
     character_approved_count: int = 0
-    FREQUENCIES_language_set = set(FREQUENCIES[language])
+    frequencies_language_set: frozenset[str] = _FREQUENCIES_SET[language]
+    lang_rank: dict[str, int] = _FREQUENCIES_RANK[language]
 
     ordered_characters_count: int = len(ordered_characters)
     target_language_characters_count: int = len(FREQUENCIES[language])
 
     large_alphabet: bool = target_language_characters_count > 26
 
+    expected_projection_ratio: float = (
+        target_language_characters_count / ordered_characters_count
+    )
+
+    # Pre-built rank dict for ordered_characters (avoids repeated list slicing).
+    ordered_rank: dict[str, int] = {
+        char: rank for rank, char in enumerate(ordered_characters)
+    }
+
+    # Pre-compute characters common to both orderings.
+    # Avoids repeated `c in ordered_rank` dict lookups in the inner counts.
+    common_chars: list[tuple[int, int]] = [
+        (lr, ordered_rank[c]) for c, lr in lang_rank.items() if c in ordered_rank
+    ]
+
     for character, character_rank in zip(
         ordered_characters, range(0, ordered_characters_count)
     ):
-        if character not in FREQUENCIES_language_set:
+        if character not in frequencies_language_set:
             continue
 
-        character_rank_in_language: int = FREQUENCIES[language].index(character)
-        expected_projection_ratio: float = (
-            target_language_characters_count / ordered_characters_count
-        )
+        character_rank_in_language: int = lang_rank[character]
         character_rank_projection: int = int(character_rank * expected_projection_ratio)
 
         if (
@@ -214,35 +228,33 @@ def characters_popularity_compare(
             character_approved_count += 1
             continue
 
-        characters_before_source: list[str] = FREQUENCIES[language][
-            0:character_rank_in_language
-        ]
-        characters_after_source: list[str] = FREQUENCIES[language][
-            character_rank_in_language:
-        ]
-        characters_before: list[str] = ordered_characters[0:character_rank]
-        characters_after: list[str] = ordered_characters[character_rank:]
-
-        before_match_count: int = len(
-            set(characters_before) & set(characters_before_source)
+        # Count how many characters appear "before" in both orderings,
+        # and how many appear "at or after" in both orderings.
+        before_match_count: int = sum(
+            1
+            for lr, orr in common_chars
+            if lr < character_rank_in_language and orr < character_rank
         )
 
-        after_match_count: int = len(
-            set(characters_after) & set(characters_after_source)
+        after_len: int = target_language_characters_count - character_rank_in_language
+        after_match_count: int = sum(
+            1
+            for lr, orr in common_chars
+            if lr >= character_rank_in_language and orr >= character_rank
         )
 
-        if len(characters_before_source) == 0 and before_match_count <= 4:
+        if character_rank_in_language == 0 and before_match_count <= 4:
             character_approved_count += 1
             continue
 
-        if len(characters_after_source) == 0 and after_match_count <= 4:
+        if after_len == 0 and after_match_count <= 4:
             character_approved_count += 1
             continue
 
         if (
-            before_match_count / len(characters_before_source) >= 0.4
-            or after_match_count / len(characters_after_source) >= 0.4
-        ):
+            character_rank_in_language > 0
+            and before_match_count / character_rank_in_language >= 0.4
+        ) or (after_len > 0 and after_match_count / after_len >= 0.4):
             character_approved_count += 1
             continue
 
@@ -255,7 +267,11 @@ def alpha_unicode_split(decoded_sequence: str) -> list[str]:
     Ex. a text containing English/Latin with a bit a Hebrew will return two items in the resulting list;
     One containing the latin letters and the other hebrew.
     """
-    layers: dict[str, str] = {}
+    layers: dict[str, list[str]] = {}
+
+    # Fast path: track single-layer key to skip dict iteration for single-script text.
+    single_layer_key: str | None = None
+    multi_layer: bool = False
 
     for character in decoded_sequence:
         if character.isalpha() is False:
@@ -268,24 +284,34 @@ def alpha_unicode_split(decoded_sequence: str) -> list[str]:
 
         layer_target_range: str | None = None
 
-        for discovered_range in layers:
+        if multi_layer:
+            for discovered_range in layers:
+                if (
+                    is_suspiciously_successive_range(discovered_range, character_range)
+                    is False
+                ):
+                    layer_target_range = discovered_range
+                    break
+        elif single_layer_key is not None:
             if (
-                is_suspiciously_successive_range(discovered_range, character_range)
+                is_suspiciously_successive_range(single_layer_key, character_range)
                 is False
             ):
-                layer_target_range = discovered_range
-                break
+                layer_target_range = single_layer_key
 
         if layer_target_range is None:
             layer_target_range = character_range
 
         if layer_target_range not in layers:
-            layers[layer_target_range] = character.lower()
-            continue
+            layers[layer_target_range] = []
+            if single_layer_key is None:
+                single_layer_key = layer_target_range
+            else:
+                multi_layer = True
 
-        layers[layer_target_range] += character.lower()
+        layers[layer_target_range].append(character)
 
-    return list(layers.values())
+    return ["".join(chars).lower() for chars in layers.values()]
 
 
 def merge_coherence_ratios(results: list[CoherenceMatches]) -> CoherenceMatches:
@@ -366,7 +392,7 @@ def coherence_ratio(
         sequence_frequencies: TypeCounter[str] = Counter(layer)
         most_common = sequence_frequencies.most_common()
 
-        character_count: int = sum(o for c, o in most_common)
+        character_count: int = len(layer)
 
         if character_count <= TOO_SMALL_SEQUENCE:
             continue

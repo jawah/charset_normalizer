@@ -10,7 +10,13 @@ from .cd import (
     mb_encoding_languages,
     merge_coherence_ratios,
 )
-from .constant import IANA_SUPPORTED, TOO_BIG_SEQUENCE, TOO_SMALL_SEQUENCE, TRACE
+from .constant import (
+    IANA_SUPPORTED,
+    IANA_SUPPORTED_SIMILAR,
+    TOO_BIG_SEQUENCE,
+    TOO_SMALL_SEQUENCE,
+    TRACE,
+)
 from .md import mess_ratio
 from .models import CharsetMatch, CharsetMatches
 from .utils import (
@@ -18,7 +24,6 @@ from .utils import (
     cut_sequence_chunks,
     iana_name,
     identify_sig_or_bom,
-    is_cp_similar,
     is_multi_byte_encoding,
     should_strip_sig_or_bom,
 )
@@ -152,6 +157,7 @@ def from_bytes(
     tested: set[str] = set()
     tested_but_hard_failure: list[str] = []
     tested_but_soft_failure: list[str] = []
+    soft_failure_skip: set[str] = set()
 
     fallback_ascii: CharsetMatch | None = None
     fallback_u8: CharsetMatch | None = None
@@ -210,6 +216,16 @@ def from_bytes(
             )
             continue
 
+        # Skip encodings similar to ones that already soft-failed (high mess ratio).
+        # Checked BEFORE the expensive decode attempt.
+        if encoding_iana in soft_failure_skip:
+            logger.log(
+                TRACE,
+                "%s is deemed too similar to a code page that was already considered unsuited. Continuing!",
+                encoding_iana,
+            )
+            continue
+
         try:
             is_multi_byte_decoder: bool = is_multi_byte_encoding(encoding_iana)
         except (ModuleNotFoundError, ImportError):
@@ -248,22 +264,6 @@ def from_bytes(
                     str(e),
                 )
             tested_but_hard_failure.append(encoding_iana)
-            continue
-
-        similar_soft_failure_test: bool = False
-
-        for encoding_soft_failed in tested_but_soft_failure:
-            if is_cp_similar(encoding_iana, encoding_soft_failed):
-                similar_soft_failure_test = True
-                break
-
-        if similar_soft_failure_test:
-            logger.log(
-                TRACE,
-                "%s is deemed too similar to code page %s and was consider unsuited already. Continuing!",
-                encoding_iana,
-                encoding_soft_failed,
-            )
             continue
 
         r_ = range(
@@ -358,6 +358,8 @@ def from_bytes(
         mean_mess_ratio: float = sum(md_ratios) / len(md_ratios) if md_ratios else 0.0
         if mean_mess_ratio >= threshold or early_stop_count >= max_chunk_gave_up:
             tested_but_soft_failure.append(encoding_iana)
+            if encoding_iana in IANA_SUPPORTED_SIMILAR:
+                soft_failure_skip.update(IANA_SUPPORTED_SIMILAR[encoding_iana])
             logger.log(
                 TRACE,
                 "%s was excluded because of initial chaos probing. Gave up %i time(s). "
