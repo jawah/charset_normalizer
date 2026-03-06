@@ -326,12 +326,12 @@ def cp_similarity(iana_name_a: str, iana_name_b: str) -> float:
 
     character_match_count: int = 0
 
-    for i in range(255):
+    for i in range(256):
         to_be_decoded: bytes = bytes([i])
         if id_a.decode(to_be_decoded) == id_b.decode(to_be_decoded):
             character_match_count += 1
 
-    return character_match_count / 254
+    return character_match_count / 256
 
 
 def is_cp_similar(iana_name_a: str, iana_name_b: str) -> bool:
