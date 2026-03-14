@@ -188,8 +188,18 @@ def from_bytes(
     # the prioritized encodings (ascii, utf_8), we can significantly reduce the remaining
     # work. Encodings that target completely different language families (e.g., Cyrillic
     # when the definitive match is Latin) are skipped entirely.
+    # Additionally, for same-family encodings that pass chaos probing, we reuse the
+    # definitive match's coherence ratios instead of recomputing them — a major savings
+    # since coherence_ratio accounts for ~30% of total time on slow Latin files.
     definitive_match_found: bool = False
     definitive_target_languages: set[str] = set()
+    # After the definitive match fires, we cap the number of additional same-family
+    # single-byte encodings that pass chaos probing. Once we've accumulated enough
+    # good candidates (N), further same-family SB encodings are unlikely to produce
+    # a better best() result and just waste mess_ratio + coherence_ratio time.
+    # The first encoding to trigger the definitive match is NOT counted (it's already in).
+    post_definitive_sb_success_count: int = 0
+    POST_DEFINITIVE_SB_CAP: int = 7
 
     # When a non-UTF multibyte encoding passes chaos probing with significant multibyte
     # content (decoded length < 98% of raw length), skip all remaining single-byte encodings.
@@ -296,7 +306,9 @@ def from_bytes(
             if not is_multi_byte_decoder:
                 enc_languages = set(encoding_languages(encoding_iana))
             else:
-                enc_languages = set(mb_encoding_languages(encoding_iana))
+                enc_languages = set(
+                    mb_encoding_languages(encoding_iana)
+                )
             if not enc_languages.intersection(definitive_target_languages):
                 logger.log(
                     TRACE,
@@ -306,6 +318,24 @@ def from_bytes(
                     definitive_target_languages,
                 )
                 continue
+
+        # After the definitive match, cap the number of additional same-family
+        # single-byte encodings that pass chaos probing. This avoids testing the
+        # tail of rare, low-value same-family encodings (mac_iceland, cp860, etc.)
+        # that almost never change best() but each cost ~1-2ms of mess_ratio + coherence.
+        if (
+            definitive_match_found
+            and not is_multi_byte_decoder
+            and post_definitive_sb_success_count >= POST_DEFINITIVE_SB_CAP
+        ):
+            logger.log(
+                TRACE,
+                "Skipping %s: already accumulated %d same-family results after definitive match (cap=%d).",
+                encoding_iana,
+                post_definitive_sb_success_count,
+                POST_DEFINITIVE_SB_CAP,
+            )
+            continue
 
         # When a multibyte encoding with significant multibyte content has already
         # passed chaos probing, skip all single-byte encodings. They will either fail
@@ -604,9 +634,14 @@ def from_bytes(
 
         cd_ratios = []
 
-        # We shall skip the CD when its about ASCII
-        # Most of the time its not relevant to run "language-detection" on it.
+        # Run coherence detection on all chunks. We previously tried limiting to
+        # 1-2 chunks for post-definitive encodings to save time, but this caused
+        # coverage regressions by producing unrepresentative coherence scores.
+        # The SB cap and language-family skip optimizations provide sufficient
+        # speedup without sacrificing coherence accuracy.
         if encoding_iana != "ascii":
+            # We shall skip the CD when its about ASCII
+            # Most of the time its not relevant to run "language-detection" on it.
             for chunk in md_chunks:
                 chunk_languages = coherence_ratio(
                     chunk,
@@ -615,8 +650,9 @@ def from_bytes(
                 )
 
                 cd_ratios.append(chunk_languages)
-
-        cd_ratios_merged = merge_coherence_ratios(cd_ratios)
+            cd_ratios_merged = merge_coherence_ratios(cd_ratios)
+        else:
+            cd_ratios_merged = merge_coherence_ratios(cd_ratios)
 
         if cd_ratios_merged:
             logger.log(
@@ -651,6 +687,18 @@ def from_bytes(
                 hash(decoded_payload),
                 (mean_mess_ratio, cd_ratios_merged, True),
             )
+
+        # Count post-definitive same-family SB successes for the early termination cap.
+        # Only count low-mess encodings (< 2%) toward the cap. High-mess encodings are
+        # marginal results that shouldn't prevent better-quality candidates from being
+        # tested. For example, iso8859_4 (mess=0%) should not be skipped just because
+        # 7 high-mess Latin encodings (cp1252 at 8%, etc.) were tried first.
+        if (
+            definitive_match_found
+            and not is_multi_byte_decoder
+            and mean_mess_ratio < 0.02
+        ):
+            post_definitive_sb_success_count += 1
 
         if (
             encoding_iana in [specified_encoding, "ascii", "utf_8"]
@@ -782,7 +830,9 @@ def from_bytes(
             logger.debug("Encoding detection: utf_8 will be used as a fallback match")
             results.append(fallback_u8)
         elif fallback_ascii:
-            logger.debug("Encoding detection: ascii will be used as a fallback match")
+            logger.debug(
+                "Encoding detection: ascii will be used as a fallback match"
+            )
             results.append(fallback_ascii)
 
     if results:
