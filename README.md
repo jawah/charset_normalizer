@@ -63,17 +63,17 @@ This project offers you an alternative to **Universal Charset Encoding Detector*
 
 This package offer acceptable performances against Chardet. Here are some numbers.
 
-| Package                                         | Accuracy | Mean per file (ms) | File per sec (est) |
-|-------------------------------------------------|:--------:|:------------------:|:------------------:|
-| [chardet 7](https://github.com/chardet/chardet) |   89 %   |      **5 ms**      |    200 file/sec    |
-| charset-normalizer                              | **97 %** |        8 ms        |    125 file/sec    |
+| Package                                           | Accuracy | Mean per file (ms) | File per sec (est) |
+|---------------------------------------------------|:--------:|:------------------:|:------------------:|
+| [chardet 7.1](https://github.com/chardet/chardet) |   89 %   |      **3 ms**      |    333 file/sec    |
+| charset-normalizer                                | **97 %** |        5 ms        |    200 file/sec    |
 
 | Package                                         | 99th percentile | 95th percentile | 50th percentile |
 |-------------------------------------------------|:---------------:|:---------------:|:---------------:|
 | [chardet 7](https://github.com/chardet/chardet) |      32 ms      |      17 ms      |      1 ms       |
-| charset-normalizer                              |      63 ms      |      29 ms      |      3 ms       |
+| charset-normalizer                              |      39 ms      |      24 ms      |      3 ms       |
 
-_updated as of Mars 2026 using CPython 3.12, and Chardet 7_
+_updated as of March 2026 using CPython 3.12, and Chardet 7.1_
 
 ~Chardet's performance on larger file (1MB+) are very poor. Expect huge difference on large payload.~ No longer the case since Chardet 7.0+
 
