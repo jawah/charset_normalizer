@@ -31,7 +31,9 @@ def encoding_unicode_range(iana_name: str) -> list[str]:
     Return associated unicode ranges in a single byte code page.
     """
     if is_multi_byte_encoding(iana_name):
-        raise OSError("Function not supported on multi-byte code page")
+        raise OSError(  # Defensive:
+            "Function not supported on multi-byte code page"
+        )
 
     decoder = importlib.import_module(f"encodings.{iana_name}").IncrementalDecoder
 
@@ -179,7 +181,7 @@ def characters_popularity_compare(
     Beware that is function is not strict on the match in order to ease the detection. (Meaning close match is 1.)
     """
     if language not in FREQUENCIES:
-        raise ValueError(f"{language} not available")
+        raise ValueError(f"{language} not available")  # Defensive:
 
     character_approved_count: int = 0
     frequencies_language_set: frozenset[str] = _FREQUENCIES_SET[language]

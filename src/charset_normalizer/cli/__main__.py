@@ -14,7 +14,7 @@ from charset_normalizer.models import CliDetectionResult
 from charset_normalizer.version import __version__
 
 
-def query_yes_no(question: str, default: str = "yes") -> bool:
+def query_yes_no(question: str, default: str = "yes") -> bool:  # Defensive:
     """Ask a yes/no question via input() and return the answer as a bool."""
     prompt = " [Y/n] " if default == "yes" else " [y/N] "
 
@@ -327,7 +327,7 @@ def cli_detect(argv: list[str] | None = None) -> int:
 
                     with open(x_[0].unicode_path, "wb") as fp:
                         fp.write(best_guess.output())
-                except OSError as e:
+                except OSError as e:  # Defensive:
                     print(str(e), file=sys.stderr)
                     if my_file.closed is False:
                         my_file.close()
@@ -359,5 +359,5 @@ def cli_detect(argv: list[str] | None = None) -> int:
     return 0
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # Defensive:
     cli_detect()

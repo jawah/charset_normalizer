@@ -279,7 +279,7 @@ def from_bytes(
 
         try:
             is_multi_byte_decoder: bool = is_multi_byte_encoding(encoding_iana)
-        except (ModuleNotFoundError, ImportError):
+        except (ModuleNotFoundError, ImportError):  # Defensive:
             logger.log(
                 TRACE,
                 "Encoding %s does not provide an IncrementalDecoder",
