@@ -228,7 +228,9 @@ def is_unprintable(character: str) -> bool:
     )
 
 
-def any_specified_encoding(sequence: bytes, search_zone: int = 8192) -> str | None:
+def any_specified_encoding(
+    sequence: bytes | bytearray, search_zone: int = 8192
+) -> str | None:
     """
     Extract using ASCII-only decoder any specified encoding in the first n-bytes.
     """
@@ -281,7 +283,7 @@ def is_multi_byte_encoding(name: str) -> bool:
     )
 
 
-def identify_sig_or_bom(sequence: bytes) -> tuple[str | None, bytes]:
+def identify_sig_or_bom(sequence: bytes | bytearray) -> tuple[str | None, bytes]:
     """
     Identify and extract SIG/BOM in given sequence.
     """
@@ -365,7 +367,7 @@ def set_logging_handler(
 
 
 def cut_sequence_chunks(
-    sequences: bytes,
+    sequences: bytes | bytearray,
     encoding_iana: str,
     offsets: range,
     chunk_size: int,
