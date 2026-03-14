@@ -218,7 +218,7 @@ class MessDetectorPlugin:
         """
         raise NotImplementedError  # Defensive:
 
-    def reset(self) -> None:    # Defensive:
+    def reset(self) -> None:  # Defensive:
         """
         Permit to reset the plugin to the initial state.
         """

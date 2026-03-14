@@ -306,9 +306,7 @@ def from_bytes(
             if not is_multi_byte_decoder:
                 enc_languages = set(encoding_languages(encoding_iana))
             else:
-                enc_languages = set(
-                    mb_encoding_languages(encoding_iana)
-                )
+                enc_languages = set(mb_encoding_languages(encoding_iana))
             if not enc_languages.intersection(definitive_target_languages):
                 logger.log(
                     TRACE,
@@ -830,9 +828,7 @@ def from_bytes(
             logger.debug("Encoding detection: utf_8 will be used as a fallback match")
             results.append(fallback_u8)
         elif fallback_ascii:
-            logger.debug(
-                "Encoding detection: ascii will be used as a fallback match"
-            )
+            logger.debug("Encoding detection: ascii will be used as a fallback match")
             results.append(fallback_ascii)
 
     if results:
