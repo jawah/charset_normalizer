@@ -165,7 +165,7 @@ def test_alphabets_property():
     best_guess = from_bytes("😀 Hello World! How affairs are going? 😀".encode()).best()
 
     assert "Basic Latin" in best_guess.alphabets
-    assert "Emoticons range(Emoji)" in best_guess.alphabets
+    assert "Emoticons" in best_guess.alphabets
     assert best_guess.alphabets.count("Basic Latin") == 1
 
 
