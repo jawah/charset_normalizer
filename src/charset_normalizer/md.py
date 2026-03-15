@@ -16,10 +16,13 @@ else:
 
 
 from .constant import (
+    COMMON_CJK_CHARACTERS,
     COMMON_SAFE_ASCII_CHARACTERS,
     TRACE,
     UNICODE_SECONDARY_RANGE_KEYWORD,
     _ACCENTUATED,
+    _ARABIC,
+    _ARABIC_ISOLATED_FORM,
     _CJK,
     _HANGUL,
     _HIRAGANA,
@@ -29,24 +32,175 @@ from .constant import (
 )
 from .utils import (
     _character_flags,
-    is_accentuated,
-    is_arabic,
-    is_arabic_isolated_form,
-    is_case_variable,
-    is_cjk,
     is_emoticon,
-    is_latin,
     is_punctuation,
     is_separator,
     is_symbol,
-    is_unprintable,
     remove_accent,
     unicode_range,
-    is_cjk_uncommon,
 )
 
 # Combined bitmask for CJK/Hangul/Katakana/Hiragana/Thai glyph detection.
 _GLYPH_MASK: int = _CJK | _HANGUL | _KATAKANA | _HIRAGANA | _THAI
+
+
+@final
+class CharInfo:
+    """Pre-computed character properties shared across all detectors.
+
+    Instantiated once and reused via :meth:`update` on every character
+    in the hot loop so that redundant calls to str methods
+    (``isalpha``, ``isupper``, …) and cached utility functions
+    (``_character_flags``, ``is_punctuation``, …) are avoided when
+    several plugins need the same information.
+    """
+
+    __slots__ = (
+        "character",
+        "printable",
+        "alpha",
+        "upper",
+        "lower",
+        "space",
+        "digit",
+        "is_ascii",
+        "case_variable",
+        "flags",
+        "accentuated",
+        "latin",
+        "is_cjk",
+        "is_arabic",
+        "is_glyph",
+        "punct",
+        "sym",
+    )
+
+    def __init__(self) -> None:
+        self.character: str = ""
+        self.printable: bool = False
+        self.alpha: bool = False
+        self.upper: bool = False
+        self.lower: bool = False
+        self.space: bool = False
+        self.digit: bool = False
+        self.is_ascii: bool = False
+        self.case_variable: bool = False
+        self.flags: int = 0
+        self.accentuated: bool = False
+        self.latin: bool = False
+        self.is_cjk: bool = False
+        self.is_arabic: bool = False
+        self.is_glyph: bool = False
+        self.punct: bool = False
+        self.sym: bool = False
+
+    def update(self, character: str) -> None:
+        """Update all properties for *character* (called once per character)."""
+        self.character = character
+
+        # ASCII fast-path: for characters with ord < 128, we can skip
+        # _character_flags() entirely and derive most properties from ord.
+        o: int = ord(character)
+        if o < 128:
+            self.is_ascii = True
+            self.accentuated = False
+            self.is_cjk = False
+            self.is_arabic = False
+            self.is_glyph = False
+            # ASCII alpha: a-z (97-122) or A-Z (65-90)
+            if 65 <= o <= 90:
+                # Uppercase ASCII letter
+                self.alpha = True
+                self.upper = True
+                self.lower = False
+                self.space = False
+                self.digit = False
+                self.printable = True
+                self.case_variable = True
+                self.flags = _LATIN
+                self.latin = True
+                self.punct = False
+                self.sym = False
+            elif 97 <= o <= 122:
+                # Lowercase ASCII letter
+                self.alpha = True
+                self.upper = False
+                self.lower = True
+                self.space = False
+                self.digit = False
+                self.printable = True
+                self.case_variable = True
+                self.flags = _LATIN
+                self.latin = True
+                self.punct = False
+                self.sym = False
+            elif 48 <= o <= 57:
+                # ASCII digit 0-9
+                self.alpha = False
+                self.upper = False
+                self.lower = False
+                self.space = False
+                self.digit = True
+                self.printable = True
+                self.case_variable = False
+                self.flags = 0
+                self.latin = False
+                self.punct = False
+                self.sym = False
+            elif o == 32 or (9 <= o <= 13):
+                # Space, tab, newline, etc.
+                self.alpha = False
+                self.upper = False
+                self.lower = False
+                self.space = True
+                self.digit = False
+                self.printable = o == 32
+                self.case_variable = False
+                self.flags = 0
+                self.latin = False
+                self.punct = False
+                self.sym = False
+            else:
+                # Other ASCII (punctuation, symbols, control chars)
+                self.printable = character.isprintable()
+                self.alpha = False
+                self.upper = False
+                self.lower = False
+                self.space = False
+                self.digit = False
+                self.case_variable = False
+                self.flags = 0
+                self.latin = False
+                self.punct = is_punctuation(character) if self.printable else False
+                self.sym = is_symbol(character) if self.printable else False
+        else:
+            # Non-ASCII path
+            self.is_ascii = False
+            self.printable = character.isprintable()
+            self.alpha = character.isalpha()
+            self.upper = character.isupper()
+            self.lower = character.islower()
+            self.space = character.isspace()
+            self.digit = character.isdigit()
+            self.case_variable = self.lower != self.upper
+
+            # Flag-based classification (single unicodedata.name() call, lru-cached)
+            flags: int
+            if self.alpha:
+                flags = _character_flags(character)
+            else:
+                flags = 0
+            self.flags = flags
+            self.accentuated = bool(flags & _ACCENTUATED)
+            self.latin = bool(flags & _LATIN)
+            self.is_cjk = bool(flags & _CJK)
+            self.is_arabic = bool(flags & _ARABIC)
+            self.is_glyph = bool(flags & _GLYPH_MASK)
+
+            # Eagerly compute punct and sym (avoids property dispatch overhead
+            # on 300K+ accesses in the hot loop).
+            self.punct = is_punctuation(character) if self.printable else False
+            self.sym = is_symbol(character) if self.printable else False
 
 
 class MessDetectorPlugin:
@@ -57,20 +211,14 @@ class MessDetectorPlugin:
 
     __slots__ = ()
 
-    def eligible(self, character: str) -> bool:
-        """
-        Determine if given character should be fed in.
-        """
-        raise NotImplementedError  # pragma: nocover
-
-    def feed(self, character: str) -> None:
+    def feed_info(self, character: str, info: CharInfo) -> None:
         """
         The main routine to be executed upon character.
         Insert the logic in witch the text would be considered chaotic.
         """
-        raise NotImplementedError  # pragma: nocover
+        raise NotImplementedError  # Defensive:
 
-    def reset(self) -> None:  # pragma: no cover
+    def reset(self) -> None:  # Defensive:
         """
         Permit to reset the plugin to the initial state.
         """
@@ -82,7 +230,7 @@ class MessDetectorPlugin:
         Compute the chaos ratio based on what your feed() has seen.
         Must NOT be lower than 0.; No restriction gt 0.
         """
-        raise NotImplementedError  # pragma: nocover
+        raise NotImplementedError  # Defensive:
 
 
 @final
@@ -103,23 +251,17 @@ class TooManySymbolOrPunctuationPlugin(MessDetectorPlugin):
         self._last_printable_char: str | None = None
         self._frenzy_symbol_in_word: bool = False
 
-    def eligible(self, character: str) -> bool:
-        return character.isprintable()
-
-    def feed(self, character: str) -> None:
+    def feed_info(self, character: str, info: CharInfo) -> None:
+        """Optimized feed using pre-computed character info."""
         self._character_count += 1
 
         if (
             character != self._last_printable_char
             and character not in COMMON_SAFE_ASCII_CHARACTERS
         ):
-            if is_punctuation(character):
+            if info.punct:
                 self._punctuation_count += 1
-            elif (
-                not character.isdigit()
-                and is_symbol(character)
-                and not is_emoticon(character)
-            ):
+            elif not info.digit and info.sym and not is_emoticon(character):
                 self._symbol_count += 2
 
         self._last_printable_char = character
@@ -149,13 +291,11 @@ class TooManyAccentuatedPlugin(MessDetectorPlugin):
         self._character_count: int = 0
         self._accentuated_count: int = 0
 
-    def eligible(self, character: str) -> bool:
-        return character.isalpha()
-
-    def feed(self, character: str) -> None:
+    def feed_info(self, character: str, info: CharInfo) -> None:
+        """Optimized feed using pre-computed character info."""
         self._character_count += 1
 
-        if is_accentuated(character):
+        if info.accentuated:
             self._accentuated_count += 1
 
     def reset(self) -> None:  # Abstract
@@ -179,11 +319,14 @@ class UnprintablePlugin(MessDetectorPlugin):
         self._unprintable_count: int = 0
         self._character_count: int = 0
 
-    def eligible(self, character: str) -> bool:
-        return True
-
-    def feed(self, character: str) -> None:
-        if is_unprintable(character):
+    def feed_info(self, character: str, info: CharInfo) -> None:
+        """Optimized feed using pre-computed character info."""
+        if (
+            not info.space
+            and not info.printable
+            and character != "\x1a"
+            and character != "\ufeff"
+        ):
             self._unprintable_count += 1
         self._character_count += 1
 
@@ -192,7 +335,7 @@ class UnprintablePlugin(MessDetectorPlugin):
 
     @property
     def ratio(self) -> float:
-        if self._character_count == 0:
+        if self._character_count == 0:  # Defensive:
             return 0.0
 
         return (self._unprintable_count * 8) / self._character_count
@@ -214,24 +357,20 @@ class SuspiciousDuplicateAccentPlugin(MessDetectorPlugin):
         self._last_latin_character: str | None = None
         self._last_was_accentuated: bool = False
 
-    def eligible(self, character: str) -> bool:
-        return character.isalpha() and is_latin(character)
-
-    def feed(self, character: str) -> None:
+    def feed_info(self, character: str, info: CharInfo) -> None:
+        """Optimized feed using pre-computed character info."""
         self._character_count += 1
-        current_accentuated: bool = is_accentuated(character)
         if (
             self._last_latin_character is not None
-            and current_accentuated
+            and info.accentuated
             and self._last_was_accentuated
         ):
-            if character.isupper() and self._last_latin_character.isupper():
+            if info.upper and self._last_latin_character.isupper():
                 self._successive_count += 1
-            # Worse if its the same char duplicated with different accent.
             if remove_accent(character) == remove_accent(self._last_latin_character):
                 self._successive_count += 1
         self._last_latin_character = character
-        self._last_was_accentuated = current_accentuated
+        self._last_was_accentuated = info.accentuated
 
     def reset(self) -> None:  # Abstract
         self._successive_count = 0
@@ -262,17 +401,11 @@ class SuspiciousRange(MessDetectorPlugin):
         self._last_printable_seen: str | None = None
         self._last_printable_range: str | None = None
 
-    def eligible(self, character: str) -> bool:
-        return character.isprintable()
-
-    def feed(self, character: str) -> None:
+    def feed_info(self, character: str, info: CharInfo) -> None:
+        """Optimized feed using pre-computed character info."""
         self._character_count += 1
 
-        if (
-            character.isspace()
-            or is_punctuation(character)
-            or character in COMMON_SAFE_ASCII_CHARACTERS
-        ):
+        if info.space or info.punct or character in COMMON_SAFE_ASCII_CHARACTERS:
             self._last_printable_seen = None
             self._last_printable_range = None
             return
@@ -345,37 +478,31 @@ class SuperWeirdWordPlugin(MessDetectorPlugin):
         self._buffer_glyph_count: int = 0
         self._buffer_upper_count: int = 0
 
-    def eligible(self, character: str) -> bool:
-        return True
-
-    def feed(self, character: str) -> None:
-        if character.isalpha():
+    def feed_info(self, character: str, info: CharInfo) -> None:
+        """Optimized feed using pre-computed character info."""
+        if info.alpha:
             self._buffer_length += 1
             self._buffer_last_char = character
 
-            if character.isupper():
+            if info.upper:
                 self._buffer_upper_count += 1
 
-            flags: int = _character_flags(character)
-            char_accentuated: bool = bool(flags & _ACCENTUATED)
-            self._buffer_last_char_accentuated = char_accentuated
+            self._buffer_last_char_accentuated = info.accentuated
 
-            if char_accentuated:
+            if info.accentuated:
                 self._buffer_accent_count += 1
             if (
                 not self._foreign_long_watch
-                and (not (flags & _LATIN) or char_accentuated)
-                and not (flags & _GLYPH_MASK)
+                and (not info.latin or info.accentuated)
+                and not info.is_glyph
             ):
                 self._foreign_long_watch = True
-            if flags & _GLYPH_MASK:
+            if info.is_glyph:
                 self._buffer_glyph_count += 1
             return
         if not self._buffer_length:
             return
-        if (
-            character.isspace() or is_punctuation(character) or is_separator(character)
-        ) and self._buffer_length:
+        if info.space or info.punct or is_separator(character):
             self._word_count += 1
             buffer_length: int = self._buffer_length
 
@@ -384,8 +511,6 @@ class SuperWeirdWordPlugin(MessDetectorPlugin):
             if buffer_length >= 4:
                 if self._buffer_accent_count / buffer_length >= 0.5:
                     self._is_current_word_bad = True
-                # Word/Buffer ending with an upper case accentuated letter are so rare,
-                # that we will consider them all as suspicious. Same weight as foreign_long suspicious.
                 elif (
                     self._buffer_last_char_accentuated
                     and self._buffer_last_char.isupper()  # type: ignore[union-attr]
@@ -420,8 +545,8 @@ class SuperWeirdWordPlugin(MessDetectorPlugin):
             self._buffer_upper_count = 0
         elif (
             character not in {"<", ">", "-", "=", "~", "|", "_"}
-            and not character.isdigit()
-            and is_symbol(character)
+            and not info.digit
+            and info.sym
         ):
             self._is_current_word_bad = True
             self._buffer_length += 1
@@ -463,15 +588,12 @@ class CjkUncommonPlugin(MessDetectorPlugin):
         self._character_count: int = 0
         self._uncommon_count: int = 0
 
-    def eligible(self, character: str) -> bool:
-        return is_cjk(character)
-
-    def feed(self, character: str) -> None:
+    def feed_info(self, character: str, info: CharInfo) -> None:
+        """Optimized feed using pre-computed character info."""
         self._character_count += 1
 
-        if is_cjk_uncommon(character):
+        if character not in COMMON_CJK_CHARACTERS:
             self._uncommon_count += 1
-            return
 
     def reset(self) -> None:  # Abstract
         self._character_count = 0
@@ -498,6 +620,8 @@ class ArchaicUpperLowerPlugin(MessDetectorPlugin):
         "_successive_upper_lower_count_final",
         "_character_count",
         "_last_alpha_seen",
+        "_last_alpha_seen_upper",
+        "_last_alpha_seen_lower",
         "_current_ascii_only",
     )
 
@@ -512,19 +636,19 @@ class ArchaicUpperLowerPlugin(MessDetectorPlugin):
         self._character_count: int = 0
 
         self._last_alpha_seen: str | None = None
+        self._last_alpha_seen_upper: bool = False
+        self._last_alpha_seen_lower: bool = False
         self._current_ascii_only: bool = True
 
-    def eligible(self, character: str) -> bool:
-        return True
-
-    def feed(self, character: str) -> None:
-        is_concerned: bool = character.isalpha() and is_case_variable(character)
+    def feed_info(self, character: str, info: CharInfo) -> None:
+        """Optimized feed using pre-computed character info."""
+        is_concerned: bool = info.alpha and info.case_variable
         chunk_sep: bool = not is_concerned
 
         if chunk_sep and self._character_count_since_last_sep > 0:
             if (
                 self._character_count_since_last_sep <= 64
-                and not character.isdigit()
+                and not info.digit
                 and not self._current_ascii_only
             ):
                 self._successive_upper_lower_count_final += (
@@ -540,12 +664,12 @@ class ArchaicUpperLowerPlugin(MessDetectorPlugin):
 
             return
 
-        if self._current_ascii_only and not character.isascii():
+        if self._current_ascii_only and not info.is_ascii:
             self._current_ascii_only = False
 
         if self._last_alpha_seen is not None:
-            if (character.isupper() and self._last_alpha_seen.islower()) or (
-                character.islower() and self._last_alpha_seen.isupper()
+            if (info.upper and self._last_alpha_seen_lower) or (
+                info.lower and self._last_alpha_seen_upper
             ):
                 if self._buf:
                     self._successive_upper_lower_count += 2
@@ -558,6 +682,8 @@ class ArchaicUpperLowerPlugin(MessDetectorPlugin):
         self._character_count += 1
         self._character_count_since_last_sep += 1
         self._last_alpha_seen = character
+        self._last_alpha_seen_upper = info.upper
+        self._last_alpha_seen_lower = info.lower
 
     def reset(self) -> None:  # Abstract
         self._character_count = 0
@@ -565,12 +691,14 @@ class ArchaicUpperLowerPlugin(MessDetectorPlugin):
         self._successive_upper_lower_count = 0
         self._successive_upper_lower_count_final = 0
         self._last_alpha_seen = None
+        self._last_alpha_seen_upper = False
+        self._last_alpha_seen_lower = False
         self._buf = False
         self._current_ascii_only = True
 
     @property
     def ratio(self) -> float:
-        if self._character_count == 0:
+        if self._character_count == 0:  # Defensive:
             return 0.0
 
         return self._successive_upper_lower_count_final / self._character_count
@@ -588,13 +716,11 @@ class ArabicIsolatedFormPlugin(MessDetectorPlugin):
         self._character_count = 0
         self._isolated_form_count = 0
 
-    def eligible(self, character: str) -> bool:
-        return is_arabic(character)
-
-    def feed(self, character: str) -> None:
+    def feed_info(self, character: str, info: CharInfo) -> None:
+        """Optimized feed using pre-computed character info."""
         self._character_count += 1
 
-        if is_arabic_isolated_form(character):
+        if info.flags & _ARABIC_ISOLATED_FORM:
             self._isolated_form_count += 1
 
     @property
@@ -681,12 +807,6 @@ def is_suspiciously_successive_range(
     return True
 
 
-# import time messdetector plugins detection(...)
-_DETECTOR_CLASSES: tuple[type[MessDetectorPlugin], ...] = tuple(
-    md_class for md_class in MessDetectorPlugin.__subclasses__()
-)
-
-
 @lru_cache(maxsize=2048)
 def mess_ratio(
     decoded_sequence: str, maximum_threshold: float = 0.2, debug: bool = False
@@ -695,9 +815,6 @@ def mess_ratio(
     Compute a mess ratio given a decoded bytes sequence. The maximum threshold does stop the computation earlier.
     """
 
-    detectors: list[MessDetectorPlugin] = [md_class() for md_class in _DETECTOR_CLASSES]
-
-    mean_mess_ratio: float
     seq_len: int = len(decoded_sequence)
 
     if seq_len < 511:
@@ -707,24 +824,99 @@ def mess_ratio(
     else:
         step = 128
 
+    # Create each detector as a named local variable (unrolled from the generic loop).
+    # This eliminates per-character iteration over the detector list and
+    # per-character eligible() virtual dispatch, while keeping every plugin class
+    # intact and fully readable.
+    d_sp: TooManySymbolOrPunctuationPlugin = TooManySymbolOrPunctuationPlugin()
+    d_ta: TooManyAccentuatedPlugin = TooManyAccentuatedPlugin()
+    d_up: UnprintablePlugin = UnprintablePlugin()
+    d_sda: SuspiciousDuplicateAccentPlugin = SuspiciousDuplicateAccentPlugin()
+    d_sr: SuspiciousRange = SuspiciousRange()
+    d_sw: SuperWeirdWordPlugin = SuperWeirdWordPlugin()
+    d_cu: CjkUncommonPlugin = CjkUncommonPlugin()
+    d_au: ArchaicUpperLowerPlugin = ArchaicUpperLowerPlugin()
+    d_ai: ArabicIsolatedFormPlugin = ArabicIsolatedFormPlugin()
+
+    # Local references for feed_info methods called in the hot loop.
+    d_sp_feed = d_sp.feed_info
+    d_ta_feed = d_ta.feed_info
+    d_up_feed = d_up.feed_info
+    d_sda_feed = d_sda.feed_info
+    d_sr_feed = d_sr.feed_info
+    d_sw_feed = d_sw.feed_info
+    d_cu_feed = d_cu.feed_info
+    d_au_feed = d_au.feed_info
+    d_ai_feed = d_ai.feed_info
+
+    # Single reusable CharInfo object (avoids per-character allocation).
+    info: CharInfo = CharInfo()
+    info_update = info.update
+
+    mean_mess_ratio: float
+
     for block_start in range(0, seq_len, step):
         for character in decoded_sequence[block_start : block_start + step]:
-            for detector in detectors:
-                if detector.eligible(character):
-                    detector.feed(character)
+            # Pre-compute all character properties once (shared across all plugins).
+            info_update(character)
 
-        mean_mess_ratio = sum(dt.ratio for dt in detectors)
+            # Detectors with eligible() == always True
+            d_up_feed(character, info)
+            d_sw_feed(character, info)
+            d_au_feed(character, info)
+
+            # Detectors with eligible() == isprintable
+            if info.printable:
+                d_sp_feed(character, info)
+                d_sr_feed(character, info)
+
+            # Detectors with eligible() == isalpha
+            if info.alpha:
+                d_ta_feed(character, info)
+                # SuspiciousDuplicateAccent: isalpha() and is_latin()
+                if info.latin:
+                    d_sda_feed(character, info)
+                # CjkUncommon: is_cjk()
+                if info.is_cjk:
+                    d_cu_feed(character, info)
+                # ArabicIsolatedForm: is_arabic()
+                if info.is_arabic:
+                    d_ai_feed(character, info)
+
+        mean_mess_ratio = (
+            d_sp.ratio
+            + d_ta.ratio
+            + d_up.ratio
+            + d_sda.ratio
+            + d_sr.ratio
+            + d_sw.ratio
+            + d_cu.ratio
+            + d_au.ratio
+            + d_ai.ratio
+        )
 
         if mean_mess_ratio >= maximum_threshold:
             break
     else:
         # Flush last word buffer in SuperWeirdWordPlugin via trailing newline.
-        for detector in detectors:
-            if detector.eligible("\n"):
-                detector.feed("\n")
-        mean_mess_ratio = sum(dt.ratio for dt in detectors)
+        info_update("\n")
+        d_sw_feed("\n", info)
+        d_au_feed("\n", info)
+        d_up_feed("\n", info)
 
-    if debug:
+        mean_mess_ratio = (
+            d_sp.ratio
+            + d_ta.ratio
+            + d_up.ratio
+            + d_sda.ratio
+            + d_sr.ratio
+            + d_sw.ratio
+            + d_cu.ratio
+            + d_au.ratio
+            + d_ai.ratio
+        )
+
+    if debug:  # Defensive:
         logger = getLogger("charset_normalizer")
 
         logger.log(
@@ -738,7 +930,7 @@ def mess_ratio(
             logger.log(TRACE, f"Starting with: {decoded_sequence[:16]}")
             logger.log(TRACE, f"Ending with: {decoded_sequence[-16::]}")
 
-        for dt in detectors:
+        for dt in [d_sp, d_ta, d_up, d_sda, d_sr, d_sw, d_cu, d_au, d_ai]:
             logger.log(TRACE, f"{dt.__class__}: {dt.ratio}")
 
     return round(mean_mess_ratio, 3)

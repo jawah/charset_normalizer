@@ -2,6 +2,21 @@
 All notable changes to charset-normalizer will be documented in this file. This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [3.4.6](https://github.com/Ousret/charset_normalizer/compare/3.4.5...3.4.6) (2026-03-15)
+
+### Changed
+- Flattened the logic in `charset_normalizer.md` for higher performance. Removed `eligible(..)` and `feed(...)`
+  in favor of `feed_info(...)`.
+- Raised upper bound for mypy[c] to 1.20, for our optimized version.
+- Updated `UNICODE_RANGES_COMBINED` using Unicode blocks v17.
+
+### Fixed
+- Edge case where noise difference between two candidates can be almost insignificant. (#672)
+- CLI `--normalize` writing to wrong path when passing multiple files in. (#702)
+
+### Misc
+- Freethreaded pre-built wheels now shipped in PyPI starting with 3.14t. (#616)
+
 ## [3.4.5](https://github.com/Ousret/charset_normalizer/compare/3.4.4...3.4.5) (2026-03-06)
 
 ### Changed

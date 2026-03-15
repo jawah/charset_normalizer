@@ -31,7 +31,9 @@ def encoding_unicode_range(iana_name: str) -> list[str]:
     Return associated unicode ranges in a single byte code page.
     """
     if is_multi_byte_encoding(iana_name):
-        raise OSError("Function not supported on multi-byte code page")
+        raise OSError(  # Defensive:
+            "Function not supported on multi-byte code page"
+        )
 
     decoder = importlib.import_module(f"encodings.{iana_name}").IncrementalDecoder
 
@@ -179,7 +181,7 @@ def characters_popularity_compare(
     Beware that is function is not strict on the match in order to ease the detection. (Meaning close match is 1.)
     """
     if language not in FREQUENCIES:
-        raise ValueError(f"{language} not available")
+        raise ValueError(f"{language} not available")  # Defensive:
 
     character_approved_count: int = 0
     frequencies_language_set: frozenset[str] = _FREQUENCIES_SET[language]
@@ -204,6 +206,13 @@ def characters_popularity_compare(
     common_chars: list[tuple[int, int]] = [
         (lr, ordered_rank[c]) for c, lr in lang_rank.items() if c in ordered_rank
     ]
+
+    # Pre-extract lr and orr arrays for faster iteration in the inner loop.
+    # Plain integer loops with local arrays are much faster under mypyc than
+    # generator expression sums over a list of tuples.
+    common_count: int = len(common_chars)
+    common_lr: list[int] = [p[0] for p in common_chars]
+    common_orr: list[int] = [p[1] for p in common_chars]
 
     for character, character_rank in zip(
         ordered_characters, range(0, ordered_characters_count)
@@ -230,18 +239,21 @@ def characters_popularity_compare(
 
         # Count how many characters appear "before" in both orderings,
         # and how many appear "at or after" in both orderings.
-        before_match_count: int = sum(
-            1
-            for lr, orr in common_chars
-            if lr < character_rank_in_language and orr < character_rank
-        )
+        # Single pass over pre-extracted arrays — much faster under mypyc
+        # than two generator expression sums.
+        before_match_count: int = 0
+        after_match_count: int = 0
+        for i in range(common_count):
+            lr_i: int = common_lr[i]
+            orr_i: int = common_orr[i]
+            if lr_i < character_rank_in_language:
+                if orr_i < character_rank:
+                    before_match_count += 1
+            else:
+                if orr_i >= character_rank:
+                    after_match_count += 1
 
         after_len: int = target_language_characters_count - character_rank_in_language
-        after_match_count: int = sum(
-            1
-            for lr, orr in common_chars
-            if lr >= character_rank_in_language and orr >= character_rank
-        )
 
         if character_rank_in_language == 0 and before_match_count <= 4:
             character_approved_count += 1
@@ -273,13 +285,30 @@ def alpha_unicode_split(decoded_sequence: str) -> list[str]:
     single_layer_key: str | None = None
     multi_layer: bool = False
 
+    # Cache the last character_range and its resolved layer to avoid repeated
+    # is_suspiciously_successive_range calls for consecutive same-range chars.
+    prev_character_range: str | None = None
+    prev_layer_target: str | None = None
+
     for character in decoded_sequence:
         if character.isalpha() is False:
             continue
 
-        character_range: str | None = unicode_range(character)
+        # ASCII fast-path: a-z and A-Z are always "Basic Latin".
+        # Avoids unicode_range() function call overhead for the most common case.
+        character_ord: int = ord(character)
+        if character_ord < 128:
+            character_range: str | None = "Basic Latin"
+        else:
+            character_range = unicode_range(character)
 
         if character_range is None:
+            continue
+
+        # Fast path: same range as previous character → reuse cached layer target.
+        if character_range == prev_character_range:
+            if prev_layer_target is not None:
+                layers[prev_layer_target].append(character)
             continue
 
         layer_target_range: str | None = None
@@ -310,6 +339,10 @@ def alpha_unicode_split(decoded_sequence: str) -> list[str]:
                 multi_layer = True
 
         layers[layer_target_range].append(character)
+
+        # Cache for next iteration
+        prev_character_range = character_range
+        prev_layer_target = layer_target_range
 
     return ["".join(chars).lower() for chars in layers.values()]
 

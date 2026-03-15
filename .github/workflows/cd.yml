@@ -85,7 +85,6 @@ jobs:
           CIBW_ENVIRONMENT: CHARSET_NORMALIZER_USE_MYPYC='1'
           CIBW_TEST_REQUIRES: pytest
           CIBW_TEST_COMMAND: pytest -c {package} {package}/tests
-          CIBW_SKIP: "cp31?t-*"
       - name: Upload artifacts
         uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f
         with:
@@ -204,4 +203,28 @@ jobs:
         env:
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
         run: |
-          gh release upload ${{ github.ref_name }} dist/* --repo ${{ github.repository }}
+          set -euo pipefail
+
+          files=(dist/*)
+          batch_size=50
+          max_retries=3
+
+          for (( i=0; i<${#files[@]}; i+=batch_size )); do
+            batch=("${files[@]:i:batch_size}")
+            echo "Uploading batch $((i/batch_size + 1)) (${#batch[@]} files)..."
+
+            for (( attempt=1; attempt<=max_retries; attempt++ )); do
+              if gh release upload ${{ github.ref_name }} "${batch[@]}" --repo ${{ github.repository }} --clobber; then
+                break
+              fi
+
+              if (( attempt == max_retries )); then
+                echo "Failed to upload batch after $max_retries attempts"
+                exit 1
+              fi
+
+              delay=$(( attempt * 15 ))
+              echo "Upload failed (attempt $attempt/$max_retries). Retrying in ${delay}s..."
+              sleep "$delay"
+            done
+          done

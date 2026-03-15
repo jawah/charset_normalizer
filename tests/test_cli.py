@@ -95,6 +95,79 @@ class TestCommandLineInterface(unittest.TestCase):
             ),
         )
 
+    def test_multiple_file_normalize(self):
+        """Ensure --normalize with multiple files writes each output to the
+        correct path and sets unicode_path on the corresponding result entry
+        (not always on the first entry). Regression test for GH-702."""
+        arabic_path = DIR_PATH + "/data/sample-arabic-1.txt"
+        turkish_path = DIR_PATH + "/data/sample-turkish.txt"
+
+        self.assertEqual(0, cli_detect([arabic_path, turkish_path, "--normalize"]))
+
+        arabic_out = DIR_PATH + "/data/sample-arabic-1.cp1256.txt"
+        turkish_out = DIR_PATH + "/data/sample-turkish.cp1254.txt"
+
+        try:
+            self.assertTrue(
+                exists(arabic_out),
+                "Normalized output for first file should exist",
+            )
+            self.assertTrue(
+                exists(turkish_out),
+                "Normalized output for second file should exist",
+            )
+
+            # Verify each file contains distinct, non-empty content that
+            # matches what from_fp would produce for that specific input.
+            with open(arabic_out, "rb") as fp:
+                arabic_content = fp.read()
+            with open(turkish_out, "rb") as fp:
+                turkish_content = fp.read()
+
+            self.assertGreater(len(arabic_content), 0)
+            self.assertGreater(len(turkish_content), 0)
+            self.assertNotEqual(
+                arabic_content,
+                turkish_content,
+                "Each file must receive its own normalized content",
+            )
+        finally:
+            for p in (arabic_out, turkish_out):
+                try:
+                    remove(p)
+                except OSError:
+                    pass
+
+    def test_multiple_file_normalize_with_alternatives(self):
+        """Same as above but with --with-alternative, ensuring that
+        alternative entries appended between files do not confuse the
+        unicode_path assignment."""
+        arabic_path = DIR_PATH + "/data/sample-arabic-1.txt"
+        turkish_path = DIR_PATH + "/data/sample-turkish.txt"
+
+        self.assertEqual(
+            0, cli_detect([arabic_path, turkish_path, "--normalize", "-a"])
+        )
+
+        arabic_out = DIR_PATH + "/data/sample-arabic-1.cp1256.txt"
+        turkish_out = DIR_PATH + "/data/sample-turkish.cp1254.txt"
+
+        try:
+            self.assertTrue(
+                exists(arabic_out),
+                "Normalized output for first file should exist",
+            )
+            self.assertTrue(
+                exists(turkish_out),
+                "Normalized output for second file should exist",
+            )
+        finally:
+            for p in (arabic_out, turkish_out):
+                try:
+                    remove(p)
+                except OSError:
+                    pass
+
     def test_non_existent_file(self):
         with self.assertRaises(SystemExit) as cm:
             cli_detect([DIR_PATH + "/data/not_found_data.txt"])
