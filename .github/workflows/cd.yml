@@ -85,7 +85,6 @@ jobs:
           CIBW_ENVIRONMENT: CHARSET_NORMALIZER_USE_MYPYC='1'
           CIBW_TEST_REQUIRES: pytest
           CIBW_TEST_COMMAND: pytest -c {package} {package}/tests
-          CIBW_SKIP: "cp31?t-*"
       - name: Upload artifacts
         uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f
         with:
