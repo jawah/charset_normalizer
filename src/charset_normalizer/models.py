@@ -55,10 +55,10 @@ class CharsetMatch:
         chaos_difference: float = abs(self.chaos - other.chaos)
         coherence_difference: float = abs(self.coherence - other.coherence)
 
-        # Below 1% difference --> Use Coherence
-        if chaos_difference < 0.01 and coherence_difference > 0.02:
+        # Below 0.5% difference --> Use Coherence
+        if chaos_difference < 0.005 and coherence_difference > 0.02:
             return self.coherence > other.coherence
-        elif chaos_difference < 0.01 and coherence_difference <= 0.02:
+        elif chaos_difference < 0.005 and coherence_difference <= 0.02:
             # When having a difficult decision, use the result that decoded as many multi-byte as possible.
             # preserve RAM usage!
             if len(self._payload) >= TOO_BIG_SEQUENCE:
