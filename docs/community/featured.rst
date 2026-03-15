@@ -1,7 +1,7 @@
 Featured projects
 =================
 
-Did you liked how ``charset-normalizer`` perform? and its quality?
+Did you liked how ``charset-normalizer`` perform? and its quality? track records?
 You may be interested in those other project maintained by the same authors.
 We aim to serve the opensource community the best and as inclusively as we can, no matter
 your level or opinions.

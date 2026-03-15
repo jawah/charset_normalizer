@@ -91,8 +91,6 @@ Some reusable functions used across the project. We do not guarantee the BC in t
 
 .. autofunction:: charset_normalizer.utils.iana_name
 
-.. autofunction:: charset_normalizer.utils.range_scan
-
 .. autofunction:: charset_normalizer.utils.is_cp_similar
 
 
