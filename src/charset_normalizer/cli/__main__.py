@@ -244,25 +244,24 @@ def cli_detect(argv: list[str] | None = None) -> int:
                 )
             )
         else:
-            x_.append(
-                CliDetectionResult(
-                    abspath(my_file.name),
-                    best_guess.encoding,
-                    best_guess.encoding_aliases,
-                    [
-                        cp
-                        for cp in best_guess.could_be_from_charset
-                        if cp != best_guess.encoding
-                    ],
-                    best_guess.language,
-                    best_guess.alphabets,
-                    best_guess.bom,
-                    best_guess.percent_chaos,
-                    best_guess.percent_coherence,
-                    None,
-                    True,
-                )
+            cli_result = CliDetectionResult(
+                abspath(my_file.name),
+                best_guess.encoding,
+                best_guess.encoding_aliases,
+                [
+                    cp
+                    for cp in best_guess.could_be_from_charset
+                    if cp != best_guess.encoding
+                ],
+                best_guess.language,
+                best_guess.alphabets,
+                best_guess.bom,
+                best_guess.percent_chaos,
+                best_guess.percent_coherence,
+                None,
+                True,
             )
+            x_.append(cli_result)
 
             if len(matches) > 1 and args.alternatives:
                 for el in matches:
@@ -323,9 +322,9 @@ def cli_detect(argv: list[str] | None = None) -> int:
                     continue
 
                 try:
-                    x_[0].unicode_path = join(dir_path, ".".join(o_))
+                    cli_result.unicode_path = join(dir_path, ".".join(o_))
 
-                    with open(x_[0].unicode_path, "wb") as fp:
+                    with open(cli_result.unicode_path, "wb") as fp:
                         fp.write(best_guess.output())
                 except OSError as e:  # Defensive:
                     print(str(e), file=sys.stderr)
