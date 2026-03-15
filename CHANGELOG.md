@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Fixed
 - Edge case where noise difference between two candidates can be almost insignificant. (#672)
+- CLI `--normalize` writing to wrong path when passing multiple files in. (#702)
 
 ### Misc
 - Freethreaded pre-built wheels now shipped in PyPI starting with 3.14t. (#616)
