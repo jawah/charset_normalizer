@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Flattened the logic in `charset_normalizer.md` for higher performance. Removed `eligible(..)` and `feed(...)`
   in favor of `feed_info(...)`.
 - Raised upper bound for mypy[c] to 1.20, unlocking the ability to ship freethreaded build of our optimized version.
+- Updated `UNICODE_RANGES_COMBINED` using Unicode blocks v17.
 
 ### Misc
 - Freethreaded pre-built wheels now shipped in PyPI.
