@@ -13,6 +13,7 @@ ENCODING_MARKS: dict[str, bytes | list[bytes]] = {
         b"\x2b\x2f\x76\x39",
         b"\x2b\x2f\x76\x2b",
         b"\x2b\x2f\x76\x2f",
+        b"\x2b\x2f\x76\x38\x2d",
     ],
     "gb18030": b"\x84\x31\x95\x33",
     "utf_32": [BOM_UTF32_BE, BOM_UTF32_LE],
