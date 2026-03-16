@@ -33,7 +33,7 @@ def test_bool_matches():
     [
         (b"\xfe\xff", "utf_16"),
         ("\uFEFF".encode("gb18030"), "gb18030"),
-        # (("\uFEFF" + "").encode("utf-7"), "utf_7"),
+        ("\uFEFF".encode("utf-7"), "utf_7"),
         (b"\xef\xbb\xbf", "utf_8"),
         ("".encode("utf_32"), "utf_32"),
     ],
