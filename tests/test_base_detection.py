@@ -33,6 +33,7 @@ def test_bool_matches():
     [
         (b"\xfe\xff", "utf_16"),
         ("\uFEFF".encode("gb18030"), "gb18030"),
+        ("\uFEFF".encode("utf-7"), "utf_7"),
         (b"\xef\xbb\xbf", "utf_8"),
         ("".encode("utf_32"), "utf_32"),
     ],
@@ -89,6 +90,10 @@ def test_md_triggered_but_with_bom_or_sig(payload, expected_encoding):
         (
             "我没有埋怨，磋砣的只是一些时间。".encode("utf_8_sig"),
             "utf_8",
+        ),
+        (
+            ("\uFEFF" + "🐕").encode("utf-7"),
+            "utf_7",
         ),
     ],
 )
