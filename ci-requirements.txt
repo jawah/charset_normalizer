@@ -293,9 +293,9 @@ filelock==3.25.2 ; python_full_version >= '3.10' \
     # via
     #   python-discovery
     #   virtualenv
-humanize==4.10.0 ; python_full_version == '3.8.*' \
-    --hash=sha256:06b6eb0293e4b85e8d385397c5868926820db32b9b654b932f57fa41c23c9978 \
-    --hash=sha256:39e7ccb96923e732b5c2e27aeaa3b10a8dfeeba3eb965ba7b74a3eb0e30040a6
+humanize==4.13.0 ; python_full_version == '3.8.*' \
+    --hash=sha256:78f79e68f76f0b04d711c4e55d32bebef5be387148862cb1ef83d2b58e7935a0 \
+    --hash=sha256:b810820b31891813b1673e8fec7f1ed3312061eab2f26e3fa192c393d11ed25f
     # via nox
 humanize==4.13.0 ; python_full_version == '3.9.*' \
     --hash=sha256:78f79e68f76f0b04d711c4e55d32bebef5be387148862cb1ef83d2b58e7935a0 \
