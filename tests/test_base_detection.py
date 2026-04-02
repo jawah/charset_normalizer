@@ -108,6 +108,27 @@ def test_content_with_bom_or_sig(payload, expected_encoding):
 
 
 @pytest.mark.parametrize(
+    "content",
+    [
+        ".testing",
+        "-testing",
+        "+testing",
+    ],
+)
+def test_utf7_sig_content_is_stripped(content):
+    """UTF-7 BOM is encoded in modified Base64 whose byte boundary can overlap
+    with the next character.  Verify that the SIG is cleanly removed regardless
+    of the character that follows."""
+    payload = ("\ufeff" + content).encode("utf-7")
+    best_guess = from_bytes(payload).best()
+
+    assert best_guess is not None
+    assert best_guess.encoding == "utf_7"
+    assert best_guess.byte_order_mark is True
+    assert str(best_guess) == content
+
+
+@pytest.mark.parametrize(
     "payload",
     [
         b"AbAdZ pOoooOlDl mmlDoDkA lldDkeEkddA mpAlkDF",
