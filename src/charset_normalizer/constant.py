@@ -9,7 +9,6 @@ from re import compile as re_compile
 ENCODING_MARKS: dict[str, bytes | list[bytes]] = {
     "utf_8": BOM_UTF8,
     "utf_7": [
-        b"\x2b\x2f\x76\x38\x2d",
         b"\x2b\x2f\x76\x38",
         b"\x2b\x2f\x76\x39",
         b"\x2b\x2f\x76\x2b",
