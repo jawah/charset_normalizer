@@ -342,9 +342,9 @@ iniconfig==2.3.0 ; python_full_version >= '3.10' \
 nox==2024.4.15 ; python_full_version < '3.8' \
     --hash=sha256:6492236efa15a460ecb98e7b67562a28b70da006ab0be164e8821177577c0565 \
     --hash=sha256:ecf6700199cdfa9e5ea0a41ff5e6ef4641d09508eda6edb89d9987864115817f
-nox==2026.2.9 ; python_full_version >= '3.8' \
-    --hash=sha256:1b7143bc8ecdf25f2353201326152c5303ae4ae56ca097b1fb6179ad75164c47 \
-    --hash=sha256:1bc8a202ee8cd69be7aaada63b2a7019126899a06fc930a7aee75585bf8ee41b
+nox==2026.4.10 ; python_full_version >= '3.8' \
+    --hash=sha256:082c117627590d9b90aa21f86df89b310b07c5842539524203bcb3c719f116c1 \
+    --hash=sha256:2d0af5374f3f37a295428c927d1b04a8182aa01762897d172446dda2f1ce9692
 packaging==24.0 ; python_full_version < '3.8' \
     --hash=sha256:2ddfb553fdf02fb784c234c7ba6ccc288296ceabec964ad2eae3777778130bc5 \
     --hash=sha256:eb82c5e3e56209074766e6885bb04b8c38a0c015d0a30036ebe7ece34c9989e9
