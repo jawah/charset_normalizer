@@ -11,7 +11,7 @@ from .cd import (
     merge_coherence_ratios,
 )
 from .constant import (
-    IANA_SUPPORTED,
+    IANA_SUPPORTED_MB_FIRST,
     IANA_SUPPORTED_SIMILAR,
     TOO_BIG_SEQUENCE,
     TOO_SMALL_SEQUENCE,
@@ -33,25 +33,6 @@ explain_handler = logging.StreamHandler()
 explain_handler.setFormatter(
     logging.Formatter("%(asctime)s | %(levelname)s | %(message)s")
 )
-
-# Pre-compute a reordered encoding list: multibyte first, then single-byte.
-# This allows the mb_definitive_match optimization to fire earlier, skipping
-# all single-byte encodings for genuine CJK content. Multibyte codecs
-# hard-fail (UnicodeDecodeError) on single-byte data almost instantly, so
-# testing them first costs negligible time for non-CJK files.
-_mb_supported: list[str] = []
-_sb_supported: list[str] = []
-
-for _supported_enc in IANA_SUPPORTED:
-    try:
-        if is_multi_byte_encoding(_supported_enc):
-            _mb_supported.append(_supported_enc)
-        else:
-            _sb_supported.append(_supported_enc)
-    except ImportError:
-        _sb_supported.append(_supported_enc)
-
-IANA_SUPPORTED_MB_FIRST: list[str] = _mb_supported + _sb_supported
 
 
 def from_bytes(
