@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from encodings.aliases import aliases
-from json import dumps
 from re import sub
 from typing import Any, Iterator, List, Tuple
 
@@ -366,4 +365,6 @@ class CliDetectionResult:
         }
 
     def to_json(self) -> str:
+        from json import dumps
+
         return dumps(self.__dict__, ensure_ascii=True, indent=4)
