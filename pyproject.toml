@@ -51,7 +51,7 @@ ci = [
   "build==1.4.0; python_version >= '3.9'"
 ]
 dev = [
-  "pytest==7.4.4; python_version == '3.7'",
+  "pytest==9.0.3; python_version == '3.7'",
   "pytest==8.3.5; python_version == '3.8'",
   "pytest==8.4.1; python_version >= '3.9'",
   "coverage==7.2.7; python_version == '3.7'",
