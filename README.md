@@ -33,10 +33,6 @@
 > All IANA character set names for which the Python core library provides codecs are supported.
 > You can also register your own set of codecs, and yes, it would work as-is.
 
-<p align="center">
-  >>>>> <a href="https://charsetnormalizerweb.ousret.now.sh" target="_blank">👉 Try Me Online Now, Then Adopt Me 👈 </a> <<<<<
-</p>
-
 This project offers you an alternative to **Universal Charset Encoding Detector**, also known as **Chardet**.
 
 | Feature                                          | [Chardet](https://github.com/chardet/chardet) |                                       Charset Normalizer                                        | [cChardet](https://github.com/PyYoshi/cChardet) |
