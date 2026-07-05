@@ -1,8 +1,6 @@
 name: Continuous Delivery
 
 on:
-  workflow_dispatch:
-
   release:
     types:
       - created
@@ -64,6 +62,7 @@ jobs:
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           submodules: true
+          persist-credentials: false
       - name: Set up QEMU
         if: ${{ matrix.qemu }}
         uses: docker/setup-qemu-action@06116385d9baf250c9f4dcb4858b16962ea869c3 # v4.1.0
@@ -101,6 +100,8 @@ jobs:
       hashes: ${{ steps.compute.outputs.hashes }}
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
       - name: Download distributions
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
         with:
@@ -202,6 +203,8 @@ jobs:
       - name: Upload dists to GitHub Release
         env:
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+          REF_NAME: "${{ github.ref_name }}"
+          REPOSITORY: "${{ github.repository }}"
         run: |
           set -euo pipefail
 
@@ -214,7 +217,7 @@ jobs:
             echo "Uploading batch $((i/batch_size + 1)) (${#batch[@]} files)..."
 
             for (( attempt=1; attempt<=max_retries; attempt++ )); do
-              if gh release upload ${{ github.ref_name }} "${batch[@]}" --repo ${{ github.repository }} --clobber; then
+              if gh release upload "$REF_NAME" "${batch[@]}" --repo "$REPOSITORY" --clobber; then
                 break
               fi
 
