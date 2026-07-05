@@ -480,6 +480,8 @@ class SuperWeirdWordPlugin(MessDetectorPlugin):
         "_buffer_accent_count",
         "_buffer_glyph_count",
         "_buffer_upper_count",
+        "_buffer_first_lower",
+        "_buffer_has_non_ascii",
     )
 
     def __init__(self) -> None:
@@ -499,15 +501,21 @@ class SuperWeirdWordPlugin(MessDetectorPlugin):
         self._buffer_accent_count: int = 0
         self._buffer_glyph_count: int = 0
         self._buffer_upper_count: int = 0
+        self._buffer_first_lower: bool = False
+        self._buffer_has_non_ascii: bool = False
 
     def feed_info(self, character: str, info: CharInfo) -> None:
         """Optimized feed using pre-computed character info."""
         if info.alpha:
+            if self._buffer_length == 0:
+                self._buffer_first_lower = info.lower
             self._buffer_length += 1
             self._buffer_last_char = character
 
             if info.upper:
                 self._buffer_upper_count += 1
+            if not info.is_ascii:
+                self._buffer_has_non_ascii = True
 
             self._buffer_last_char_accentuated = info.accentuated
 
@@ -543,6 +551,16 @@ class SuperWeirdWordPlugin(MessDetectorPlugin):
                 elif self._buffer_glyph_count == 1:
                     self._is_current_word_bad = True
                     self._foreign_long_count += 1
+                elif (
+                    self._buffer_has_non_ascii
+                    and self._buffer_first_lower
+                    and self._buffer_upper_count == buffer_length - 1
+                ):
+                    # Inverse capitalization detector.
+                    # No natural writing produces such words.
+                    # see https://github.com/jawah/charset_normalizer/issues/731
+                    self._foreign_long_count += 1
+                    self._is_current_word_bad = True
             if buffer_length >= 24 and self._foreign_long_watch:
                 probable_camel_cased: bool = (
                     self._buffer_upper_count > 0
@@ -565,6 +583,8 @@ class SuperWeirdWordPlugin(MessDetectorPlugin):
             self._buffer_accent_count = 0
             self._buffer_glyph_count = 0
             self._buffer_upper_count = 0
+            self._buffer_first_lower = False
+            self._buffer_has_non_ascii = False
         elif (
             character not in {"<", ">", "-", "=", "~", "|", "_"}
             and not info.digit
@@ -589,6 +609,8 @@ class SuperWeirdWordPlugin(MessDetectorPlugin):
         self._buffer_accent_count = 0
         self._buffer_glyph_count = 0
         self._buffer_upper_count = 0
+        self._buffer_first_lower = False
+        self._buffer_has_non_ascii = False
 
     @property
     def ratio(self) -> float:

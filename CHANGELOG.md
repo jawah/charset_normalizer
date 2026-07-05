@@ -7,6 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Fixed
 - Wall import time due to cascade codec imports for our multibyte first sort of iana supported codecs (#742)
 - Unnecessary json import at runtime (#753)
+- Inverse capitalization not seen by noise detector (#731)
 
 ### Changed
 - No longer holding a global cache for our noise / coherence measurements. Relax RSS memory usage.
