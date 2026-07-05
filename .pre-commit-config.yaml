@@ -15,7 +15,7 @@ repos:
         args: [ --py37-plus, --keep-runtime-typing ]
   - repo: https://github.com/astral-sh/ruff-pre-commit
     # Ruff version.
-    rev: v0.12.8
+    rev: v0.15.9
     hooks:
       # Run the linter.
       - id: ruff
@@ -28,3 +28,16 @@ repos:
       - id: mypy
         args: [ --check-untyped-defs ]
         exclude: 'tests/|noxfile.py|setup.py|bin/'
+  - repo: https://github.com/zizmorcore/zizmor-pre-commit
+    rev: v1.23.1
+    hooks:
+      - id: zizmor
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.4.2
+    hooks:
+      - id: codespell
+        name: codespell
+        description: Checks for common misspellings in text files.
+        entry: codespell
+        language: python
+        types: [ text ]
