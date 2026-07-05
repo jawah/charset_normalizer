@@ -413,8 +413,9 @@ IANA_NO_ALIASES = [
 
 IANA_SUPPORTED: list[str] = sorted(
     filter(
-        lambda x: x.endswith("_codec") is False
-        and x not in {"rot_13", "tactis", "mbcs"},
+        lambda x: (
+            x.endswith("_codec") is False and x not in {"rot_13", "tactis", "mbcs"}
+        ),
         list(set(aliases.values())) + IANA_NO_ALIASES,
     )
 )
