@@ -10,10 +10,6 @@ from functools import lru_cache
 from re import findall
 from typing import Generator
 
-from _multibytecodec import (  # type: ignore[import-not-found,import]
-    MultibyteIncrementalDecoder,
-)
-
 from .constant import (
     ENCODING_MARKS,
     IANA_SUPPORTED_SIMILAR,
@@ -267,7 +263,7 @@ def is_multi_byte_encoding(name: str) -> bool:
     """
     Verify is a specific encoding is a multi byte one based on it IANA name
     """
-    return name in {
+    if name in {
         "utf_8",
         "utf_8_sig",
         "utf_16",
@@ -277,10 +273,31 @@ def is_multi_byte_encoding(name: str) -> bool:
         "utf_32_le",
         "utf_32_be",
         "utf_7",
-    } or issubclass(
-        importlib.import_module(f"encodings.{name}").IncrementalDecoder,
-        MultibyteIncrementalDecoder,
-    )
+    }:
+        return True
+
+    # Besides the Unicode family above, every multibyte codec shipped with
+    # Python is implemented by _multibytecodec through exactly one of the six
+    # cjkcodecs providers below. Probing those providers directly (getcodec)
+    # classifies a name without importing its "encodings.<name>" module:
+    # classifying the whole IANA_SUPPORTED list would otherwise import many
+    # modules and dominate "import charset_normalizer" wall time.
+    # see https://github.com/jawah/charset_normalizer/issues/742
+    for provider in (
+        "_codecs_cn",
+        "_codecs_hk",
+        "_codecs_iso2022",
+        "_codecs_jp",
+        "_codecs_kr",
+        "_codecs_tw",
+    ):
+        try:
+            importlib.import_module(provider).getcodec(name)  # type: ignore[attr-defined]
+        except (ImportError, AttributeError, LookupError):  # Defensive: edge cases
+            continue
+        return True
+
+    return False
 
 
 def identify_sig_or_bom(sequence: bytes | bytearray) -> tuple[str | None, bytes]:

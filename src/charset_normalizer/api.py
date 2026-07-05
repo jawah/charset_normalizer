@@ -39,19 +39,11 @@ explain_handler.setFormatter(
 # all single-byte encodings for genuine CJK content. Multibyte codecs
 # hard-fail (UnicodeDecodeError) on single-byte data almost instantly, so
 # testing them first costs negligible time for non-CJK files.
-_mb_supported: list[str] = []
-_sb_supported: list[str] = []
-
-for _supported_enc in IANA_SUPPORTED:
-    try:
-        if is_multi_byte_encoding(_supported_enc):
-            _mb_supported.append(_supported_enc)
-        else:
-            _sb_supported.append(_supported_enc)
-    except ImportError:
-        _sb_supported.append(_supported_enc)
-
-IANA_SUPPORTED_MB_FIRST: list[str] = _mb_supported + _sb_supported
+# Stable sort on a boolean key: multibyte (False) first, IANA order kept
+# within each group.
+IANA_SUPPORTED_MB_FIRST: list[str] = sorted(
+    IANA_SUPPORTED, key=lambda encoding: not is_multi_byte_encoding(encoding)
+)
 
 
 def from_bytes(
