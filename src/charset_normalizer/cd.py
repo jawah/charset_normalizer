@@ -2,9 +2,7 @@ from __future__ import annotations
 
 import importlib
 from codecs import IncrementalDecoder
-from collections import Counter
 from functools import lru_cache
-from typing import Counter as TypeCounter
 
 from .constant import (
     FREQUENCIES,
@@ -15,7 +13,7 @@ from .constant import (
     _FREQUENCIES_SET,
     _FREQUENCIES_RANK,
 )
-from .md import is_suspiciously_successive_range
+from .md import _ASCII_CHAR_INFO, _char_info, is_suspiciously_successive_range
 from .models import CoherenceMatches
 from .utils import (
     is_accentuated,
@@ -86,7 +84,11 @@ def encoding_languages(iana_name: str) -> list[str]:
     Single-byte encoding language association. Some code page are heavily linked to particular language(s).
     This function does the correspondence.
     """
-    unicode_ranges: list[str] = encoding_unicode_range(iana_name)
+    try:
+        unicode_ranges: list[str] = encoding_unicode_range(iana_name)
+    except ImportError:  # Defensive: encoding unavailable on this build.
+        return []
+
     primary_range: str | None = None
 
     for specified_range in unicode_ranges:
@@ -184,43 +186,35 @@ def characters_popularity_compare(
         raise ValueError(f"{language} not available")  # Defensive:
 
     character_approved_count: int = 0
-    frequencies_language_set: frozenset[str] = _FREQUENCIES_SET[language]
     lang_rank: dict[str, int] = _FREQUENCIES_RANK[language]
 
     ordered_characters_count: int = len(ordered_characters)
     target_language_characters_count: int = len(FREQUENCIES[language])
 
     large_alphabet: bool = target_language_characters_count > 26
+    large_alphabet_threshold: float = target_language_characters_count / 3
 
     expected_projection_ratio: float = (
         target_language_characters_count / ordered_characters_count
     )
 
-    # Pre-built rank dict for ordered_characters (avoids repeated list slicing).
-    ordered_rank: dict[str, int] = {
-        char: rank for rank, char in enumerate(ordered_characters)
-    }
+    # Single pass: characters present in the language vocabulary, as
+    # (language rank, popularity rank) pairs. The scoring below only ever
+    # needs ranks, never the characters themselves.
+    common_lr: list[int] = []
+    common_orr: list[int] = []
+    for popularity_rank, character in enumerate(ordered_characters):
+        language_rank = lang_rank.get(character)
+        if language_rank is not None:
+            common_lr.append(language_rank)
+            common_orr.append(popularity_rank)
 
-    # Pre-compute characters common to both orderings.
-    # Avoids repeated `c in ordered_rank` dict lookups in the inner counts.
-    common_chars: list[tuple[int, int]] = [
-        (lr, ordered_rank[c]) for c, lr in lang_rank.items() if c in ordered_rank
-    ]
+    common_count: int = len(common_lr)
 
-    # Pre-extract lr and orr arrays for faster iteration in the inner loop.
-    # Plain integer loops with local arrays are much faster under mypyc than
-    # generator expression sums over a list of tuples.
-    common_count: int = len(common_chars)
-    common_lr: list[int] = [p[0] for p in common_chars]
-    common_orr: list[int] = [p[1] for p in common_chars]
+    for k in range(common_count):
+        character_rank_in_language: int = common_lr[k]
+        character_rank: int = common_orr[k]
 
-    for character, character_rank in zip(
-        ordered_characters, range(0, ordered_characters_count)
-    ):
-        if character not in frequencies_language_set:
-            continue
-
-        character_rank_in_language: int = lang_rank[character]
         character_rank_projection: int = int(character_rank * expected_projection_ratio)
 
         if (
@@ -232,43 +226,46 @@ def characters_popularity_compare(
         if (
             large_alphabet is True
             and abs(character_rank_projection - character_rank_in_language)
-            < target_language_characters_count / 3
+            < large_alphabet_threshold
         ):
             character_approved_count += 1
             continue
 
-        # Count how many characters appear "before" in both orderings,
-        # and how many appear "at or after" in both orderings.
-        # Single pass over pre-extracted arrays — much faster under mypyc
-        # than two generator expression sums.
+        if character_rank_in_language == 0:
+            # before_match_count is structurally 0 here (no pair can have a
+            # smaller language rank): the historic "before <= 4" acceptance
+            # always holds. (The symmetric "after_len == 0" case is
+            # impossible: language ranks are strictly below the language
+            # character count, hence after_len >= 1.)
+            character_approved_count += 1
+            continue
+
+        after_len: int = target_language_characters_count - character_rank_in_language
+
+        # Count how many characters appear "before" in both orderings, and
+        # how many appear "at or after" in both orderings. Both counts grow
+        # monotonically and the approval thresholds
+        # (before / rank >= 0.4 or after / after_len >= 0.4) are known
+        # upfront, expressed below as exact integer comparisons: exit as
+        # soon as one is crossed.
         before_match_count: int = 0
         after_match_count: int = 0
+
         for i in range(common_count):
             lr_i: int = common_lr[i]
             orr_i: int = common_orr[i]
             if lr_i < character_rank_in_language:
                 if orr_i < character_rank:
                     before_match_count += 1
+                    if 5 * before_match_count >= 2 * character_rank_in_language:
+                        character_approved_count += 1
+                        break
             else:
                 if orr_i >= character_rank:
                     after_match_count += 1
-
-        after_len: int = target_language_characters_count - character_rank_in_language
-
-        if character_rank_in_language == 0 and before_match_count <= 4:
-            character_approved_count += 1
-            continue
-
-        if after_len == 0 and after_match_count <= 4:
-            character_approved_count += 1
-            continue
-
-        if (
-            character_rank_in_language > 0
-            and before_match_count / character_rank_in_language >= 0.4
-        ) or (after_len > 0 and after_match_count / after_len >= 0.4):
-            character_approved_count += 1
-            continue
+                    if 5 * after_match_count >= 2 * after_len:
+                        character_approved_count += 1
+                        break
 
     return character_approved_count / len(ordered_characters)
 
@@ -291,16 +288,19 @@ def alpha_unicode_split(decoded_sequence: str) -> list[str]:
     prev_layer_target: str | None = None
 
     for character in decoded_sequence:
-        if character.isalpha() is False:
+        # Reuse the per-codepoint CharInfo cache: info.alpha and info.range
+        # are computed with the very same str.isalpha() / unicode_range()
+        # calls this loop historically made per character occurrence.
+        codepoint: int = ord(character)
+        if codepoint < 128:
+            info = _ASCII_CHAR_INFO[codepoint]
+        else:
+            info = _char_info(character)
+
+        if info.alpha is False:
             continue
 
-        # ASCII fast-path: a-z and A-Z are always "Basic Latin".
-        # Avoids unicode_range() function call overhead for the most common case.
-        character_ord: int = ord(character)
-        if character_ord < 128:
-            character_range: str | None = "Basic Latin"
-        else:
-            character_range = unicode_range(character)
+        character_range: str | None = info.range
 
         if character_range is None:
             continue
@@ -402,7 +402,6 @@ def filter_alt_coherence_matches(results: CoherenceMatches) -> CoherenceMatches:
     return results
 
 
-@lru_cache(maxsize=2048)
 def coherence_ratio(
     decoded_sequence: str, threshold: float = 0.1, lg_inclusion: str | None = None
 ) -> CoherenceMatches:
@@ -422,15 +421,27 @@ def coherence_ratio(
         lg_inclusion_list.remove("Latin Based")
 
     for layer in alpha_unicode_split(decoded_sequence):
-        sequence_frequencies: TypeCounter[str] = Counter(layer)
-        most_common = sequence_frequencies.most_common()
+        # Native counting + stable sort reproduce Counter.most_common()
+        # ordering exactly (ties keep first-appearance order) without the
+        # interpreted Counter machinery in the compiled hot path.
+        char_counts: dict[str, int] = {}
+        for layer_character in layer:
+            if layer_character in char_counts:
+                char_counts[layer_character] += 1
+            else:
+                char_counts[layer_character] = 1
 
         character_count: int = len(layer)
 
         if character_count <= TOO_SMALL_SEQUENCE:
             continue
 
-        popular_character_ordered: list[str] = [c for c, o in most_common]
+        popular_character_ordered: list[str] = [
+            item[0]
+            for item in sorted(
+                char_counts.items(), key=lambda item: item[1], reverse=True
+            )
+        ]
 
         for language in lg_inclusion_list or alphabet_languages(
             popular_character_ordered, ignore_non_latin

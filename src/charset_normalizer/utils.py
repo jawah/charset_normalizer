@@ -402,6 +402,7 @@ def cut_sequence_chunks(
     sig_payload: bytes,
     is_multi_byte_decoder: bool,
     decoded_payload: str | None = None,
+    deferred_decoding: bool = False,
 ) -> Generator[str, None, None]:
     if decoded_payload and is_multi_byte_decoder is False:
         for i in offsets:
@@ -409,6 +410,21 @@ def cut_sequence_chunks(
             if not chunk:
                 break
             yield chunk
+    elif deferred_decoding:
+        # Deferred single-byte probing: the whole payload is not decoded
+        # yet. Single-byte codecs are stateless (1 byte == 1 char), hence
+        # decode(base)[i:j] == decode(base[i:j]): slicing the raw bytes
+        # yields exactly the chunks the branch above would have produced,
+        # short trailing chunks included, and raises UnicodeDecodeError on
+        # invalid bytes just like the whole-payload decode would.
+        base_bytes = (
+            sequences if strip_sig_or_bom is False else sequences[len(sig_payload) :]
+        )
+        for i in offsets:
+            cut_sequence = base_bytes[i : i + chunk_size]
+            if not cut_sequence:
+                break
+            yield str(cut_sequence, encoding_iana)
     else:
         for i in offsets:
             chunk_end = i + chunk_size
