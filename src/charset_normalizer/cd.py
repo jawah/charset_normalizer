@@ -209,12 +209,7 @@ def characters_popularity_compare(
             common_lr.append(language_rank)
             common_orr.append(popularity_rank)
 
-    common_count: int = len(common_lr)
-
-    for k in range(common_count):
-        character_rank_in_language: int = common_lr[k]
-        character_rank: int = common_orr[k]
-
+    for character_rank_in_language, character_rank in zip(common_lr, common_orr):
         character_rank_projection: int = int(character_rank * expected_projection_ratio)
 
         if (
@@ -251,9 +246,7 @@ def characters_popularity_compare(
         before_match_count: int = 0
         after_match_count: int = 0
 
-        for i in range(common_count):
-            lr_i: int = common_lr[i]
-            orr_i: int = common_orr[i]
+        for lr_i, orr_i in zip(common_lr, common_orr):
             if lr_i < character_rank_in_language:
                 if orr_i < character_rank:
                     before_match_count += 1
@@ -426,10 +419,7 @@ def coherence_ratio(
         # interpreted Counter machinery in the compiled hot path.
         char_counts: dict[str, int] = {}
         for layer_character in layer:
-            if layer_character in char_counts:
-                char_counts[layer_character] += 1
-            else:
-                char_counts[layer_character] = 1
+            char_counts[layer_character] = char_counts.get(layer_character, 0) + 1
 
         character_count: int = len(layer)
 

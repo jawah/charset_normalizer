@@ -715,9 +715,8 @@ def from_bytes(
                 )
 
                 cd_ratios.append(chunk_languages)
-            cd_ratios_merged = merge_coherence_ratios(cd_ratios)
-        else:
-            cd_ratios_merged = merge_coherence_ratios(cd_ratios)
+
+        cd_ratios_merged = merge_coherence_ratios(cd_ratios)
 
         if cd_ratios_merged:
             logger.log(
