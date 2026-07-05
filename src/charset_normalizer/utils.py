@@ -235,9 +235,18 @@ def any_specified_encoding(
 
     seq_len: int = len(sequence)
 
+    decoded_zone: str = sequence[: min(seq_len, search_zone)].decode(
+        "ascii", errors="ignore"
+    )
+
+    # Cheap literal pre-filter.
+    lowered_zone: str = decoded_zone.lower()
+    if "coding" not in lowered_zone and "charset" not in lowered_zone:
+        return None
+
     results: list[str] = findall(
         RE_POSSIBLE_ENCODING_INDICATION,
-        sequence[: min(seq_len, search_zone)].decode("ascii", errors="ignore"),
+        decoded_zone,
     )
 
     if len(results) == 0:
