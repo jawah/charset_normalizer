@@ -353,20 +353,20 @@ def from_bytes(
         # by chaos probing (the common case) never pay the full decode nor
         # the payload hash.
         deferred_decoding: bool = (
-            is_multi_byte_decoder is False and is_too_large_sequence is False
+            not is_multi_byte_decoder and not is_too_large_sequence
         )
 
         try:
-            if is_too_large_sequence and is_multi_byte_decoder is False:
+            if is_too_large_sequence and not is_multi_byte_decoder:
                 str(
                     (
                         sequences[: int(50e4)]
-                        if strip_sig_or_bom is False
+                        if not strip_sig_or_bom
                         else sequences[len(sig_payload) : int(50e4)]
                     ),
                     encoding=encoding_iana,
                 )
-            elif deferred_decoding is False:
+            elif not deferred_decoding:
                 # UTF-7 BOM is encoded in modified Base64 whose byte boundary
                 # can overlap with the next character. Stripping raw SIG bytes
                 # before decoding may leave stray bytes that decode as garbage.
@@ -384,7 +384,7 @@ def from_bytes(
                     decoded_payload = str(
                         (
                             sequences
-                            if strip_sig_or_bom is False
+                            if not strip_sig_or_bom
                             else sequences[len(sig_payload) :]
                         ),
                         encoding=encoding_iana,
@@ -448,7 +448,7 @@ def from_bytes(
                     cached_mess_ratio(
                         chunk,
                         threshold,
-                        explain is True and 1 <= len(cp_isolation) <= 2,
+                        explain and 1 <= len(cp_isolation) <= 2,
                     )
                 )
 
@@ -456,7 +456,7 @@ def from_bytes(
                     early_stop_count += 1
 
                 if (early_stop_count >= max_chunk_gave_up) or (
-                    bom_or_sig_available and strip_sig_or_bom is False
+                    bom_or_sig_available and not strip_sig_or_bom
                 ):
                     break
         except (
@@ -553,7 +553,7 @@ def from_bytes(
                 decoded_payload = str(
                     (
                         sequences
-                        if strip_sig_or_bom is False
+                        if not strip_sig_or_bom
                         else sequences[len(sig_payload) :]
                     ),
                     encoding=encoding_iana,
@@ -588,7 +588,7 @@ def from_bytes(
                         (
                             decoded_payload
                             if (
-                                is_too_large_sequence is False
+                                not is_too_large_sequence
                                 or encoding_iana
                                 in [specified_encoding, "ascii", "utf_8"]
                             )
@@ -735,7 +735,7 @@ def from_bytes(
             (
                 decoded_payload
                 if (
-                    is_too_large_sequence is False
+                    not is_too_large_sequence
                     or encoding_iana in [specified_encoding, "ascii", "utf_8"]
                 )
                 else None

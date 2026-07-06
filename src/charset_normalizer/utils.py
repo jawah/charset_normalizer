@@ -216,8 +216,8 @@ def is_unicode_range_secondary(range_name: str) -> bool:
 @lru_cache(maxsize=UTF8_MAXIMAL_ALLOCATION)
 def is_unprintable(character: str) -> bool:
     return (
-        character.isspace() is False  # includes \n \t \r \v
-        and character.isprintable() is False
+        not character.isspace()  # includes \n \t \r \v
+        and not character.isprintable()
         and character != "\x1a"  # Why? Its the ASCII substitute character.
         and character != "\ufeff"  # bug discovered in Python,
         # Zero Width No-Break Space located in 	Arabic Presentation Forms-B, Unicode 1.1 not acknowledged as space.
@@ -404,7 +404,7 @@ def cut_sequence_chunks(
     decoded_payload: str | None = None,
     deferred_decoding: bool = False,
 ) -> Generator[str, None, None]:
-    if decoded_payload and is_multi_byte_decoder is False:
+    if decoded_payload and not is_multi_byte_decoder:
         for i in offsets:
             chunk = decoded_payload[i : i + chunk_size]
             if not chunk:
@@ -418,7 +418,7 @@ def cut_sequence_chunks(
         # short trailing chunks included, and raises UnicodeDecodeError on
         # invalid bytes just like the whole-payload decode would.
         base_bytes = (
-            sequences if strip_sig_or_bom is False else sequences[len(sig_payload) :]
+            sequences if not strip_sig_or_bom else sequences[len(sig_payload) :]
         )
         for i in offsets:
             cut_sequence = base_bytes[i : i + chunk_size]
@@ -433,7 +433,7 @@ def cut_sequence_chunks(
 
             cut_sequence = sequences[i : i + chunk_size]
 
-            if bom_or_sig_available and strip_sig_or_bom is False:
+            if bom_or_sig_available and not strip_sig_or_bom:
                 cut_sequence = sig_payload + cut_sequence
 
             chunk = cut_sequence.decode(
@@ -453,7 +453,7 @@ def cut_sequence_chunks(
                     for j in range(i, i - 4, -1):
                         cut_sequence = sequences[j:chunk_end]
 
-                        if bom_or_sig_available and strip_sig_or_bom is False:
+                        if bom_or_sig_available and not strip_sig_or_bom:
                             cut_sequence = sig_payload + cut_sequence
 
                         chunk = cut_sequence.decode(encoding_iana, errors="ignore")

@@ -48,7 +48,7 @@ def encoding_unicode_range(iana_name: str) -> list[str]:
             if character_range is None:
                 continue
 
-            if is_unicode_range_secondary(character_range) is False:
+            if not is_unicode_range_secondary(character_range):
                 if character_range not in seen_ranges:
                     seen_ranges[character_range] = 0
                 seen_ranges[character_range] += 1
@@ -134,7 +134,7 @@ def get_target_features(language: str) -> tuple[bool, bool]:
     for character in FREQUENCIES[language]:
         if not target_have_accents and is_accentuated(character):
             target_have_accents = True
-        if target_pure_latin and is_latin(character) is False:
+        if target_pure_latin and not is_latin(character):
             target_pure_latin = False
 
     return target_have_accents, target_pure_latin
@@ -154,10 +154,10 @@ def alphabet_languages(
     for language, language_characters in FREQUENCIES.items():
         target_have_accents, target_pure_latin = get_target_features(language)
 
-        if ignore_non_latin and target_pure_latin is False:
+        if ignore_non_latin and not target_pure_latin:
             continue
 
-        if target_have_accents is False and source_have_accents:
+        if not target_have_accents and source_have_accents:
             continue
 
         character_count: int = len(language_characters)
@@ -213,13 +213,13 @@ def characters_popularity_compare(
         character_rank_projection: int = int(character_rank * expected_projection_ratio)
 
         if (
-            large_alphabet is False
+            not large_alphabet
             and abs(character_rank_projection - character_rank_in_language) > 4
         ):
             continue
 
         if (
-            large_alphabet is True
+            large_alphabet
             and abs(character_rank_projection - character_rank_in_language)
             < large_alphabet_threshold
         ):
@@ -290,7 +290,7 @@ def alpha_unicode_split(decoded_sequence: str) -> list[str]:
         else:
             info = _char_info(character)
 
-        if info.alpha is False:
+        if not info.alpha:
             continue
 
         character_range: str | None = info.range
@@ -308,17 +308,13 @@ def alpha_unicode_split(decoded_sequence: str) -> list[str]:
 
         if multi_layer:
             for discovered_range in layers:
-                if (
-                    is_suspiciously_successive_range(discovered_range, character_range)
-                    is False
+                if not is_suspiciously_successive_range(
+                    discovered_range, character_range
                 ):
                     layer_target_range = discovered_range
                     break
         elif single_layer_key is not None:
-            if (
-                is_suspiciously_successive_range(single_layer_key, character_range)
-                is False
-            ):
+            if not is_suspiciously_successive_range(single_layer_key, character_range):
                 layer_target_range = single_layer_key
 
         if layer_target_range is None:
