@@ -15,7 +15,7 @@ from .constant import (
     IANA_SUPPORTED_SIMILAR,
     RE_POSSIBLE_ENCODING_INDICATION,
     UNICODE_RANGES_COMBINED,
-    UNICODE_SECONDARY_RANGE_KEYWORD,
+    _SECONDARY_RANGE_NAMES,
     UTF8_MAXIMAL_ALLOCATION,
     COMMON_CJK_CHARACTERS,
     _LATIN,
@@ -31,7 +31,6 @@ from .constant import (
 )
 
 
-@lru_cache(maxsize=UTF8_MAXIMAL_ALLOCATION)
 def _character_flags(character: str) -> int:
     """Compute all name-based classification flags with a single unicodedata.name() call."""
     try:
@@ -66,7 +65,6 @@ def _character_flags(character: str) -> int:
     return flags
 
 
-@lru_cache(maxsize=UTF8_MAXIMAL_ALLOCATION)
 def is_accentuated(character: str) -> bool:
     return bool(_character_flags(character) & _ACCENTUATED)
 
@@ -91,7 +89,6 @@ _UNICODE_RANGES_SORTED: list[tuple[int, int, str]] = sorted(
 _UNICODE_RANGE_STARTS: list[int] = [e[0] for e in _UNICODE_RANGES_SORTED]
 
 
-@lru_cache(maxsize=UTF8_MAXIMAL_ALLOCATION)
 def unicode_range(character: str) -> str | None:
     """
     Retrieve the Unicode range official name from a single character.
@@ -108,12 +105,10 @@ def unicode_range(character: str) -> str | None:
     return None
 
 
-@lru_cache(maxsize=UTF8_MAXIMAL_ALLOCATION)
 def is_latin(character: str) -> bool:
     return bool(_character_flags(character) & _LATIN)
 
 
-@lru_cache(maxsize=UTF8_MAXIMAL_ALLOCATION)
 def is_punctuation(character: str) -> bool:
     character_category: str = unicodedata.category(character)
 
@@ -128,7 +123,6 @@ def is_punctuation(character: str) -> bool:
     return "Punctuation" in character_range
 
 
-@lru_cache(maxsize=UTF8_MAXIMAL_ALLOCATION)
 def is_symbol(character: str) -> bool:
     character_category: str = unicodedata.category(character)
 
@@ -143,7 +137,6 @@ def is_symbol(character: str) -> bool:
     return "Forms" in character_range and character_category != "Lo"
 
 
-@lru_cache(maxsize=UTF8_MAXIMAL_ALLOCATION)
 def is_emoticon(character: str) -> bool:
     character_range: str | None = unicode_range(character)
 
@@ -153,7 +146,6 @@ def is_emoticon(character: str) -> bool:
     return "Emoticons" in character_range or "Pictographs" in character_range
 
 
-@lru_cache(maxsize=UTF8_MAXIMAL_ALLOCATION)
 def is_separator(character: str) -> bool:
     if character.isspace() or character in {"｜", "+", "<", ">"}:
         return True
@@ -208,9 +200,8 @@ def is_cjk_uncommon(character: str) -> bool:
     return character not in COMMON_CJK_CHARACTERS
 
 
-@lru_cache(maxsize=len(UNICODE_RANGES_COMBINED))
 def is_unicode_range_secondary(range_name: str) -> bool:
-    return any(keyword in range_name for keyword in UNICODE_SECONDARY_RANGE_KEYWORD)
+    return range_name in _SECONDARY_RANGE_NAMES
 
 
 @lru_cache(maxsize=UTF8_MAXIMAL_ALLOCATION)

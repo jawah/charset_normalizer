@@ -16,11 +16,8 @@ from .constant import (
 from .md import _ASCII_CHAR_INFO, _char_info, is_suspiciously_successive_range
 from .models import CoherenceMatches
 from .utils import (
-    is_accentuated,
-    is_latin,
     is_multi_byte_encoding,
     is_unicode_range_secondary,
-    unicode_range,
 )
 
 
@@ -43,7 +40,12 @@ def encoding_unicode_range(iana_name: str) -> list[str]:
         chunk: str = p.decode(bytes([i]))
 
         if chunk:
-            character_range: str | None = unicode_range(chunk)
+            chunk_codepoint = ord(chunk)
+            character_range: str | None = (
+                _ASCII_CHAR_INFO[chunk_codepoint].range
+                if chunk_codepoint < 128
+                else _char_info(chunk).range
+            )
 
             if character_range is None:
                 continue
@@ -71,7 +73,13 @@ def unicode_range_languages(primary_range: str) -> list[str]:
 
     for language, characters in FREQUENCIES.items():
         for character in characters:
-            if unicode_range(character) == primary_range:
+            codepoint = ord(character)
+            info = (
+                _ASCII_CHAR_INFO[codepoint]
+                if codepoint < 128
+                else _char_info(character)
+            )
+            if info.range == primary_range:
                 languages.append(language)
                 break
 
@@ -132,9 +140,11 @@ def get_target_features(language: str) -> tuple[bool, bool]:
     target_pure_latin: bool = True
 
     for character in FREQUENCIES[language]:
-        if not target_have_accents and is_accentuated(character):
+        codepoint = ord(character)
+        info = _ASCII_CHAR_INFO[codepoint] if codepoint < 128 else _char_info(character)
+        if not target_have_accents and info.accentuated:
             target_have_accents = True
-        if target_pure_latin and not is_latin(character):
+        if target_pure_latin and not info.latin:
             target_pure_latin = False
 
     return target_have_accents, target_pure_latin
@@ -149,7 +159,13 @@ def alphabet_languages(
     languages: list[tuple[str, float]] = []
 
     characters_set: frozenset[str] = frozenset(characters)
-    source_have_accents = any(is_accentuated(character) for character in characters)
+    source_have_accents = False
+    for character in characters:
+        codepoint = ord(character)
+        info = _ASCII_CHAR_INFO[codepoint] if codepoint < 128 else _char_info(character)
+        if info.accentuated:
+            source_have_accents = True
+            break
 
     for language, language_characters in FREQUENCIES.items():
         target_have_accents, target_pure_latin = get_target_features(language)

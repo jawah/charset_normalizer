@@ -2046,3 +2046,10 @@ _FREQUENCIES_RANK: dict[str, dict[str, int]] = {
 _FREQUENCIES_SET: dict[str, frozenset[str]] = {
     lang: frozenset(chars) for lang, chars in FREQUENCIES.items()
 }
+
+# prebuilt list of secondary range names.
+_SECONDARY_RANGE_NAMES: frozenset[str] = frozenset(
+    range_name
+    for range_name in UNICODE_RANGES_COMBINED
+    if any(keyword in range_name for keyword in UNICODE_SECONDARY_RANGE_KEYWORD)
+)
