@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=68,<82.1"]
+requires = ["setuptools>=68,<83.1"]
 build-backend = "backend"
 backend-path = ["_mypyc_hook"]
 
