@@ -10,16 +10,12 @@ from functools import lru_cache
 from re import findall
 from typing import Generator
 
-from _multibytecodec import (  # type: ignore[import-not-found,import]
-    MultibyteIncrementalDecoder,
-)
-
 from .constant import (
     ENCODING_MARKS,
     IANA_SUPPORTED_SIMILAR,
     RE_POSSIBLE_ENCODING_INDICATION,
     UNICODE_RANGES_COMBINED,
-    UNICODE_SECONDARY_RANGE_KEYWORD,
+    _SECONDARY_RANGE_NAMES,
     UTF8_MAXIMAL_ALLOCATION,
     COMMON_CJK_CHARACTERS,
     _LATIN,
@@ -35,7 +31,6 @@ from .constant import (
 )
 
 
-@lru_cache(maxsize=UTF8_MAXIMAL_ALLOCATION)
 def _character_flags(character: str) -> int:
     """Compute all name-based classification flags with a single unicodedata.name() call."""
     try:
@@ -70,7 +65,6 @@ def _character_flags(character: str) -> int:
     return flags
 
 
-@lru_cache(maxsize=UTF8_MAXIMAL_ALLOCATION)
 def is_accentuated(character: str) -> bool:
     return bool(_character_flags(character) & _ACCENTUATED)
 
@@ -95,7 +89,6 @@ _UNICODE_RANGES_SORTED: list[tuple[int, int, str]] = sorted(
 _UNICODE_RANGE_STARTS: list[int] = [e[0] for e in _UNICODE_RANGES_SORTED]
 
 
-@lru_cache(maxsize=UTF8_MAXIMAL_ALLOCATION)
 def unicode_range(character: str) -> str | None:
     """
     Retrieve the Unicode range official name from a single character.
@@ -112,12 +105,10 @@ def unicode_range(character: str) -> str | None:
     return None
 
 
-@lru_cache(maxsize=UTF8_MAXIMAL_ALLOCATION)
 def is_latin(character: str) -> bool:
     return bool(_character_flags(character) & _LATIN)
 
 
-@lru_cache(maxsize=UTF8_MAXIMAL_ALLOCATION)
 def is_punctuation(character: str) -> bool:
     character_category: str = unicodedata.category(character)
 
@@ -132,7 +123,6 @@ def is_punctuation(character: str) -> bool:
     return "Punctuation" in character_range
 
 
-@lru_cache(maxsize=UTF8_MAXIMAL_ALLOCATION)
 def is_symbol(character: str) -> bool:
     character_category: str = unicodedata.category(character)
 
@@ -147,7 +137,6 @@ def is_symbol(character: str) -> bool:
     return "Forms" in character_range and character_category != "Lo"
 
 
-@lru_cache(maxsize=UTF8_MAXIMAL_ALLOCATION)
 def is_emoticon(character: str) -> bool:
     character_range: str | None = unicode_range(character)
 
@@ -157,7 +146,6 @@ def is_emoticon(character: str) -> bool:
     return "Emoticons" in character_range or "Pictographs" in character_range
 
 
-@lru_cache(maxsize=UTF8_MAXIMAL_ALLOCATION)
 def is_separator(character: str) -> bool:
     if character.isspace() or character in {"｜", "+", "<", ">"}:
         return True
@@ -212,16 +200,15 @@ def is_cjk_uncommon(character: str) -> bool:
     return character not in COMMON_CJK_CHARACTERS
 
 
-@lru_cache(maxsize=len(UNICODE_RANGES_COMBINED))
 def is_unicode_range_secondary(range_name: str) -> bool:
-    return any(keyword in range_name for keyword in UNICODE_SECONDARY_RANGE_KEYWORD)
+    return range_name in _SECONDARY_RANGE_NAMES
 
 
 @lru_cache(maxsize=UTF8_MAXIMAL_ALLOCATION)
 def is_unprintable(character: str) -> bool:
     return (
-        character.isspace() is False  # includes \n \t \r \v
-        and character.isprintable() is False
+        not character.isspace()  # includes \n \t \r \v
+        and not character.isprintable()
         and character != "\x1a"  # Why? Its the ASCII substitute character.
         and character != "\ufeff"  # bug discovered in Python,
         # Zero Width No-Break Space located in 	Arabic Presentation Forms-B, Unicode 1.1 not acknowledged as space.
@@ -239,9 +226,18 @@ def any_specified_encoding(
 
     seq_len: int = len(sequence)
 
+    decoded_zone: str = sequence[: min(seq_len, search_zone)].decode(
+        "ascii", errors="ignore"
+    )
+
+    # Cheap literal pre-filter.
+    lowered_zone: str = decoded_zone.lower()
+    if "coding" not in lowered_zone and "charset" not in lowered_zone:
+        return None
+
     results: list[str] = findall(
         RE_POSSIBLE_ENCODING_INDICATION,
-        sequence[: min(seq_len, search_zone)].decode("ascii", errors="ignore"),
+        decoded_zone,
     )
 
     if len(results) == 0:
@@ -267,7 +263,7 @@ def is_multi_byte_encoding(name: str) -> bool:
     """
     Verify is a specific encoding is a multi byte one based on it IANA name
     """
-    return name in {
+    if name in {
         "utf_8",
         "utf_8_sig",
         "utf_16",
@@ -277,10 +273,31 @@ def is_multi_byte_encoding(name: str) -> bool:
         "utf_32_le",
         "utf_32_be",
         "utf_7",
-    } or issubclass(
-        importlib.import_module(f"encodings.{name}").IncrementalDecoder,
-        MultibyteIncrementalDecoder,
-    )
+    }:
+        return True
+
+    # Besides the Unicode family above, every multibyte codec shipped with
+    # Python is implemented by _multibytecodec through exactly one of the six
+    # cjkcodecs providers below. Probing those providers directly (getcodec)
+    # classifies a name without importing its "encodings.<name>" module:
+    # classifying the whole IANA_SUPPORTED list would otherwise import many
+    # modules and dominate "import charset_normalizer" wall time.
+    # see https://github.com/jawah/charset_normalizer/issues/742
+    for provider in (
+        "_codecs_cn",
+        "_codecs_hk",
+        "_codecs_iso2022",
+        "_codecs_jp",
+        "_codecs_kr",
+        "_codecs_tw",
+    ):
+        try:
+            importlib.import_module(provider).getcodec(name)  # type: ignore[attr-defined]
+        except (ImportError, AttributeError, LookupError):  # Defensive: edge cases
+            continue
+        return True
+
+    return False
 
 
 def identify_sig_or_bom(sequence: bytes | bytearray) -> tuple[str | None, bytes]:
@@ -376,13 +393,29 @@ def cut_sequence_chunks(
     sig_payload: bytes,
     is_multi_byte_decoder: bool,
     decoded_payload: str | None = None,
+    deferred_decoding: bool = False,
 ) -> Generator[str, None, None]:
-    if decoded_payload and is_multi_byte_decoder is False:
+    if decoded_payload and not is_multi_byte_decoder:
         for i in offsets:
             chunk = decoded_payload[i : i + chunk_size]
             if not chunk:
                 break
             yield chunk
+    elif deferred_decoding:
+        # Deferred single-byte probing: the whole payload is not decoded
+        # yet. Single-byte codecs are stateless (1 byte == 1 char), hence
+        # decode(base)[i:j] == decode(base[i:j]): slicing the raw bytes
+        # yields exactly the chunks the branch above would have produced,
+        # short trailing chunks included, and raises UnicodeDecodeError on
+        # invalid bytes just like the whole-payload decode would.
+        base_bytes = (
+            sequences if not strip_sig_or_bom else sequences[len(sig_payload) :]
+        )
+        for i in offsets:
+            cut_sequence = base_bytes[i : i + chunk_size]
+            if not cut_sequence:
+                break
+            yield str(cut_sequence, encoding_iana)
     else:
         for i in offsets:
             chunk_end = i + chunk_size
@@ -391,7 +424,7 @@ def cut_sequence_chunks(
 
             cut_sequence = sequences[i : i + chunk_size]
 
-            if bom_or_sig_available and strip_sig_or_bom is False:
+            if bom_or_sig_available and not strip_sig_or_bom:
                 cut_sequence = sig_payload + cut_sequence
 
             chunk = cut_sequence.decode(
@@ -411,7 +444,7 @@ def cut_sequence_chunks(
                     for j in range(i, i - 4, -1):
                         cut_sequence = sequences[j:chunk_end]
 
-                        if bom_or_sig_available and strip_sig_or_bom is False:
+                        if bom_or_sig_available and not strip_sig_or_bom:
                             cut_sequence = sig_payload + cut_sequence
 
                         chunk = cut_sequence.decode(encoding_iana, errors="ignore")

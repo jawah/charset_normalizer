@@ -2,6 +2,23 @@
 All notable changes to charset-normalizer will be documented in this file. This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [3.4.8](https://github.com/Ousret/charset_normalizer/compare/3.4.7...3.4.8) (2026-07-06)
+
+### Fixed
+- Wall import time due to cascade codec imports for our multibyte first sort of iana supported codecs (#742)
+- Unnecessary json import at runtime (#753)
+- Inverse capitalization not seen by noise detector (#731)
+
+### Changed
+- No longer holding a global cache for our noise / coherence measurements. Relax RSS memory usage.
+- Micro-optimizations in our noise / coherence measurements.
+- No longer using regex search by default for our preemptive charset mark algorithm.
+- Raised upperbound of setuptools to v83.
+- Raised upperbound of mypy(c) to v2.1.
+
+### Removed
+- Redundant UTF7 BOM marker (#730)
+
 ## [3.4.7](https://github.com/Ousret/charset_normalizer/compare/3.4.6...3.4.7) (2026-04-02)
 
 ### Changed
@@ -268,7 +285,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Output the Unicode table version when running the CLI with `--version` (PR #194)
 
 ### Changed
-- Re-use decoded buffer for single byte character sets from [@nijel](https://github.com/nijel) (PR #175)
+- Reuse decoded buffer for single byte character sets from [@nijel](https://github.com/nijel) (PR #175)
 - Fixing some performance bottlenecks from [@deedy5](https://github.com/deedy5) (PR #183)
 
 ### Fixed
