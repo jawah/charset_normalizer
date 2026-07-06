@@ -13,6 +13,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - No longer holding a global cache for our noise / coherence measurements. Relax RSS memory usage.
 - Micro-optimizations in our noise / coherence measurements.
 - No longer using regex search by default for our preemptive charset mark algorithm.
+- Raised upperbound of setuptools to v83.
+- Raised upperbound of mypy(c) to v2.1.
 
 ### Removed
 - Redundant UTF7 BOM marker (#730)
