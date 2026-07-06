@@ -82,6 +82,9 @@ jobs:
           CIBW_BUILD_FRONTEND: build
           CIBW_ARCHS_MACOS: universal2
           CIBW_ENVIRONMENT: CHARSET_NORMALIZER_USE_MYPYC='1'
+          # Drop the variants rather than freeze mypy < 2.0.
+          # see https://github.com/mypyc/ast_serialize/pull/66
+          CIBW_SKIP: "*-musllinux_riscv64 *-musllinux_ppc64le *-musllinux_s390x"
           CIBW_TEST_REQUIRES: pytest
           CIBW_TEST_COMMAND: pytest -c {package} {package}/tests
       - name: Upload artifacts
