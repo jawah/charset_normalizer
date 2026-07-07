@@ -529,6 +529,31 @@ def from_bytes(
                 in ["ascii", "utf_8", specified_encoding, "utf_16", "utf_32"]
                 and not lazy_str_hard_failure
             ):
+                # Always fully decode payload before.
+                # We've missed a UnicodeDecodeError proof
+                # while issuing release 3.4.8
+                # see https://github.com/jawah/charset_normalizer/issues/771
+                if decoded_payload is None:
+                    try:
+                        decoded_payload = str(
+                            (
+                                sequences
+                                if not strip_sig_or_bom
+                                else sequences[len(sig_payload) :]
+                            ),
+                            encoding=encoding_iana,
+                        )
+                    except (UnicodeDecodeError, LookupError):
+                        logger.log(
+                            TRACE,
+                            "%s does not decode the whole payload: fallback entry withheld.",
+                            encoding_iana,
+                        )
+                        continue
+                    if is_too_large_sequence:
+                        # Don't retain huge payload in RAM.
+                        decoded_payload = None
+
                 fallback_entry = CharsetMatch(
                     sequences,
                     encoding_iana,
