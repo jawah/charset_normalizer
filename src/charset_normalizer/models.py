@@ -40,7 +40,11 @@ class CharsetMatch:
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, CharsetMatch):
             if isinstance(other, str):
-                return iana_name(other) == self.encoding
+                # Use non-strict iana_name so an operand that is not a known
+                # encoding alias compares unequal instead of raising, keeping
+                # __eq__ total as the data model requires (mirrors the lookup
+                # in CharsetMatches.__getitem__).
+                return iana_name(other, False) == self.encoding
             return False
         return self.encoding == other.encoding and self.fingerprint == other.fingerprint
 

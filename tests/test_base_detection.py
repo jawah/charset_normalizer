@@ -210,3 +210,23 @@ def test_direct_cmp_charset_match():
     assert best_guess == "utf-8"
     assert best_guess != 8
     assert best_guess != None
+
+
+def test_match_equality_with_arbitrary_string():
+    """CharsetMatch.__eq__ must be total: comparing to a string that is not a
+    known encoding alias returns False, it does not raise (data-model /
+    membership contract)."""
+    best_guess = from_bytes(b"Hello world plain ascii text here.").best()
+    assert best_guess is not None
+
+    # Valid encoding aliases still compare as before.
+    assert best_guess == best_guess.encoding
+    assert (best_guess == "utf-16") is False
+
+    # Arbitrary strings (not codec aliases) must compare unequal, not raise.
+    assert (best_guess == "not-a-real-encoding") is False
+    assert (best_guess == "hello") is False
+    assert (best_guess == 123) is False
+
+    # Membership relies on __eq__, so this must not raise either.
+    assert "not-a-real-encoding" not in [best_guess]
