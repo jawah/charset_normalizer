@@ -14,6 +14,9 @@ def test_empty():
         best_guess.encoding == "utf_8"
     ), "Empty bytes payload SHOULD be guessed as UTF-8 (arbitrary)"
     assert len(best_guess.alphabets) == 0, ""
+    assert best_guess.multi_byte_usage == 0.0, (
+        "Empty raw payload SHOULD report 0.0 multi-byte usage without dividing by zero"
+    )
 
 
 def test_bool_matches():
