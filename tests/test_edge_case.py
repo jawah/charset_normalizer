@@ -17,9 +17,9 @@ def test_unicode_edge_case():
 
     best_guess = from_bytes(payload).best()
 
-    assert (
-        best_guess is not None
-    ), "Payload should have given something, detection failure"
+    assert best_guess is not None, (
+        "Payload should have given something, detection failure"
+    )
     assert best_guess.encoding == "utf_8", "UTF-8 payload wrongly detected"
 
 
@@ -29,9 +29,9 @@ def test_issue_gh520():
 
     best_guess = from_bytes(payload).best()
 
-    assert (
-        best_guess is not None
-    ), "Payload should have given something, detection failure"
+    assert best_guess is not None, (
+        "Payload should have given something, detection failure"
+    )
     assert "Basic Latin" in best_guess.alphabets
 
 
@@ -41,9 +41,9 @@ def test_issue_gh509():
 
     best_guess = from_bytes(payload).best()
 
-    assert (
-        best_guess is not None
-    ), "Payload should have given something, detection failure"
+    assert best_guess is not None, (
+        "Payload should have given something, detection failure"
+    )
     assert "ascii" == best_guess.encoding
 
 
@@ -53,9 +53,9 @@ def test_issue_gh498():
 
     best_guess = from_bytes(payload).best()
 
-    assert (
-        best_guess is not None
-    ), "Payload should have given something, detection failure"
+    assert best_guess is not None, (
+        "Payload should have given something, detection failure"
+    )
     assert "Cyrillic" in best_guess.alphabets
 
 
@@ -72,3 +72,15 @@ def test_regression_gh771_fallback_entry_on_undecodable_payload():
         f"expected the utf_8 fallback, got {best_guess.encoding}"
     )
     assert str(best_guess), "best match must decode without error"
+
+
+def test_from_bytes_rejects_non_positive_chunk_size():
+    garbage = bytes([(i * 37) % 256 for i in range(5000)])
+    with pytest.raises(ValueError, match="chunk_size must be a positive integer"):
+        from_bytes(garbage, chunk_size=0)
+    with pytest.raises(ValueError, match="chunk_size must be a positive integer"):
+        from_bytes(garbage, chunk_size=-1)
+    assert from_bytes(garbage, chunk_size=1).best() is None
+    text_best = from_bytes(b"hello world", chunk_size=1).best()
+    assert text_best is not None
+    assert text_best.encoding == "ascii"

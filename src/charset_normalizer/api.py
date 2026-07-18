@@ -84,6 +84,10 @@ def from_bytes(
             )
         )
 
+    # chunk_size <= 0 yields empty samples and accepts binary as text with chaos 0.
+    if chunk_size < 1:
+        raise ValueError("chunk_size must be a positive integer")
+
     if explain:
         previous_logger_level: int = logger.level
         logger.addHandler(explain_handler)
