@@ -72,3 +72,11 @@ def test_regression_gh771_fallback_entry_on_undecodable_payload():
         f"expected the utf_8 fallback, got {best_guess.encoding}"
     )
     assert str(best_guess), "best match must decode without error"
+
+
+def test_from_bytes_rejects_non_positive_steps():
+    with pytest.raises(ValueError, match="steps must be a positive integer"):
+        from_bytes(b"hello world", steps=0)
+    with pytest.raises(ValueError, match="steps must be a positive integer"):
+        from_bytes(b"hello world", steps=-1)
+    assert from_bytes(b"hello world", steps=1).best() is not None

@@ -84,6 +84,9 @@ def from_bytes(
             )
         )
 
+    if steps < 1:
+        raise ValueError("steps must be a positive integer")
+
     if explain:
         previous_logger_level: int = logger.level
         logger.addHandler(explain_handler)
