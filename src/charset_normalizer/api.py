@@ -84,7 +84,6 @@ def from_bytes(
             )
         )
 
-    # chunk_size <= 0 yields empty samples and accepts binary as text with chaos 0.
     if chunk_size < 1:
         raise ValueError("chunk_size must be a positive integer")
 
