@@ -72,7 +72,11 @@ class CharsetMatch:
 
     @property
     def multi_byte_usage(self) -> float:
-        return 1.0 - (len(str(self)) / len(self.raw))
+        # Empty payloads are valid (from_bytes(b"") returns a match); avoid /0.
+        raw_len = len(self.raw)
+        if raw_len == 0:
+            return 0.0
+        return 1.0 - (len(str(self)) / raw_len)
 
     def __str__(self) -> str:
         # Lazy Str Loading
