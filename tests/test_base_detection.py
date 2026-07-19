@@ -233,3 +233,26 @@ def test_match_equality_with_arbitrary_string():
 
     # Membership relies on __eq__, so this must not raise either.
     assert "not-a-real-encoding" not in [best_guess]
+
+
+def test_getitem_invalid_index_raises_keyerror():
+    """CharsetMatches.__getitem__ documents 'Raise KeyError upon invalid
+    index'. An out-of-range integer position must raise KeyError, matching the
+    string-lookup path, not IndexError."""
+    matches = from_bytes(b"Hello world plain ascii text here.")
+    assert len(matches) >= 1
+
+    # A valid position still works.
+    assert matches[0] is matches.best()
+
+    # Out-of-range positions raise KeyError, not IndexError.
+    with pytest.raises(KeyError):
+        matches[len(matches)]
+    with pytest.raises(KeyError):
+        matches[10_000]
+    with pytest.raises(KeyError):
+        matches[-10_000]
+
+    # Empty container: any position is invalid -> KeyError.
+    with pytest.raises(KeyError):
+        CharsetMatches([])[0]

@@ -276,7 +276,12 @@ class CharsetMatches:
         Raise KeyError upon invalid index or encoding not present in results.
         """
         if isinstance(item, int):
-            return self._results[item]
+            try:
+                return self._results[item]
+            except IndexError:
+                # Honor the documented contract (and match the string path
+                # below): an invalid position raises KeyError, not IndexError.
+                raise KeyError(item)
         if isinstance(item, str):
             item = iana_name(item, False)
             for result in self._results:
