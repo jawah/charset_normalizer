@@ -90,3 +90,24 @@ def test_preemptive_mark_replacement(payload, expected_outcome):
     transformed_output = m.output()
 
     assert transformed_output == expected_outcome
+
+
+def test_output_utf_8_sig_rewrites_charset_declaration():
+    """utf_8_sig is a valid encode target but not an IANA alias; rewrite as utf-8."""
+    payload = (
+        b'<html><head><meta charset="windows-1252"></head><body>caf\xe9</body></html>'
+    )
+    m = CharsetMatch(
+        payload,
+        "cp1252",
+        0.0,
+        False,
+        [],
+        preemptive_declaration="cp1252",
+    )
+
+    out = m.output("utf_8_sig")
+
+    assert out.startswith(b"\xef\xbb\xbf")
+    assert b'charset="utf-8"' in out
+    assert b"caf\xc3\xa9" in out

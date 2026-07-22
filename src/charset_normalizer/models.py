@@ -234,11 +234,17 @@ class CharsetMatch:
                 and self._preemptive_declaration.lower()
                 not in ["utf-8", "utf8", "utf_8"]
             ):
+                # utf_8_sig is not in encodings.aliases; meta/XML charset is still utf-8.
+                declaration_encoding = (
+                    "utf_8"
+                    if encoding.replace("-", "_").lower() == "utf_8_sig"
+                    else encoding
+                )
                 patched_header = sub(
                     RE_POSSIBLE_ENCODING_INDICATION,
                     lambda m: m.string[m.span()[0] : m.span()[1]].replace(
                         m.groups()[0],
-                        iana_name(self._output_encoding).replace("_", "-"),  # type: ignore[arg-type]
+                        iana_name(declaration_encoding).replace("_", "-"),  # type: ignore[arg-type]
                     ),
                     decoded_string[:8192],
                     count=1,
