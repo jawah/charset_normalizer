@@ -184,6 +184,33 @@ class TestCommandLineInterface(unittest.TestCase):
             cli_detect([DIR_PATH + "/data/sample-arabic-1.txt", "--force"]), 1
         )
 
+    def test_normalize_symlink_writes_beside_user_path(self):
+        """--normalize on a symlink must write beside the path given, using its basename."""
+        import os
+        import tempfile
+        from shutil import copyfile
+
+        with tempfile.TemporaryDirectory() as tmp:
+            real_dir = path.join(tmp, "real")
+            link_dir = path.join(tmp, "links")
+            os.mkdir(real_dir)
+            os.mkdir(link_dir)
+            real_file = path.join(real_dir, "report.txt")
+            copyfile(DIR_PATH + "/data/sample-arabic-1.txt", real_file)
+            link_file = path.join(link_dir, "alias.txt")
+            os.symlink(real_file, link_file)
+
+            self.assertEqual(0, cli_detect([link_file, "--normalize"]))
+
+            expected = path.join(link_dir, "alias.cp1256.txt")
+            unexpected = path.join(real_dir, "report.cp1256.txt")
+            self.assertTrue(path.exists(expected), expected)
+            self.assertFalse(path.exists(unexpected), unexpected)
+            try:
+                remove(expected)
+            except OSError:
+                pass
+
 
 if __name__ == "__main__":
     unittest.main()

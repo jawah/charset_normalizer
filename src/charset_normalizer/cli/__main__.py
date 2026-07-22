@@ -3,7 +3,7 @@ from __future__ import annotations
 import argparse
 import sys
 import typing
-from os.path import abspath, basename, dirname, join, realpath
+from os.path import abspath, basename, dirname, join
 from platform import python_version
 from unicodedata import unidata_version
 
@@ -297,8 +297,8 @@ def cli_detect(argv: list[str] | None = None) -> int:
                         my_file.close()
                     continue
 
-                dir_path = dirname(realpath(my_file.name))
-                file_name = basename(realpath(my_file.name))
+                dir_path = dirname(abspath(my_file.name))
+                file_name = basename(my_file.name)
 
                 o_: list[str] = file_name.split(".")
 
