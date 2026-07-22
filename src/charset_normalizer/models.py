@@ -234,7 +234,6 @@ class CharsetMatch:
                 and self._preemptive_declaration.lower()
                 not in ["utf-8", "utf8", "utf_8"]
             ):
-                # utf_8_sig is not in encodings.aliases; meta/XML charset is still utf-8.
                 declaration_encoding = (
                     "utf_8"
                     if encoding.replace("-", "_").lower() == "utf_8_sig"
