@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import pytest
 
-from charset_normalizer import CharsetMatch
+from charset_normalizer import CharsetMatch, from_bytes
 from charset_normalizer.utils import any_specified_encoding
 
 
@@ -90,3 +90,33 @@ def test_preemptive_mark_replacement(payload, expected_outcome):
     transformed_output = m.output()
 
     assert transformed_output == expected_outcome
+
+
+def test_output_preserves_encoding_of_prose_near_charset_declaration():
+    """Prose like 'encoding of' must not be rewritten; only the real declaration."""
+    payload = (
+        b"The encoding of this file matters.\n"
+        b'<meta charset="windows-1252">\n'
+        b"Price: caf\xe9\n"
+    )
+    m = from_bytes(payload).best()
+    assert m is not None
+    out = m.output()
+    assert b"The encoding of this file matters." in out
+    assert b"The encoding utf-8 this" not in out
+    assert b'charset="utf-8"' in out or b"charset=utf-8" in out
+
+
+def test_output_rewrites_meta_when_prose_mentions_utf8():
+    """Space-separated 'encoding utf-8' in prose must not steal the declaration."""
+    payload = (
+        b"Note: encoding utf-8 is unsupported here.\n"
+        b'<meta charset="windows-1252">\n'
+        b"Cafe price: caf\xe9\n"
+    )
+    assert any_specified_encoding(payload) == "cp1252"
+    m = from_bytes(payload).best()
+    assert m is not None
+    out = m.output()
+    assert b'charset="utf-8"' in out or b"charset=utf-8" in out
+    assert b"windows-1252" not in out

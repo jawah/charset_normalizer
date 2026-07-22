@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from encodings.aliases import aliases
-from re import sub
+from re import Match, sub
 from typing import Any, Iterator, List, Tuple
 
 from .constant import RE_POSSIBLE_ENCODING_INDICATION, TOO_BIG_SEQUENCE
@@ -234,14 +234,19 @@ class CharsetMatch:
                 and self._preemptive_declaration.lower()
                 not in ["utf-8", "utf8", "utf_8"]
             ):
+                declared = iana_name(self._preemptive_declaration, False)
+                replacement = iana_name(self._output_encoding).replace("_", "-")  # type: ignore[arg-type]
+
+                def rewrite_declaration(match: Match[str]) -> str:
+                    captured = match.groups()[0]
+                    if iana_name(captured, False) != declared:
+                        return match.group(0)
+                    return match.group(0).replace(captured, replacement)
+
                 patched_header = sub(
                     RE_POSSIBLE_ENCODING_INDICATION,
-                    lambda m: m.string[m.span()[0] : m.span()[1]].replace(
-                        m.groups()[0],
-                        iana_name(self._output_encoding).replace("_", "-"),  # type: ignore[arg-type]
-                    ),
+                    rewrite_declaration,
                     decoded_string[:8192],
-                    count=1,
                 )
 
                 decoded_string = patched_header + decoded_string[8192:]
