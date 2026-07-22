@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from encodings.aliases import aliases
-from re import Match, sub
+from re import sub
 from typing import Any, Iterator, List, Tuple
 
 from .constant import RE_POSSIBLE_ENCODING_INDICATION, TOO_BIG_SEQUENCE
@@ -237,7 +237,7 @@ class CharsetMatch:
                 declared = iana_name(self._preemptive_declaration, False)
                 replacement = iana_name(self._output_encoding).replace("_", "-")  # type: ignore[arg-type]
 
-                def rewrite_declaration(match: Match[str]) -> str:
+                def rewrite_declaration(match: Any) -> str:
                     captured = match.groups()[0]
                     if iana_name(captured, False) != declared:
                         return match.group(0)
