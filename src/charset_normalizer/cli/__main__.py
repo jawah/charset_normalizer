@@ -286,6 +286,15 @@ def cli_detect(argv: list[str] | None = None) -> int:
                         )
 
             if args.normalize is True:
+                if my_file.name == "<stdin>":
+                    print(
+                        "Skipping normalize write for stdin input.",
+                        file=sys.stderr,
+                    )
+                    if my_file.closed is False:
+                        my_file.close()
+                    continue
+
                 if best_guess.encoding.startswith("utf") is True:
                     print(
                         '"{}" file does not need to be normalized, as it already came from unicode.'.format(

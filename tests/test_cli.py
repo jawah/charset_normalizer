@@ -184,6 +184,38 @@ class TestCommandLineInterface(unittest.TestCase):
             cli_detect([DIR_PATH + "/data/sample-arabic-1.txt", "--force"]), 1
         )
 
+    def test_normalize_stdin_skips_write(self):
+        """stdin + --normalize must not create a CWD file named like *.<stdin>."""
+        import io
+        import os
+        import tempfile
+        from contextlib import redirect_stderr, redirect_stdout
+
+        arabic_path = DIR_PATH + "/data/sample-arabic-1.txt"
+        with open(arabic_path, "rb") as fp:
+            payload = fp.read()
+
+        with tempfile.TemporaryDirectory() as tmp:
+            cwd = os.getcwd()
+            try:
+                os.chdir(tmp)
+                stdin = io.BytesIO(payload)
+                stdin.name = "<stdin>"
+                with patch(
+                    "charset_normalizer.cli.__main__.FileType.__call__",
+                    return_value=stdin,
+                ):
+                    err = io.StringIO()
+                    out = io.StringIO()
+                    with redirect_stdout(out), redirect_stderr(err):
+                        code = cli_detect(["-", "--normalize"])
+            finally:
+                os.chdir(cwd)
+
+            self.assertEqual(code, 0)
+            self.assertIn("Skipping normalize write for stdin input", err.getvalue())
+            self.assertEqual(os.listdir(tmp), [])
+
 
 if __name__ == "__main__":
     unittest.main()
