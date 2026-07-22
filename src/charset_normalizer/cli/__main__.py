@@ -3,7 +3,7 @@ from __future__ import annotations
 import argparse
 import sys
 import typing
-from os.path import abspath, basename, dirname, join, realpath
+from os.path import abspath, basename, dirname, exists, join, realpath
 from platform import python_version
 from unicodedata import unidata_version
 
@@ -189,11 +189,14 @@ def cli_detect(argv: list[str] | None = None) -> int:
         print("Use --replace in addition of --normalize only.", file=sys.stderr)
         return 1
 
-    if args.force is True and args.replace is False:
+    if args.force is True and args.replace is False and args.normalize is False:
         if args.files:
             for my_file in args.files:
                 my_file.close()
-        print("Use --force in addition of --replace only.", file=sys.stderr)
+        print(
+            "Use --force in addition of --normalize or --replace only.",
+            file=sys.stderr,
+        )
         return 1
 
     if args.threshold < 0.0 or args.threshold > 1.0:
@@ -322,6 +325,21 @@ def cli_detect(argv: list[str] | None = None) -> int:
 
                 try:
                     cli_result.unicode_path = join(dir_path, ".".join(o_))
+
+                    if (
+                        args.replace is False
+                        and exists(cli_result.unicode_path)
+                        and args.force is False
+                    ):
+                        print(
+                            '"{}" already exists. Use --force to overwrite.'.format(
+                                cli_result.unicode_path
+                            ),
+                            file=sys.stderr,
+                        )
+                        if my_file.closed is False:
+                            my_file.close()
+                        return 1
 
                     with open(cli_result.unicode_path, "wb") as fp:
                         fp.write(best_guess.output())

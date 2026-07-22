@@ -184,6 +184,28 @@ class TestCommandLineInterface(unittest.TestCase):
             cli_detect([DIR_PATH + "/data/sample-arabic-1.txt", "--force"]), 1
         )
 
+    def test_normalize_refuses_existing_destination(self):
+        """--normalize without --force must not clobber an existing *.<enc>.* dest."""
+        import tempfile
+        from shutil import copyfile
+
+        with tempfile.TemporaryDirectory() as tmp:
+            sample = path.join(tmp, "report.txt")
+            copyfile(DIR_PATH + "/data/sample-arabic-1.txt", sample)
+            dest = path.join(tmp, "report.cp1256.txt")
+            with open(dest, "wb") as fp:
+                fp.write(b"IMPORTANT DATA DO NOT CLOBBER")
+
+            code = cli_detect([sample, "--normalize"])
+            self.assertEqual(code, 1)
+            with open(dest, "rb") as fp:
+                self.assertEqual(fp.read(), b"IMPORTANT DATA DO NOT CLOBBER")
+
+            code = cli_detect([sample, "--normalize", "--force"])
+            self.assertEqual(code, 0)
+            with open(dest, "rb") as fp:
+                self.assertNotEqual(fp.read(), b"IMPORTANT DATA DO NOT CLOBBER")
+
 
 if __name__ == "__main__":
     unittest.main()
