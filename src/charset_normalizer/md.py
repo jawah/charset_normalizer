@@ -872,10 +872,9 @@ def mess_ratio(
     # therefore not fed at all.
     is_pure_ascii: bool = decoded_sequence.isascii()
 
-    # Latin-plane fast path: every codepoint is below U+0250 (end of Latin
-    # Extended-B). Those ranges all share the "Latin" unicode-range keyword, so
-    # SuspiciousRange stays at 0.0, and CJK/Arabic detectors never match.
-    # Early-exit scan: CJK/Greek/etc. abort on the first out-of-range char.
+    # Latin-plane: every codepoint < U+0250 (end of Latin Extended-B). Those
+    # ranges share the "Latin" unicode-range keyword, so SuspiciousRange stays
+    # at 0.0; CJK/Arabic detectors never match. Same skip idea as ASCII.
     is_latin_plane: bool = False
     if not is_pure_ascii:
         is_latin_plane = True
@@ -903,15 +902,6 @@ def mess_ratio(
     d_sda: SuspiciousDuplicateAccentPlugin = SuspiciousDuplicateAccentPlugin()
     d_sw: SuperWeirdWordPlugin = SuperWeirdWordPlugin()
     d_au: ArchaicUpperLowerPlugin = ArchaicUpperLowerPlugin()
-    # Skip detectors that stay at 0.0 on ascii / latin-plane input.
-    skip_script_detectors: bool = is_pure_ascii or is_latin_plane
-    d_sr: SuspiciousRange | None = None if skip_script_detectors else SuspiciousRange()
-    d_cu: CjkUncommonPlugin | None = (
-        None if skip_script_detectors else CjkUncommonPlugin()
-    )
-    d_ai: ArabicIsolatedFormPlugin | None = (
-        None if skip_script_detectors else ArabicIsolatedFormPlugin()
-    )
 
     # Local references for feed_info methods called in the hot loop.
     d_sp_feed = d_sp.feed_info
@@ -920,9 +910,84 @@ def mess_ratio(
     d_sda_feed = d_sda.feed_info
     d_sw_feed = d_sw.feed_info
     d_au_feed = d_au.feed_info
-    d_sr_feed = d_sr.feed_info if d_sr is not None else None
-    d_cu_feed = d_cu.feed_info if d_cu is not None else None
-    d_ai_feed = d_ai.feed_info if d_ai is not None else None
+
+    if is_pure_ascii or is_latin_plane:
+        for block_start in range(0, seq_len, step):
+            for character in decoded_sequence[block_start : block_start + step]:
+                codepoint: int = ord(character)
+                if codepoint < 128:
+                    info = ascii_info[codepoint]
+                else:
+                    info = char_info(character)
+
+                d_up_feed(character, info)
+                d_sw_feed(character, info)
+
+                if is_pure_ascii:
+                    if info.printable:
+                        d_sp_feed(character, info)
+                    continue
+
+                d_au_feed(character, info)
+                if info.printable:
+                    d_sp_feed(character, info)
+                if info.alpha:
+                    d_ta_feed(character, info)
+                    if info.latin:
+                        d_sda_feed(character, info)
+
+            mean_mess_ratio = (
+                d_sp.ratio
+                + d_ta.ratio
+                + d_up.ratio
+                + d_sda.ratio
+                + d_sw.ratio
+                + d_au.ratio
+            )
+
+            if mean_mess_ratio >= maximum_threshold:
+                break
+        else:
+            nl_info = ascii_info[10]  # "\n"
+            d_sw_feed("\n", nl_info)
+            if not is_pure_ascii:
+                d_au_feed("\n", nl_info)
+            d_up_feed("\n", nl_info)
+
+            mean_mess_ratio = (
+                d_sp.ratio
+                + d_ta.ratio
+                + d_up.ratio
+                + d_sda.ratio
+                + d_sw.ratio
+                + d_au.ratio
+            )
+
+        if debug:  # Defensive:
+            logger = getLogger("charset_normalizer")
+
+            logger.log(
+                TRACE,
+                "Mess-detector extended-analysis start. "
+                f"intermediary_mean_mess_ratio_calc={step} mean_mess_ratio={mean_mess_ratio} "
+                f"maximum_threshold={maximum_threshold}",
+            )
+
+            if seq_len > 16:
+                logger.log(TRACE, f"Starting with: {decoded_sequence[:16]}")
+                logger.log(TRACE, f"Ending with: {decoded_sequence[-16::]}")
+
+            for dt in [d_sp, d_ta, d_up, d_sda, d_sw, d_au]:
+                logger.log(TRACE, f"{dt.__class__}: {dt.ratio}")
+
+        return round(mean_mess_ratio, 3)
+
+    d_sr: SuspiciousRange = SuspiciousRange()
+    d_cu: CjkUncommonPlugin = CjkUncommonPlugin()
+    d_ai: ArabicIsolatedFormPlugin = ArabicIsolatedFormPlugin()
+    d_sr_feed = d_sr.feed_info
+    d_cu_feed = d_cu.feed_info
+    d_ai_feed = d_ai.feed_info
 
     for block_start in range(0, seq_len, step):
         for character in decoded_sequence[block_start : block_start + step]:
@@ -930,7 +995,7 @@ def mess_ratio(
             # (shared across all plugins and all mess_ratio calls).
             # ord() doubles as the ASCII table index and, unlike
             # str.isascii(), lowers to a mypyc primitive.
-            codepoint: int = ord(character)
+            codepoint = ord(character)
             if codepoint < 128:
                 info = ascii_info[codepoint]
             else:
@@ -940,19 +1005,12 @@ def mess_ratio(
             d_up_feed(character, info)
             d_sw_feed(character, info)
 
-            if is_pure_ascii:
-                # The six remaining detectors provably stay at 0.0 (see above).
-                if info.printable:
-                    d_sp_feed(character, info)
-                continue
-
             d_au_feed(character, info)
 
             # Detectors with eligible() == isprintable
             if info.printable:
                 d_sp_feed(character, info)
-                if d_sr_feed is not None:
-                    d_sr_feed(character, info)
+                d_sr_feed(character, info)
 
             # Detectors with eligible() == isalpha
             if info.alpha:
@@ -960,9 +1018,11 @@ def mess_ratio(
                 # SuspiciousDuplicateAccent: isalpha() and is_latin()
                 if info.latin:
                     d_sda_feed(character, info)
-                if d_cu_feed is not None and info.is_cjk:
+                # CjkUncommon: is_cjk()
+                if info.is_cjk:
                     d_cu_feed(character, info)
-                if d_ai_feed is not None and info.is_arabic:
+                # ArabicIsolatedForm: is_arabic()
+                if info.is_arabic:
                     d_ai_feed(character, info)
 
         mean_mess_ratio = (
@@ -970,11 +1030,11 @@ def mess_ratio(
             + d_ta.ratio
             + d_up.ratio
             + d_sda.ratio
-            + (0.0 if d_sr is None else d_sr.ratio)
+            + d_sr.ratio
             + d_sw.ratio
-            + (0.0 if d_cu is None else d_cu.ratio)
+            + d_cu.ratio
             + d_au.ratio
-            + (0.0 if d_ai is None else d_ai.ratio)
+            + d_ai.ratio
         )
 
         if mean_mess_ratio >= maximum_threshold:
@@ -983,8 +1043,7 @@ def mess_ratio(
         # Flush last word buffer in SuperWeirdWordPlugin via trailing newline.
         nl_info = ascii_info[10]  # "\n"
         d_sw_feed("\n", nl_info)
-        if not is_pure_ascii:
-            d_au_feed("\n", nl_info)
+        d_au_feed("\n", nl_info)
         d_up_feed("\n", nl_info)
 
         mean_mess_ratio = (
@@ -992,11 +1051,11 @@ def mess_ratio(
             + d_ta.ratio
             + d_up.ratio
             + d_sda.ratio
-            + (0.0 if d_sr is None else d_sr.ratio)
+            + d_sr.ratio
             + d_sw.ratio
-            + (0.0 if d_cu is None else d_cu.ratio)
+            + d_cu.ratio
             + d_au.ratio
-            + (0.0 if d_ai is None else d_ai.ratio)
+            + d_ai.ratio
         )
 
     if debug:  # Defensive:
@@ -1014,7 +1073,6 @@ def mess_ratio(
             logger.log(TRACE, f"Ending with: {decoded_sequence[-16::]}")
 
         for dt in [d_sp, d_ta, d_up, d_sda, d_sr, d_sw, d_cu, d_au, d_ai]:
-            if dt is not None:
-                logger.log(TRACE, f"{dt.__class__}: {dt.ratio}")
+            logger.log(TRACE, f"{dt.__class__}: {dt.ratio}")
 
     return round(mean_mess_ratio, 3)
