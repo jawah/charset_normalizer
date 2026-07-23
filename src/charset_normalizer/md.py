@@ -872,6 +872,18 @@ def mess_ratio(
     # therefore not fed at all.
     is_pure_ascii: bool = decoded_sequence.isascii()
 
+    # Latin-plane fast path: every codepoint is below U+0250 (end of Latin
+    # Extended-B). Those ranges all share the "Latin" unicode-range keyword, so
+    # SuspiciousRange stays at 0.0, and CJK/Arabic detectors never match.
+    # Early-exit scan: CJK/Greek/etc. abort on the first out-of-range char.
+    is_latin_plane: bool = False
+    if not is_pure_ascii:
+        is_latin_plane = True
+        for _ch in decoded_sequence:
+            if ord(_ch) >= 0x0250:
+                is_latin_plane = False
+                break
+
     # Cached per-codepoint character properties (see CharInfo). ASCII
     # characters resolve through the immutable import-time table; anything
     # else goes through the lru_cache-backed slow path.
@@ -889,22 +901,28 @@ def mess_ratio(
     d_ta: TooManyAccentuatedPlugin = TooManyAccentuatedPlugin()
     d_up: UnprintablePlugin = UnprintablePlugin()
     d_sda: SuspiciousDuplicateAccentPlugin = SuspiciousDuplicateAccentPlugin()
-    d_sr: SuspiciousRange = SuspiciousRange()
     d_sw: SuperWeirdWordPlugin = SuperWeirdWordPlugin()
-    d_cu: CjkUncommonPlugin = CjkUncommonPlugin()
     d_au: ArchaicUpperLowerPlugin = ArchaicUpperLowerPlugin()
-    d_ai: ArabicIsolatedFormPlugin = ArabicIsolatedFormPlugin()
+    # Skip detectors that stay at 0.0 on ascii / latin-plane input.
+    skip_script_detectors: bool = is_pure_ascii or is_latin_plane
+    d_sr: SuspiciousRange | None = None if skip_script_detectors else SuspiciousRange()
+    d_cu: CjkUncommonPlugin | None = (
+        None if skip_script_detectors else CjkUncommonPlugin()
+    )
+    d_ai: ArabicIsolatedFormPlugin | None = (
+        None if skip_script_detectors else ArabicIsolatedFormPlugin()
+    )
 
     # Local references for feed_info methods called in the hot loop.
     d_sp_feed = d_sp.feed_info
     d_ta_feed = d_ta.feed_info
     d_up_feed = d_up.feed_info
     d_sda_feed = d_sda.feed_info
-    d_sr_feed = d_sr.feed_info
     d_sw_feed = d_sw.feed_info
-    d_cu_feed = d_cu.feed_info
     d_au_feed = d_au.feed_info
-    d_ai_feed = d_ai.feed_info
+    d_sr_feed = d_sr.feed_info if d_sr is not None else None
+    d_cu_feed = d_cu.feed_info if d_cu is not None else None
+    d_ai_feed = d_ai.feed_info if d_ai is not None else None
 
     for block_start in range(0, seq_len, step):
         for character in decoded_sequence[block_start : block_start + step]:
@@ -933,7 +951,8 @@ def mess_ratio(
             # Detectors with eligible() == isprintable
             if info.printable:
                 d_sp_feed(character, info)
-                d_sr_feed(character, info)
+                if d_sr_feed is not None:
+                    d_sr_feed(character, info)
 
             # Detectors with eligible() == isalpha
             if info.alpha:
@@ -941,11 +960,9 @@ def mess_ratio(
                 # SuspiciousDuplicateAccent: isalpha() and is_latin()
                 if info.latin:
                     d_sda_feed(character, info)
-                # CjkUncommon: is_cjk()
-                if info.is_cjk:
+                if d_cu_feed is not None and info.is_cjk:
                     d_cu_feed(character, info)
-                # ArabicIsolatedForm: is_arabic()
-                if info.is_arabic:
+                if d_ai_feed is not None and info.is_arabic:
                     d_ai_feed(character, info)
 
         mean_mess_ratio = (
@@ -953,11 +970,11 @@ def mess_ratio(
             + d_ta.ratio
             + d_up.ratio
             + d_sda.ratio
-            + d_sr.ratio
+            + (0.0 if d_sr is None else d_sr.ratio)
             + d_sw.ratio
-            + d_cu.ratio
+            + (0.0 if d_cu is None else d_cu.ratio)
             + d_au.ratio
-            + d_ai.ratio
+            + (0.0 if d_ai is None else d_ai.ratio)
         )
 
         if mean_mess_ratio >= maximum_threshold:
@@ -975,11 +992,11 @@ def mess_ratio(
             + d_ta.ratio
             + d_up.ratio
             + d_sda.ratio
-            + d_sr.ratio
+            + (0.0 if d_sr is None else d_sr.ratio)
             + d_sw.ratio
-            + d_cu.ratio
+            + (0.0 if d_cu is None else d_cu.ratio)
             + d_au.ratio
-            + d_ai.ratio
+            + (0.0 if d_ai is None else d_ai.ratio)
         )
 
     if debug:  # Defensive:
@@ -997,6 +1014,7 @@ def mess_ratio(
             logger.log(TRACE, f"Ending with: {decoded_sequence[-16::]}")
 
         for dt in [d_sp, d_ta, d_up, d_sda, d_sr, d_sw, d_cu, d_au, d_ai]:
-            logger.log(TRACE, f"{dt.__class__}: {dt.ratio}")
+            if dt is not None:
+                logger.log(TRACE, f"{dt.__class__}: {dt.ratio}")
 
     return round(mean_mess_ratio, 3)
