@@ -42,6 +42,11 @@ class TestDetectLegacy(unittest.TestCase):
         with self.subTest("Verify that UTF-8-SIG is returned when using legacy detect"):
             self.assertEqual(r["encoding"], "UTF-8-SIG")
 
+    def test_utf8_json_with_cjk_text(self):
+        r = detect('{"title":"海岛旅居会员忠诚动因持续探索"}'.encode())
+
+        self.assertEqual(r["encoding"], "utf-8")
+
     def test_small_payload_confidence_altered(self):
 
         with self.subTest("Unicode should yield 1. confidence even on small bytes string"):

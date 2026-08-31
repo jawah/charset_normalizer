@@ -628,7 +628,7 @@ cdef class CjkUncommonPlugin(MessDetectorPlugin):
         if self._character_count < 4:
             return 0.0
         value = <double>self._uncommon_count / self._character_count
-        return value / 5.0 if value > 0.5 else 0.0
+        return value / 10.0 if value > 0.5 else 0.0
 
     @property
     def ratio(self):

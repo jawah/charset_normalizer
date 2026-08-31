@@ -706,7 +706,7 @@ class CjkUncommonPlugin(MessDetectorPlugin):
 
         # we can be pretty sure it's garbage when uncommon characters are widely
         # used. otherwise it could just be traditional chinese for example.
-        return uncommon_form_usage / 5 if uncommon_form_usage > 0.5 else 0.0
+        return uncommon_form_usage / 10 if uncommon_form_usage > 0.5 else 0.0
 
 
 class SuspiciousKatakanaPlugin(MessDetectorPlugin):
