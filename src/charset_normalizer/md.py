@@ -702,11 +702,13 @@ class CjkUncommonPlugin(MessDetectorPlugin):
         if self._character_count < 4:
             return 0.0
 
-        uncommon_form_usage: float = self._uncommon_count / self._character_count
+        uncommon_form_usage: float = (
+            2 * self._uncommon_count - self._character_count
+        ) / (5 * max(self._character_count, 16))
 
         # we can be pretty sure it's garbage when uncommon characters are widely
         # used. otherwise it could just be traditional chinese for example.
-        return uncommon_form_usage / 5 if uncommon_form_usage > 0.5 else 0.0
+        return max(0.0, uncommon_form_usage)
 
 
 class SuspiciousKatakanaPlugin(MessDetectorPlugin):
