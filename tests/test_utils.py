@@ -4,7 +4,13 @@ import logging
 
 import pytest
 
-from charset_normalizer.utils import cp_similarity, is_accentuated, set_logging_handler
+from charset_normalizer.constant import IANA_SUPPORTED
+from charset_normalizer.utils import (
+    cp_similarity,
+    iana_name,
+    is_accentuated,
+    set_logging_handler,
+)
 
 
 @pytest.mark.parametrize(
@@ -50,3 +56,8 @@ def test_cp_similarity(cp_name_a, cp_name_b, expected_is_similar):
     is_similar = cp_similarity(cp_name_a, cp_name_b) >= 0.8
 
     assert is_similar is expected_is_similar, "cp_similarity is broken"
+
+
+@pytest.mark.parametrize("cp_name", IANA_SUPPORTED)
+def test_iana_name_resolves_every_supported_encoding(cp_name):
+    assert iana_name(cp_name) == cp_name, "IANA_SUPPORTED entry is unresolvable"
