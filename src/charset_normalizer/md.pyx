@@ -627,8 +627,11 @@ cdef class CjkUncommonPlugin(MessDetectorPlugin):
         cdef double value
         if self._character_count < 4:
             return 0.0
-        value = <double>self._uncommon_count / self._character_count
-        return value / 10.0 if value > 0.5 else 0.0
+        value = (
+            <double>(2 * self._uncommon_count - self._character_count)
+            / (5 * max(self._character_count, 16))
+        )
+        return max(0.0, value)
 
     @property
     def ratio(self):
