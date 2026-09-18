@@ -84,6 +84,9 @@ def from_bytes(
             )
         )
 
+    if not isinstance(steps, int) or isinstance(steps, bool) or steps < 1:
+        raise ValueError(f"steps must be a positive integer >= 1, got: {steps!r}")
+
     if explain:
         previous_logger_level: int = logger.level
         logger.addHandler(explain_handler)
