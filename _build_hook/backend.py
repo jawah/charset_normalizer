@@ -6,7 +6,12 @@ from typing import Any
 from setuptools import build_meta as _orig  # type: ignore[import-untyped]
 
 USE_CYTHON = os.getenv("CHARSET_NORMALIZER_USE_CYTHON", "0") == "1"
-CYTHON_SPEC = "Cython>=3.2,<3.3"
+# Cython 3.3 requires a Python 3.9+ Limited API; our abi3 wheels target 3.7.
+CYTHON_SPEC = (
+    "Cython>=3.2,<3.3"
+    if os.getenv("CHARSET_NORMALIZER_CYTHON_ABI3") == "1"
+    else "Cython>=3.2,<3.4"
+)
 
 # Expose all the PEP 517 hooks from setuptools
 get_requires_for_build_sdist = _orig.get_requires_for_build_sdist

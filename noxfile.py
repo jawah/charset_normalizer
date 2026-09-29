@@ -188,7 +188,7 @@ def downstream_niquests(session: nox.Session) -> None:
         "-v",
         f"--color={'yes' if 'GITHUB_ACTIONS' in os.environ else 'auto'}",
         *(session.posargs or ("tests/",)),
-        env={"NIQUESTS_STRICT_OCSP": "1"},
+        env={"NIQUESTS_STRICT_OCSP": "1", "TRAEFIK_HTTPBIN_ENABLE": "false"},
     )
 
 

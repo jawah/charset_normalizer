@@ -2,6 +2,20 @@
 All notable changes to charset-normalizer will be documented in this file. This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [3.5.2](https://github.com/Ousret/charset_normalizer/compare/3.5.1...3.5.2) (2026-09-29)
+
+### Changed
+
+- Raised the Cython upper bound to `<3.4` for native builds. The bound remains `<3.3` for
+  `abi3` builds to preserve compatibility with the Python 3.7 Limited API.
+
+### Fixed
+
+- Valid UTF-8 Chinese JSON incorrectly detected as PTCP154 due to excessive noise penalties
+  for uncommon CJK characters. (#796)
+- Supported encodings without aliases failing name resolution or being ignored in charset
+  declarations. (#800)
+
 ## [3.5.1](https://github.com/Ousret/charset_normalizer/compare/3.5.0...3.5.1) (2026-08-15)
 
 ### Changed
