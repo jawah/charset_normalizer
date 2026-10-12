@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import unittest
 
+from charset_normalizer import from_bytes
 from charset_normalizer.legacy import detect
 
 
@@ -46,6 +47,50 @@ class TestDetectLegacy(unittest.TestCase):
         r = detect('{"title":"海岛旅居会员忠诚动因持续探索"}'.encode())
 
         self.assertEqual(r["encoding"], "utf-8")
+
+    def test_latin1_uses_chardet_spelling(self):
+        data = (
+            '<html><head><meta charset="iso-8859-1"></head><body>'
+            "Bonjour, déjà l'été. François préfère le café, "
+            "les élèves étudient à l'école.</body></html>"
+        ).encode("latin-1")
+
+        self.assertEqual(from_bytes(data).best().encoding, "latin_1")
+        self.assertEqual(detect(data)["encoding"], "ISO-8859-1")
+        self.assertEqual(
+            detect(data, should_rename_legacy=False)["encoding"], "ISO-8859-1"
+        )
+        self.assertEqual(
+            detect(data, should_rename_legacy=True)["encoding"], "latin_1"
+        )
+
+    def test_should_rename_legacy_preserves_other_encoding_names(self):
+        samples = (
+            (b"Hello, this is an ordinary ASCII text document.", "ascii", "ascii"),
+            ('{"title":"海岛旅居会员忠诚动因持续探索"}'.encode(), "utf-8", "utf_8"),
+            ("Bonjour, déjà le café.".encode("utf-8-sig"), "UTF-8-SIG", "utf_8_sig"),
+            (
+                ('<meta charset="windows-1252">François préfère le café à 5 €.').encode(
+                    "cp1252"
+                ),
+                "Windows-1252",
+                "cp1252",
+            ),
+            (
+                ('<meta charset="iso-8859-2">Zażółć gęślą jaźń.').encode("iso-8859-2"),
+                "ISO-8859-2",
+                "iso8859_2",
+            ),
+        )
+        for data, chardet_name, normalizer_name in samples:
+            with self.subTest(encoding=normalizer_name):
+                self.assertEqual(detect(data)["encoding"], chardet_name)
+                self.assertEqual(
+                    detect(data, should_rename_legacy=False)["encoding"], chardet_name
+                )
+                self.assertEqual(
+                    detect(data, should_rename_legacy=True)["encoding"], normalizer_name
+                )
 
     def test_small_payload_confidence_altered(self):
 

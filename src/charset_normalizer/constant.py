@@ -925,6 +925,7 @@ CHARDET_CORRESPONDENCE: dict[str, str] = {
     "euc_jp": "EUC-JP",
     "koi8_r": "KOI8-R",
     "iso8859_1": "ISO-8859-1",
+    "latin_1": "ISO-8859-1",
     "iso8859_2": "ISO-8859-2",
     "iso8859_5": "ISO-8859-5",
     "iso8859_6": "ISO-8859-6",
