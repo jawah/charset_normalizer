@@ -94,3 +94,19 @@ def test_preemptive_mark_replacement(payload, expected_outcome):
     transformed_output = m.output()
 
     assert transformed_output == expected_outcome
+
+
+@pytest.mark.parametrize("warm_cache", [False, True])
+def test_failed_output_encoding_does_not_change_cache(warm_cache):
+    payload = b'<?xml version="1.0" encoding="latin-1"?>caf\xe9'
+    match = CharsetMatch(
+        payload, "latin_1", 0.0, False, [], preemptive_declaration="latin-1"
+    )
+    expected = b'<?xml version="1.0" encoding="utf-8"?>caf\xc3\xa9'
+    if warm_cache:
+        assert match.output() == expected
+    for _ in range(2):
+        with pytest.raises(ValueError):
+            match.output("no-such-encoding")
+    assert match.output() == expected
+    assert match.output("latin_1") == payload
