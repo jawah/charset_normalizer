@@ -1,7 +1,10 @@
 from __future__ import annotations
 
+import encodings
 import importlib
 import logging
+import os
+import sys
 import unicodedata
 from bisect import bisect_right
 from codecs import IncrementalDecoder
@@ -9,30 +12,30 @@ from functools import lru_cache
 from typing import Generator
 
 from .constant import (
+    _ACCENT_KEYWORDS,
+    _ACCENTUATED,
+    _ARABIC,
+    _ARABIC_ISOLATED_FORM,
+    _CJK,
+    _HALFWIDTH_KATAKANA,
+    _HANGUL,
+    _HIRAGANA,
+    _IANA_NAMES,
+    _KATAKANA,
+    _KNOWN_MB_CLASSES,
+    _KNOWN_MB_DECODERS,
+    _LATIN,
+    _LIGATURE,
+    _MULTIBYTE_SEARCH_RADIUS,
+    _SECONDARY_RANGE_NAMES,
+    _SENTENCE_OPEN_PUNCTUATION,
+    _SUPERSCRIPT,
+    _THAI,
+    COMMON_CJK_CHARACTERS,
     ENCODING_MARKS,
     IANA_SUPPORTED_SIMILAR,
     RE_POSSIBLE_ENCODING_INDICATION,
     UNICODE_RANGES_COMBINED,
-    _SECONDARY_RANGE_NAMES,
-    COMMON_CJK_CHARACTERS,
-    _LATIN,
-    _CJK,
-    _HANGUL,
-    _KATAKANA,
-    _HIRAGANA,
-    _HALFWIDTH_KATAKANA,
-    _THAI,
-    _ARABIC,
-    _ARABIC_ISOLATED_FORM,
-    _LIGATURE,
-    _SUPERSCRIPT,
-    _SENTENCE_OPEN_PUNCTUATION,
-    _ACCENT_KEYWORDS,
-    _ACCENTUATED,
-    _KNOWN_MB_DECODERS,
-    _KNOWN_MB_CLASSES,
-    _IANA_NAMES,
-    _MULTIBYTE_SEARCH_RADIUS,
 )
 
 
@@ -275,6 +278,54 @@ def is_multi_byte_encoding(name: str) -> bool:
     return False
 
 
+def is_custom_encoding(name: str) -> bool:
+    """Return whether an already-loaded ``encodings.<name>`` module is custom.
+
+    Custom codecs are registered before charset_normalizer is imported, so
+    their module is already present in ``sys.modules``. Checking only loaded
+    modules keeps the built-in single-byte fast path from importing every
+    candidate codec just to classify it.
+    """
+    module = sys.modules.get(f"encodings.{name}")
+    if module is None:
+        return False
+
+    module_name = getattr(module, "__name__", f"encodings.{name}")
+    decoder = getattr(module, "IncrementalDecoder", None)
+    if decoder is None:
+        return False
+    decoder_module = getattr(decoder, "__module__", module_name)
+    spec = getattr(module, "__spec__", None)
+    origin = getattr(spec, "origin", None)
+
+    # The documented registration example uses types.ModuleType, which has no
+    # import spec. A codec class supplied by a separate module is custom too.
+    if origin is None:
+        return True
+    if decoder is not None and decoder_module != module_name:
+        return True
+    if origin in {"built-in", "frozen"}:
+        return False
+
+    try:
+        normalized_origin = os.path.normcase(os.path.abspath(origin))
+    except (OSError, TypeError, ValueError):
+        return True
+
+    for encoding_path in encodings.__path__:
+        try:
+            normalized_root = os.path.normcase(os.path.abspath(encoding_path))
+            if (
+                os.path.commonpath((normalized_origin, normalized_root))
+                == normalized_root
+            ):
+                return False
+        except (OSError, TypeError, ValueError):
+            continue
+
+    return True
+
+
 def identify_sig_or_bom(sequence: bytes | bytearray) -> tuple[str | None, bytes]:
     """
     Identify and extract SIG/BOM in given sequence.
@@ -366,6 +417,7 @@ def cut_sequence_chunks(
     is_multi_byte_decoder: bool,
     decoded_payload: str | None = None,
     deferred_decoding: bool = False,
+    custom_encoding: bool = False,
 ) -> Generator[str, None, None]:
     # iso2022 codec is stateful, generic mb cuter isn't going to cut it!
     if decoded_payload and encoding_iana.startswith("iso2022_"):
@@ -377,6 +429,48 @@ def cut_sequence_chunks(
             if not chunk:
                 break
             yield chunk
+    elif custom_encoding:
+        # A custom decoder can be variable-width or stateful. Feed the bytes
+        # through one incremental decoder in order, retaining only sampled
+        # output while validating skipped regions and the final decoder state.
+        module = sys.modules.get(f"encodings.{encoding_iana}")
+        decoder_class = getattr(module, "IncrementalDecoder", None)
+        if decoder_class is None:
+            raise LookupError(
+                f"Custom encoding {encoding_iana} has no IncrementalDecoder"
+            )
+
+        decoder: IncrementalDecoder = decoder_class(errors="strict")
+        base_offset = len(sig_payload) if strip_sig_or_bom else 0
+        custom_base_bytes = memoryview(sequences)[base_offset:]
+        byte_offset = 0
+
+        def decode_and_discard(start: int, end: int) -> None:
+            block_size = 64 * 1024
+            while start < end:
+                block_end = min(end, start + block_size)
+                decoder.decode(bytes(custom_base_bytes[start:block_end]), final=False)
+                start = block_end
+
+        for i in offsets:
+            chunk_start = max(0, i - base_offset, byte_offset)
+            if chunk_start >= len(custom_base_bytes):
+                break
+
+            decode_and_discard(byte_offset, chunk_start)
+            chunk_end = min(chunk_start + chunk_size, len(custom_base_bytes))
+            chunk = decoder.decode(
+                bytes(custom_base_bytes[chunk_start:chunk_end]), final=False
+            )
+            byte_offset = chunk_end
+            if chunk_end == len(custom_base_bytes):
+                chunk += decoder.decode(b"", final=True)
+                yield chunk
+                return
+            yield chunk
+
+        decode_and_discard(byte_offset, len(custom_base_bytes))
+        decoder.decode(b"", final=True)
     elif decoded_payload and not is_multi_byte_decoder:
         for i in offsets:
             chunk = decoded_payload[i : i + chunk_size]
