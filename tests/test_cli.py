@@ -1,13 +1,57 @@
 from __future__ import annotations
 
+import subprocess
+import sys
 import unittest
 from os import pardir, path, remove
 from os.path import exists
 from unittest.mock import patch
 
+import pytest
+
 from charset_normalizer.cli import cli_detect, query_yes_no
 
 DIR_PATH = path.join(path.dirname(path.realpath(__file__)), pardir)
+
+
+@pytest.mark.parametrize("module", ["charset_normalizer", "charset_normalizer.cli"])
+@pytest.mark.parametrize(
+    "arguments, expected_status, expected_message",
+    [
+        (["--minimal"], 0, "cp1252"),
+        (["--replace"], 1, "Use --replace in addition of --normalize only."),
+        (["--force"], 1, "Use --force in addition of --replace only."),
+        (["--threshold", "2"], 1, "--threshold VALUE should be between 0. AND 1."),
+        (["--unknown-option"], 2, "unrecognized arguments"),
+        (["--normalize"], 2, "sample.cp1252.txt"),
+    ],
+)
+def test_module_exit_status(
+    module, arguments, expected_status, expected_message, tmp_path
+):
+    source = tmp_path / "sample.txt"
+    source.write_bytes(
+        '<meta charset="windows-1252">Bonjour, déjà l’été. François aime le café.'.encode(
+            "cp1252"
+        )
+    )
+    if "--normalize" in arguments:
+        # A directory at the destination makes the real output write fail.
+        (tmp_path / "sample.cp1252.txt").mkdir()
+
+    result = subprocess.run(
+        [sys.executable, "-m", module, str(source), *arguments],
+        capture_output=True,
+        text=True,
+        timeout=30,
+    )
+
+    assert result.returncode == expected_status, result.stderr
+    if expected_status == 0:
+        assert result.stdout.strip() == expected_message
+    else:
+        assert result.stderr
+        assert expected_message in result.stderr
 
 
 class TestCommandLineInterface(unittest.TestCase):
