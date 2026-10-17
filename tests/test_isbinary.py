@@ -18,6 +18,8 @@ DIR_PATH = path.join(path.dirname(path.realpath(__file__)), pardir)
         (b"\x00\x5f\x2f\xff" * 50, True),
         (b64decode("R0lGODlhAQABAAAAACw="), True),
         (BytesIO(b64decode("R0lGODlhAQABAAAAACw=")), True),
+        # RFC 7464 JSON text sequences use ASCII record separators.
+        (b'\x1e{"name":"Alice"}\n\x1e{"name":"Bob"}\n', False),
         ("sample-polish.txt", False),
         ("sample-arabic.txt", False),
     ],
