@@ -229,10 +229,9 @@ class CharsetMatch:
         if self._output_encoding is None or self._output_encoding != encoding:
             self._output_encoding = encoding
             decoded_string = str(self)
-            if (
-                self._preemptive_declaration is not None
-                and self._preemptive_declaration.lower()
-                not in ["utf-8", "utf8", "utf_8"]
+            if self._preemptive_declaration is not None and (
+                self._preemptive_declaration.lower() not in ["utf-8", "utf8", "utf_8"]
+                or iana_name(encoding, False) not in ["utf_8", "utf_8_sig"]
             ):
                 patched_header = sub(
                     RE_POSSIBLE_ENCODING_INDICATION,
