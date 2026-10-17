@@ -6,6 +6,27 @@ from charset_normalizer.api import from_bytes
 from charset_normalizer.models import CharsetMatch, CharsetMatches
 
 
+@pytest.mark.parametrize(
+    "payload",
+    [
+        b"name\x1cAlice\x1cBob\x1cCarol",
+        b"name\x1dAlice\x1dBob\x1dCarol",
+        b"name\x1eAlice\x1eBob\x1eCarol",
+        b"name\x1fAlice\x1fBob\x1fCarol",
+        # RFC 7464: each UTF-8 JSON text is preceded by RS and followed by LF.
+        b'\x1e{"name":"Alice"}\n\x1e{"name":"Bob"}\n',
+    ],
+)
+@pytest.mark.parametrize("enable_fallback", [False, True])
+def test_ascii_information_separators(payload, enable_fallback):
+    best_guess = from_bytes(payload, enable_fallback=enable_fallback).best()
+
+    assert best_guess is not None
+    assert best_guess.encoding == "ascii"
+    assert best_guess.chaos == 0.0
+    assert str(best_guess) == payload.decode("ascii")
+
+
 def test_empty():
     best_guess = from_bytes(b"").best()
 

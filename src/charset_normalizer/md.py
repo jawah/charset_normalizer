@@ -167,8 +167,8 @@ class CharInfo:
                 self.latin = False
                 self.punct = False
                 self.sym = False
-            elif o == 32 or (9 <= o <= 13):
-                # Space, tab, newline, etc.
+            elif o == 32 or (9 <= o <= 13) or (28 <= o <= 31):
+                # Match str.isspace(), including ASCII information separators.
                 self.alpha = False
                 self.upper = False
                 self.lower = False

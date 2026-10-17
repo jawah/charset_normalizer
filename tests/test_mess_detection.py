@@ -5,6 +5,29 @@ import pytest
 from charset_normalizer.md import _char_info, is_suspiciously_successive_range, mess_ratio
 
 
+@pytest.mark.parametrize("codepoint", range(128))
+def test_ascii_character_properties(codepoint):
+    character = chr(codepoint)
+    info = _char_info(character)
+
+    assert info.alpha == character.isalpha()
+    assert info.upper == character.isupper()
+    assert info.lower == character.islower()
+    assert info.space == character.isspace()
+    assert info.digit == character.isdigit()
+    assert info.printable == character.isprintable()
+
+
+@pytest.mark.parametrize("separator", ["\x1c", "\x1d", "\x1e", "\x1f"])
+def test_ascii_information_separators(separator):
+    assert mess_ratio(separator.join(["name", "Alice", "Bob", "Carol"])) == 0.0
+
+
+@pytest.mark.parametrize("character", ["\x00", "\x01", "\x1b", "\x7f"])
+def test_ascii_unprintable_controls(character):
+    assert mess_ratio(f"hello{character}world") >= 0.2
+
+
 @pytest.mark.parametrize(
     "content, min_expected_ratio, max_expected_ratio",
     [
