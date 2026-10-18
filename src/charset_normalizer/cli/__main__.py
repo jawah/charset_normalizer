@@ -339,7 +339,9 @@ def cli_detect(argv: list[str] | None = None) -> int:
 
         print(
             dumps(
-                [el.__dict__ for el in x_] if len(x_) > 1 else x_[0].__dict__,
+                [el.__dict__ for el in x_]
+                if args.alternatives or len(x_) > 1
+                else x_[0].__dict__,
                 ensure_ascii=True,
                 indent=4,
             )
