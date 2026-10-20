@@ -396,15 +396,7 @@ def filter_alt_coherence_matches(results: CoherenceMatches) -> CoherenceMatches:
 
         index_results[no_em_name].append(ratio)
 
-    if any(len(index_results[e]) > 1 for e in index_results):
-        filtered_results: CoherenceMatches = []
-
-        for language in index_results:
-            filtered_results.append((language, max(index_results[language])))
-
-        return filtered_results
-
-    return results
+    return [(language, max(ratios)) for language, ratios in index_results.items()]
 
 
 def coherence_ratio(
