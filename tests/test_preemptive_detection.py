@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+from xml.etree import ElementTree
+
 import pytest
 
-from charset_normalizer import CharsetMatch
+from charset_normalizer import CharsetMatch, from_bytes
 from charset_normalizer.utils import any_specified_encoding
 
 
@@ -110,3 +112,46 @@ def test_failed_output_encoding_does_not_change_cache(warm_cache):
             match.output("no-such-encoding")
     assert match.output() == expected
     assert match.output("latin_1") == payload
+
+
+@pytest.mark.parametrize(
+    "template",
+    [
+        '<?xml version="1.0" encoding="{}"?><doc>caf\u00e9</doc>',
+        '<html><head><meta charset="{}"></head><body>caf\u00e9</body></html>',
+        '# coding: {}\ntext = "caf\u00e9"\n',
+    ],
+)
+@pytest.mark.parametrize("encoding", ["latin_1", "utf_16"])
+def test_utf8_declaration_follows_output_encoding(template, encoding):
+    payload = template.format("UTF-8").encode("utf-8")
+    match = from_bytes(payload).best()
+    assert match is not None
+    assert match.encoding == "utf_8"
+
+    output = match.output(encoding)
+    assert output.decode(encoding) == template.format(encoding.replace("_", "-"))
+    assert match.output(encoding) == output
+    assert match.output() == payload
+
+
+@pytest.mark.parametrize("encoding", ["latin_1", "utf_16"])
+@pytest.mark.parametrize("payload_type", [bytes, bytearray])
+def test_transcoded_utf8_xml_is_parseable(encoding, payload_type):
+    payload = payload_type(
+        '<?xml version="1.0" encoding="UTF-8"?><doc>caf\u00e9</doc>'.encode("utf-8")
+    )
+    match = from_bytes(payload).best()
+    assert match is not None
+
+    assert ElementTree.fromstring(match.output(encoding)).text == "caf\u00e9"
+
+
+@pytest.mark.parametrize("declaration", ["UTF-8", "utf8", "utf_8"])
+@pytest.mark.parametrize("encoding", ["utf_8", "UTF-8", "utf8", "u8", "utf_8_sig"])
+def test_utf8_output_preserves_utf8_declaration(declaration, encoding):
+    text = '<?xml version="1.0" encoding="{}"?><doc>caf\u00e9</doc>'.format(declaration)
+    match = from_bytes(text.encode("utf-8")).best()
+    assert match is not None
+
+    assert match.output(encoding) == text.encode(encoding)
