@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import codecs
 import logging
 
 import pytest
@@ -61,3 +62,10 @@ def test_cp_similarity(cp_name_a, cp_name_b, expected_is_similar):
 @pytest.mark.parametrize("cp_name", IANA_SUPPORTED)
 def test_iana_name_resolves_every_supported_encoding(cp_name):
     assert iana_name(cp_name) == cp_name, "IANA_SUPPORTED entry is unresolvable"
+
+
+@pytest.mark.parametrize("cp_name", IANA_SUPPORTED)
+def test_every_supported_encoding_decodes_with_errors_ignore(cp_name):
+    # Detection decodes with errors="ignore", which utf_7_imap (Python 3.16+) rejects.
+    decoder = codecs.getincrementaldecoder(cp_name)(errors="ignore")
+    assert isinstance(decoder.decode(b"@"), str)
