@@ -127,7 +127,7 @@ cdef class CharInfo:
                 self.latin = False
                 self.punct = False
                 self.sym = False
-            elif codepoint == 32 or 9 <= codepoint <= 13:
+            elif codepoint == 32 or 9 <= codepoint <= 13 or 28 <= codepoint <= 31:
                 self.alpha = False
                 self.upper = False
                 self.lower = False
