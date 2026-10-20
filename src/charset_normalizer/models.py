@@ -85,9 +85,10 @@ class CharsetMatch:
             # UTF-7 BOM is encoded in modified Base64 whose byte boundary
             # can overlap with the next character, so raw-byte stripping
             # is unreliable. Strip the decoded BOM character instead.
+            # GB18030 also retains its signature when lazily decoded.
             if (
                 self._has_sig_or_bom
-                and self._encoding == "utf_7"
+                and self._encoding in {"utf_7", "gb18030"}
                 and self._string
                 and self._string[0] == "\ufeff"
             ):
