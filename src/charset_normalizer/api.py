@@ -25,6 +25,7 @@ from .utils import (
     cut_sequence_chunks,
     iana_name,
     identify_sig_or_bom,
+    is_custom_encoding,
     is_multi_byte_encoding,
     should_strip_sig_or_bom,
 )
@@ -280,6 +281,8 @@ def from_bytes(
             )
             continue
 
+        custom_encoding: bool = is_custom_encoding(encoding_iana)
+
         # When we've already found a definitive match (chaos=0.0 with good coherence)
         # after testing the prioritized encodings, skip encodings that target
         # completely different language families. This avoids running expensive
@@ -335,12 +338,21 @@ def from_bytes(
         # identical to slicing the decoded payload, and candidates rejected
         # by chaos probing (the common case) never pay the full decode nor
         # the payload hash.
+        # Registered codecs have no single-byte/statelessness guarantee. Their
+        # incremental decoder validates and samples the stream in
+        # cut_sequence_chunks without materializing the full decoded payload.
         deferred_decoding: bool = (
-            not is_multi_byte_decoder and not is_too_large_sequence
+            not is_multi_byte_decoder
+            and not is_too_large_sequence
+            and not custom_encoding
         )
 
         try:
-            if is_too_large_sequence and not is_multi_byte_decoder:
+            if (
+                is_too_large_sequence
+                and not is_multi_byte_decoder
+                and not custom_encoding
+            ):
                 str(
                     (
                         sequences[: int(50e4)]
@@ -349,7 +361,7 @@ def from_bytes(
                     ),
                     encoding=encoding_iana,
                 )
-            elif not deferred_decoding:
+            elif not deferred_decoding and not custom_encoding:
                 # UTF-7 BOM is encoded in modified Base64 whose byte boundary
                 # can overlap with the next character. Stripping raw SIG bytes
                 # before decoding may leave stray bytes that decode as garbage.
@@ -424,6 +436,7 @@ def from_bytes(
                 is_multi_byte_decoder,
                 decoded_payload,
                 deferred_decoding,
+                custom_encoding,
             ):
                 md_chunks.append(chunk)
 
@@ -475,6 +488,7 @@ def from_bytes(
             not lazy_str_hard_failure
             and is_too_large_sequence
             and not is_multi_byte_decoder
+            and not custom_encoding
             and mean_mess_ratio < threshold
             and early_stop_count < max_chunk_gave_up
         ):
