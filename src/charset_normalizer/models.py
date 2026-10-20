@@ -85,9 +85,10 @@ class CharsetMatch:
             # UTF-7 BOM is encoded in modified Base64 whose byte boundary
             # can overlap with the next character, so raw-byte stripping
             # is unreliable. Strip the decoded BOM character instead.
+            # GB18030 also retains its signature when lazily decoded.
             if (
                 self._has_sig_or_bom
-                and self._encoding == "utf_7"
+                and self._encoding in {"utf_7", "gb18030"}
                 and self._string
                 and self._string[0] == "\ufeff"
             ):
@@ -227,18 +228,16 @@ class CharsetMatch:
         Any errors will be simply ignored by the encoder NOT replaced.
         """
         if self._output_encoding is None or self._output_encoding != encoding:
-            self._output_encoding = encoding
             decoded_string = str(self)
-            if (
-                self._preemptive_declaration is not None
-                and self._preemptive_declaration.lower()
-                not in ["utf-8", "utf8", "utf_8"]
+            if self._preemptive_declaration is not None and (
+                self._preemptive_declaration.lower() not in ["utf-8", "utf8", "utf_8"]
+                or iana_name(encoding, False) not in ["utf_8", "utf_8_sig"]
             ):
                 patched_header = sub(
                     RE_POSSIBLE_ENCODING_INDICATION,
                     lambda m: m.string[m.span()[0] : m.span()[1]].replace(
                         m.groups()[0],
-                        iana_name(self._output_encoding).replace("_", "-"),  # type: ignore[arg-type]
+                        iana_name(encoding).replace("_", "-"),
                     ),
                     decoded_string[:8192],
                     count=1,
@@ -247,6 +246,7 @@ class CharsetMatch:
                 decoded_string = patched_header + decoded_string[8192:]
 
             self._output_payload = decoded_string.encode(encoding, "replace")
+            self._output_encoding = encoding
 
         return self._output_payload  # type: ignore
 

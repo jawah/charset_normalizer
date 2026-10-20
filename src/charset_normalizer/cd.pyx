@@ -679,7 +679,6 @@ cpdef list merge_coherence_ratios(list results):
 cpdef list filter_alt_coherence_matches(list results):
     """Collapse alternative language names while retaining their best score."""
     cdef dict index_results = {}
-    cdef bint has_alternative = False
     cdef list filtered_results
     cdef object result
     cdef object language
@@ -693,17 +692,10 @@ cpdef list filter_alt_coherence_matches(list results):
             index_results[no_em_name] = []
         index_results[no_em_name].append(ratio)
 
+    filtered_results = []
     for language in index_results:
-        if len(index_results[language]) > 1:
-            has_alternative = True
-            break
-
-    if has_alternative:
-        filtered_results = []
-        for language in index_results:
-            filtered_results.append((language, max(index_results[language])))
-        return filtered_results
-    return results
+        filtered_results.append((language, max(index_results[language])))
+    return filtered_results
 
 
 cdef Py_ssize_t _popular_codepoints(str layer, uint32_t* result) except -1:
