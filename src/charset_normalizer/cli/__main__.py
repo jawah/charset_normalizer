@@ -360,4 +360,4 @@ def cli_detect(argv: list[str] | None = None) -> int:
 
 
 if __name__ == "__main__":  # Defensive:
-    cli_detect()
+    raise SystemExit(cli_detect())
