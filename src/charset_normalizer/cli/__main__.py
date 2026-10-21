@@ -196,7 +196,7 @@ def cli_detect(argv: list[str] | None = None) -> int:
         print("Use --force in addition of --replace only.", file=sys.stderr)
         return 1
 
-    if args.threshold < 0.0 or args.threshold > 1.0:
+    if not 0.0 <= args.threshold <= 1.0:
         if args.files:
             for my_file in args.files:
                 my_file.close()

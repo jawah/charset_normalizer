@@ -54,6 +54,37 @@ def test_module_exit_status(
         assert expected_message in result.stderr
 
 
+@pytest.mark.parametrize("module", ["charset_normalizer", "charset_normalizer.cli"])
+@pytest.mark.parametrize(
+    "threshold, expected_status",
+    [("nan", 1), ("inf", 1), ("-inf", 1), ("-0.1", 1), ("1.1", 1), ("0", 0), ("1", 0)],
+)
+def test_module_threshold_range(module, threshold, expected_status, tmp_path):
+    source = tmp_path / "sample.txt"
+    source.write_bytes(b"An ASCII sample.\n")
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            module,
+            str(source),
+            "--minimal",
+            f"--threshold={threshold}",
+        ],
+        check=False,
+        capture_output=True,
+        text=True,
+        timeout=30,
+    )
+
+    assert result.returncode == expected_status, result.stderr
+    if expected_status:
+        assert "--threshold VALUE should be between 0. AND 1." in result.stderr
+    else:
+        assert result.stdout.strip()
+
+
 class TestCommandLineInterface(unittest.TestCase):
     @patch("builtins.input", lambda *args: "y")
     def test_simple_yes_input(self):
