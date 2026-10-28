@@ -954,16 +954,40 @@ def mess_ratio(
     d_ai: ArabicIsolatedFormPlugin = ArabicIsolatedFormPlugin()
 
     # Local references avoid repeated bound-method creation in the hot loop.
-    d_sp_feed = d_sp.feed_info
-    d_ta_feed = d_ta.feed_info
     d_up_feed = d_up.feed_info
-    d_sda_feed = d_sda.feed_info
-    d_sr_feed = d_sr.feed_info
+    duplicate_character_count = 0
+    duplicate_successive_count = 0
+    duplicate_last_info = None
+    duplicate_last_accentuated = False
+    range_character_count = 0
+    range_successive_count = 0
+    range_last_seen = None
+    range_last_range = None
     d_sw_feed = d_sw.feed_info
     d_cu_feed = d_cu.feed_info
     d_sk_feed = d_sk.feed_info
     d_au_feed = d_au.feed_info
-    d_ai_feed = d_ai.feed_info
+    case_buffer = False
+    case_since_separator = 0
+    case_successive_count = 0
+    case_final_count = 0
+    case_character_count = 0
+    case_last_upper = False
+    case_last_lower = False
+    case_ascii_only = True
+    arabic_character_count = 0
+    arabic_isolated_count = 0
+
+    # Publish local counts to the detector before each block's ratio check.
+    punctuation_count = 0
+    symbol_count = 0
+    printable_count = 0
+    last_printable_char = None
+    accent_character_count = 0
+    accentuated_count = 0
+    unprintable_count = 0
+    character_count = 0
+    has_escape = False
 
     for block_start in range(0, seq_len, step):
         for character in decoded_sequence[block_start : block_start + step]:
@@ -977,28 +1001,107 @@ def mess_ratio(
                 info = char_info(character)
 
             # Detectors with eligible() == always True
-            d_up_feed(character, info)
+            if character == "\x1b":
+                has_escape = True
+            if (
+                not info.printable
+                and not info.space
+                and character != "\x1a"
+                and character != "\ufeff"
+            ):
+                unprintable_count += 1
+            character_count += 1
             d_sw_feed(character, info)
 
             if is_pure_ascii:
                 # The seven remaining detectors provably stay at 0.0 (see above).
                 if info.printable:
-                    d_sp_feed(character, info)
+                    printable_count += 1
+                    if character != last_printable_char and not info.safe:
+                        if info.punct:
+                            punctuation_count += 1
+                        elif not info.digit and info.sym and not info.emoticon:
+                            symbol_count += 2
+                    last_printable_char = character
                 continue
 
-            d_au_feed(character, info)
+            if not (info.alpha and info.case_variable) and case_since_separator > 0:
+                if (
+                    case_since_separator <= 64
+                    and not info.digit
+                    and not case_ascii_only
+                ):
+                    case_final_count += case_successive_count
+                case_successive_count = 0
+                case_since_separator = 0
+                case_buffer = False
+                case_character_count += 1
+                case_ascii_only = True
+            else:
+                if case_ascii_only and not info.is_ascii:
+                    case_ascii_only = False
+                if case_since_separator > 0:
+                    if (info.upper and case_last_lower) or (
+                        info.lower and case_last_upper
+                    ):
+                        if case_buffer:
+                            case_successive_count += 2
+                            case_buffer = False
+                        else:
+                            case_buffer = True
+                    else:
+                        case_buffer = False
+                case_character_count += 1
+                case_since_separator += 1
+                case_last_upper = info.upper
+                case_last_lower = info.lower
 
             # Detectors with eligible() == isprintable
             if info.printable:
-                d_sp_feed(character, info)
-                d_sr_feed(character, info)
+                printable_count += 1
+                if character != last_printable_char and not info.safe:
+                    if info.punct:
+                        punctuation_count += 1
+                    elif not info.digit and info.sym and not info.emoticon:
+                        symbol_count += 2
+                last_printable_char = character
+                range_character_count += 1
+                if info.space or info.punct or info.safe:
+                    range_last_seen = None
+                    range_last_range = None
+                else:
+                    if range_last_seen is not None:
+                        current_range = info.range
+                        if (
+                            range_last_range != current_range
+                            or range_last_range is None
+                        ):
+                            if is_suspiciously_successive_range(
+                                range_last_range, current_range
+                            ):
+                                range_successive_count += 1
+                    range_last_seen = character
+                    range_last_range = info.range
 
             # Detectors with eligible() == isalpha
             if info.alpha:
-                d_ta_feed(character, info)
+                accent_character_count += 1
+                if info.accentuated:
+                    accentuated_count += 1
                 # SuspiciousDuplicateAccent: isalpha() and is_latin()
                 if info.latin:
-                    d_sda_feed(character, info)
+                    duplicate_character_count += 1
+                    if (
+                        duplicate_last_info is not None
+                        and info.accentuated
+                        and duplicate_last_accentuated
+                    ):
+                        if info.upper and duplicate_last_info.upper:
+                            duplicate_successive_count += 1
+                        if info.unaccented == duplicate_last_info.unaccented:
+                            duplicate_successive_count += 1
+                    duplicate_last_info = info
+                    duplicate_last_accentuated = info.accentuated
                 # CjkUncommon and SuspiciousKatakana: is_cjk()
                 if info.is_cjk:
                     d_cu_feed(character, info)
@@ -1007,7 +1110,37 @@ def mess_ratio(
                     d_sk_feed(character, info)
                 # ArabicIsolatedForm: is_arabic()
                 if info.is_arabic:
-                    d_ai_feed(character, info)
+                    arabic_character_count += 1
+                    if info.flags & _ARABIC_ISOLATED_FORM:
+                        arabic_isolated_count += 1
+
+        d_au._buf = case_buffer
+        d_au._character_count_since_last_sep = case_since_separator
+        d_au._successive_upper_lower_count = case_successive_count
+        d_au._successive_upper_lower_count_final = case_final_count
+        d_au._character_count = case_character_count
+        d_au._last_alpha_seen_upper = case_last_upper
+        d_au._last_alpha_seen_lower = case_last_lower
+        d_au._current_ascii_only = case_ascii_only
+        d_ai._character_count = arabic_character_count
+        d_ai._isolated_form_count = arabic_isolated_count
+        d_sr._character_count = range_character_count
+        d_sr._suspicious_successive_range_count = range_successive_count
+        d_sr._last_printable_seen = range_last_seen
+        d_sr._last_printable_range = range_last_range
+        d_sda._character_count = duplicate_character_count
+        d_sda._successive_count = duplicate_successive_count
+        d_sda._last_latin_character = duplicate_last_info
+        d_sda._last_was_accentuated = duplicate_last_accentuated
+        d_sp._punctuation_count = punctuation_count
+        d_sp._symbol_count = symbol_count
+        d_sp._character_count = printable_count
+        d_sp._last_printable_char = last_printable_char
+        d_ta._character_count = accent_character_count
+        d_ta._accentuated_count = accentuated_count
+        d_up._unprintable_count = unprintable_count
+        d_up._character_count = character_count
+        d_up._has_escape = has_escape
 
         mean_mess_ratio = (
             d_sp.ratio
