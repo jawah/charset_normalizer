@@ -47,7 +47,7 @@ IANA_SUPPORTED_MB_FIRST: list[str] = sorted(
 )
 
 
-def _partial_decode(sequences, encoding):
+def _partial_decode(sequences: bytes | bytearray, encoding: str):
     try:
         return str(sequences, encoding=encoding)
     except UnicodeDecodeError as error:
