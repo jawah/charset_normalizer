@@ -51,7 +51,8 @@ def _partial_decode(sequences: bytes | bytearray, encoding: str):
     try:
         return str(sequences, encoding=encoding)
     except UnicodeDecodeError as error:
-        if len(sequences) - error.start < 3:
+        # Allow up to 3 bytes at the end of the sequence to be "problematic"
+        if len(sequences) - error.start <= 3:
             return str(sequences[:error.start], encoding=encoding)
         else:
             raise error
