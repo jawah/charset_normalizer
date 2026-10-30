@@ -52,7 +52,6 @@ def _partial_decode(sequences, encoding):
         return str(sequences, encoding=encoding)
     except UnicodeDecodeError as error:
         if len(sequences) - error.start < 3:
-            print(len(sequences) - error.start)
             return str(sequences[:error.start], encoding=encoding)
         else:
             raise error
