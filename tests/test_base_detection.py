@@ -239,6 +239,24 @@ def test_stateful_multibyte_sampling(encoding, content):
     assert str(best_guess) == content
 
 
+@pytest.mark.parametrize(
+    "content",
+    [
+        "日本語の文章を正しく検出します。" * 400,
+        "我没有埋怨，磋砣的只是一些时间。" * 400,
+    ],
+    ids=["japanese", "chinese"],
+)
+def test_utf7_sig_stateful_sampling(content):
+    payload = ("\ufeff" + content).encode("utf_7")
+    best_guess = from_bytes(payload).best()
+
+    assert best_guess is not None
+    assert best_guess.encoding == "utf_7"
+    assert best_guess.bom is True
+    assert str(best_guess) == content
+
+
 def test_utf8_sig_overrides_misleading_declaration():
     content = '<meta charset="cp1252"> café déjà vu'
     best_guess = from_bytes(content.encode("utf_8_sig")).best()
