@@ -143,3 +143,18 @@ def test_alternative_language_above_threshold():
     assert match.language == "English"
     assert match.languages == ["English"]
     assert match.coherence == 0.75
+
+
+def test_coherence_ratio_penalizes_incompatible_latin_accents():
+    valid_spanish = (
+        "El ayuntamiento aprobó ayer el presupuesto para el próximo año. "
+        "Según el alcalde, la construcción de la nueva biblioteca comenzará en otoño."
+    )
+    corrupted_accents = (
+        valid_spanish.replace("ñ", "ń").replace("ó", "ř").replace("á", "ŕ")
+    )
+
+    valid_scores = dict(coherence_ratio(valid_spanish, lg_inclusion="Spanish"))
+    corrupted_scores = dict(coherence_ratio(corrupted_accents, lg_inclusion="Spanish"))
+
+    assert valid_scores["Spanish"] > corrupted_scores["Spanish"]

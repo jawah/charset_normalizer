@@ -25,6 +25,7 @@ from charset_normalizer.constant import (
     FREQUENCIES,
     KO_NAMES,
     LANGUAGE_SUPPORTED_COUNT,
+    LATIN_NON_ASCII_LETTERS,
     TOO_SMALL_SEQUENCE,
     ZH_NAMES,
 )
@@ -39,6 +40,7 @@ from charset_normalizer.utils import is_multi_byte_encoding, is_unicode_range_se
 cdef enum:
     LANGUAGE_COUNT = 41
     BMP_CODEPOINT_COUNT = 65536
+    LATIN_ORTHO_BMP_LIMIT = 8192
     STACK_RANK_CAPACITY = 512
     LANGUAGE_RANK_CAPACITY = 128
 
@@ -46,6 +48,8 @@ cdef uint8_t _LANGUAGE_RANKS[LANGUAGE_COUNT][BMP_CODEPOINT_COUNT]
 cdef uint16_t _LANGUAGE_LENGTHS[LANGUAGE_COUNT]
 cdef bint _LANGUAGE_HAS_ACCENTS[LANGUAGE_COUNT]
 cdef bint _LANGUAGE_PURE_LATIN[LANGUAGE_COUNT]
+cdef uint8_t _LANGUAGE_NON_ASCII[LANGUAGE_COUNT][LATIN_ORTHO_BMP_LIMIT]
+cdef bint _LANGUAGE_HAS_ORTHOGRAPHY[LANGUAGE_COUNT]
 cdef dict _LANGUAGE_INDEX = {}
 cdef list _LANGUAGE_NAMES = []
 
@@ -56,6 +60,7 @@ cdef void _initialize_language_ranks():
     cdef Py_UCS4 codepoint
     cdef object language
     cdef object characters
+    cdef object allowed_chars
     cdef str character
     cdef CharInfo info
 
@@ -73,6 +78,18 @@ cdef void _initialize_language_ranks():
         _LANGUAGE_NAMES.append(language)
         _LANGUAGE_LENGTHS[language_index] = len(characters)
         _LANGUAGE_PURE_LATIN[language_index] = True
+        allowed_chars = LATIN_NON_ASCII_LETTERS.get(language)
+        if allowed_chars is not None:
+            _LANGUAGE_HAS_ORTHOGRAPHY[language_index] = True
+            for character in allowed_chars:
+                codepoint = ord(character)
+                if codepoint >= LATIN_ORTHO_BMP_LIMIT:
+                    raise RuntimeError(
+                        f"Orthography profile {language!r} exceeds BMP limit"
+                    )
+                _LANGUAGE_NON_ASCII[language_index][codepoint] = 1
+        else:
+            _LANGUAGE_HAS_ORTHOGRAPHY[language_index] = False
         for rank, character in enumerate(characters):
             codepoint = ord(character)
             if codepoint >= BMP_CODEPOINT_COUNT:
@@ -774,17 +791,23 @@ cpdef list coherence_ratio(
     cdef list lg_inclusion_list
     cdef Py_ssize_t character_count
     cdef Py_ssize_t popular_count
+    cdef Py_ssize_t non_ascii_count = 0
+    cdef Py_ssize_t codepoint_index
+    cdef Py_ssize_t invalid_count
     cdef Py_ssize_t language_count = 0
     cdef Py_ssize_t language_position
     cdef Py_ssize_t language_index
     cdef Py_ssize_t requested_count
     cdef size_t allocation_count
     cdef double ratio
+    cdef double penalty_factor
+    cdef Py_UCS4 codepoint
     cdef str layer
     cdef object language
     cdef object language_index_object
     cdef uint64_t language_mask = 0
     cdef uint32_t stack_codepoints[STACK_RANK_CAPACITY]
+    cdef uint32_t stack_non_ascii[STACK_RANK_CAPACITY]
     cdef uint32_t* popular_codepoints = NULL
     cdef uint8_t stack_language_ids[LANGUAGE_COUNT]
     cdef uint8_t* language_ids = &stack_language_ids[0]
@@ -840,6 +863,13 @@ cpdef list coherence_ratio(
 
             try:
                 popular_count = _popular_codepoints(layer, popular_codepoints)
+                non_ascii_count = 0
+                for codepoint_index in range(popular_count):
+                    codepoint = popular_codepoints[codepoint_index]
+                    if codepoint >= 128:
+                        if non_ascii_count < STACK_RANK_CAPACITY:
+                            stack_non_ascii[non_ascii_count] = codepoint
+                        non_ascii_count += 1
                 if requested_count:
                     language_count = requested_count
                 else:
@@ -857,6 +887,38 @@ cpdef list coherence_ratio(
                     ratio = _characters_popularity_compare_index(
                         language_index, popular_codepoints, popular_count
                     )
+                    if (
+                        non_ascii_count
+                        and _LANGUAGE_HAS_ORTHOGRAPHY[language_index]
+                    ):
+                        invalid_count = 0
+                        if non_ascii_count <= STACK_RANK_CAPACITY:
+                            for codepoint_index in range(non_ascii_count):
+                                codepoint = stack_non_ascii[codepoint_index]
+                                if (
+                                    codepoint >= LATIN_ORTHO_BMP_LIMIT
+                                    or not _LANGUAGE_NON_ASCII[
+                                        language_index
+                                    ][codepoint]
+                                ):
+                                    invalid_count += 1
+                        else:
+                            for codepoint_index in range(popular_count):
+                                codepoint = popular_codepoints[codepoint_index]
+                                if codepoint >= 128 and (
+                                    codepoint >= LATIN_ORTHO_BMP_LIMIT
+                                    or not _LANGUAGE_NON_ASCII[
+                                        language_index
+                                    ][codepoint]
+                                ):
+                                    invalid_count += 1
+                        if invalid_count:
+                            penalty_factor = 1.0 - 0.2 * (
+                                <double>invalid_count / non_ascii_count
+                            )
+                            if penalty_factor < 0.0:
+                                penalty_factor = 0.0
+                            ratio *= penalty_factor
                     if ratio < threshold:
                         continue
                     if ratio >= 0.8:

@@ -300,3 +300,23 @@ def test_match_equality_with_arbitrary_string():
 
     # Membership relies on __eq__, so this must not raise either.
     assert "not-a-real-encoding" not in [best_guess]
+
+
+def test_match_ordering_is_transitive_for_tied_single_byte_candidates():
+    text = (
+        "El ayuntamiento aprobó ayer el presupuesto para el próximo año. "
+        "Según el alcalde, la construcción de la nueva biblioteca comenzará en otoño."
+    )
+    payload = text.encode("cp1252")
+    matches = list(from_bytes(payload))
+    assert len(matches) >= 2
+
+    for i, left in enumerate(matches):
+        assert not (left < matches[i])
+        for j, right in enumerate(matches):
+            if i == j:
+                continue
+            assert not (left < right < left)
+            for third in matches:
+                if left < right < third:
+                    assert left < third

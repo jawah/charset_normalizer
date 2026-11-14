@@ -641,6 +641,7 @@ def from_bytes(
                 else None
             ),
             preemptive_declaration=specified_encoding,
+            sample_chunks=md_chunks if is_too_large_sequence else None,
         )
 
         results.append(current_match)
