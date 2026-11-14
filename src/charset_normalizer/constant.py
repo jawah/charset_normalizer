@@ -2422,6 +2422,42 @@ FREQUENCIES: dict[str, list[str]] = {
 
 LANGUAGE_SUPPORTED_COUNT: int = len(FREQUENCIES)
 
+# Standard lowercase non-ASCII letters for Latin-script languages.
+# '\u0307' represents uppercase Turkish 'İ' after case folding ('i\u0307').
+LATIN_NON_ASCII_LETTERS: dict[str, frozenset[str]] = {
+    "English": frozenset(),
+    "English—": frozenset(),
+    "Indonesian": frozenset(),
+    "German": frozenset("äöüß"),
+    "French": frozenset("àâæçéèêëîïôœùûüÿ"),
+    "Dutch": frozenset("áàéèêëíïóöúü"),
+    "Italian": frozenset("àèéìíîòóùú"),
+    "Spanish": frozenset("áéíñóúü"),
+    "Portuguese": frozenset("áâãàçéêíóôõúü"),
+    "Swedish": frozenset("åäöé"),
+    "Norwegian": frozenset("æøåéèêóòô"),
+    "Danish": frozenset("æøåé"),
+    "Finnish": frozenset("äöåšž"),
+    "Estonian": frozenset("äöõüšž"),
+    "Polish": frozenset("ąćęłńóśźż"),
+    "Czech": frozenset("áčďéěíňóřšťúůýž"),
+    "Slovak": frozenset("áäčďéíĺľňóôŕšťúýž"),
+    "Hungarian": frozenset("áéíóöőúüű"),
+    "Croatian": frozenset("čćđšž"),
+    "Slovene": frozenset("čšž"),
+    "Romanian": frozenset("ăâîșțşţ"),
+    "Turkish": frozenset("çğıöşü\u0307"),
+    "Lithuanian": frozenset("ąčęėįšųūž"),
+    "Latvian": frozenset("āčēģīķļņšūž"),
+    "Icelandic": frozenset("áðéíóúýþæö"),
+    "Catalan": frozenset("àéèíïóòúüç"),
+    "Vietnamese": frozenset(
+        "àáảãạăằắẳẵặâầấẩẫậđèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵ"
+    ),
+}
+
+_COMMON_NON_ASCII_PUNCT_SYM: frozenset[str] = frozenset("–—“”‘’«»€©®°…•·£¥§±×÷µ")
+
 # Bit flags for unified character classification.
 # A single unicodedata.name() call sets all relevant flags at once.
 _LATIN: int = 1

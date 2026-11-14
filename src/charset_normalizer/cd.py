@@ -8,6 +8,7 @@ from .constant import (
     FREQUENCIES,
     KO_NAMES,
     LANGUAGE_SUPPORTED_COUNT,
+    LATIN_NON_ASCII_LETTERS,
     TOO_SMALL_SEQUENCE,
     ZH_NAMES,
     _FREQUENCIES_SET,
@@ -437,12 +438,28 @@ def coherence_ratio(
             )
         ]
 
+        non_ascii_characters: list[str] = [
+            ch for ch in popular_character_ordered if ord(ch) >= 128
+        ]
+
         for language in lg_inclusion_list or alphabet_languages(
             popular_character_ordered, ignore_non_latin
         ):
             ratio: float = characters_popularity_compare(
                 language, popular_character_ordered
             )
+
+            if non_ascii_characters:
+                allowed_non_ascii = LATIN_NON_ASCII_LETTERS.get(language)
+                if allowed_non_ascii is not None:
+                    invalid_count: int = sum(
+                        1 for ch in non_ascii_characters if ch not in allowed_non_ascii
+                    )
+                    if invalid_count:
+                        ratio *= max(
+                            0.0,
+                            1.0 - 0.2 * (invalid_count / len(non_ascii_characters)),
+                        )
 
             if ratio < threshold:
                 continue

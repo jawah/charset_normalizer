@@ -5,14 +5,18 @@ import logging
 import unicodedata
 from bisect import bisect_right
 from codecs import IncrementalDecoder
+from collections import Counter
 from functools import lru_cache
-from typing import Generator
+from re import compile as re_compile
+from typing import Generator, Sequence
 
 from .constant import (
     ENCODING_MARKS,
     IANA_SUPPORTED_SIMILAR,
+    LATIN_NON_ASCII_LETTERS,
     RE_POSSIBLE_ENCODING_INDICATION,
     UNICODE_RANGES_COMBINED,
+    _COMMON_NON_ASCII_PUNCT_SYM,
     _SECONDARY_RANGE_NAMES,
     COMMON_CJK_CHARACTERS,
     _LATIN,
@@ -450,3 +454,100 @@ def cut_sequence_chunks(
                             break
 
             yield chunk
+
+
+_ASCII_ALPHA_RE = re_compile(r"[A-Za-z]")
+_ASCII_RE = re_compile(r"[\x00-\x7f]+")
+_MIXED_SCRIPT_ADJ_RE = re_compile(r"[A-Za-z]([^\x00-\x7f])|([^\x00-\x7f])[A-Za-z]")
+
+
+def latin_orthography_profile(
+    texts: Sequence[str],
+    detected_languages: Sequence[tuple[str, float]],
+) -> tuple[float, float, int]:
+    """
+    Score script cohesion and orthographic fit of decoded Latin-script text
+    across supported Latin alphabets for transitive match tie-breaking.
+    """
+    raw_counts: Counter[str] = Counter()
+    has_ascii_alpha: bool = False
+
+    for text in texts:
+        if not text:
+            continue
+        if not has_ascii_alpha and _ASCII_ALPHA_RE.search(text) is not None:
+            has_ascii_alpha = True
+        if not text.isascii():
+            raw_counts.update(_ASCII_RE.sub("", text))
+
+    if not raw_counts:
+        return (1.0, 1.0, 0)
+
+    counts: dict[str, int] = {}
+    ranges: set[str] = set()
+    weird_non_alpha: int = 0
+
+    for ch, freq in raw_counts.items():
+        rng: str | None = unicode_range(ch)
+        if ch.isalpha():
+            if ch == "İ":
+                counts["\u0307"] = counts.get("\u0307", 0) + freq
+            else:
+                low: str = ch.lower()
+                if len(low) == 1:
+                    counts[low] = counts.get(low, 0) + freq
+                elif low == "i\u0307":
+                    counts["\u0307"] = counts.get("\u0307", 0) + freq
+            if rng is not None:
+                ranges.add(rng)
+        elif (
+            not ch.isspace()
+            and ch not in _COMMON_NON_ASCII_PUNCT_SYM
+            and (rng is None or "Punctuation" not in rng)
+        ):
+            weird_non_alpha += freq
+
+    if not counts:
+        if has_ascii_alpha and weird_non_alpha:
+            return (0.0, 0.0, -99)
+        return (1.0, 1.0, 0)
+
+    non_latin_ranges: set[str] = {r for r in ranges if "Latin" not in r}
+    latin_ranges: set[str] = {r for r in ranges if "Latin" in r}
+
+    if non_latin_ranges:
+        if not latin_ranges and not has_ascii_alpha:
+            return (1.0, 1.0, 0)
+        if not latin_ranges and len(non_latin_ranges) == 1 and weird_non_alpha == 0:
+            mixed_word: bool = False
+            for text in texts:
+                for match in _MIXED_SCRIPT_ADJ_RE.finditer(text):
+                    adj_ch: str | None = match.group(1) or match.group(2)
+                    if adj_ch is not None and adj_ch.isalpha():
+                        mixed_word = True
+                        break
+                if mixed_word:
+                    break
+            if not mixed_word:
+                return (1.0, 1.0, 0)
+        return (0.0, 0.0, -99)
+
+    total: int = sum(counts.values()) + weird_non_alpha
+    unique: set[str] = set(counts)
+    detected_set: set[str] = {lang for lang, _ in detected_languages[:3]}
+
+    best_score: tuple[float, float, int] = (-1.0, -1.0, -1)
+    for lang, alphabet in LATIN_NON_ASCII_LETTERS.items():
+        if not alphabet:
+            continue
+        unique_fit: float = len(unique & alphabet) / len(unique)
+        occ_fit: float = sum(n for c, n in counts.items() if c in alphabet) / total
+        candidate: tuple[float, float, int] = (
+            round(unique_fit, 4),
+            round(occ_fit, 4),
+            1 if lang in detected_set else 0,
+        )
+        best_score = max(best_score, candidate)
+
+    block_count: int = len(latin_ranges) if latin_ranges else 99
+    return (best_score[0], best_score[1], -block_count)
