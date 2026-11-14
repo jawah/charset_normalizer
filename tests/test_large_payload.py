@@ -3,7 +3,7 @@ from __future__ import annotations
 import pytest
 
 import charset_normalizer.api as api
-from charset_normalizer import from_bytes
+from charset_normalizer import from_bytes, models
 from charset_normalizer.constant import TOO_BIG_SEQUENCE
 
 
@@ -93,3 +93,25 @@ def test_lazy_decoding_strips_only_signature(monkeypatch, encoding, leading_bom_
     assert best_guess.raw == payload
     assert str(best_guess) == content
     assert best_guess.output() == content.encode("utf_8")
+
+
+def test_large_payload_orthography_tie_break_stays_lazy(monkeypatch):
+    content = (
+        "Date;Libellé;Montant\n"
+        "01/11/2026;Virement reçu salaire;246,06\n"
+        "02/11/2026;Café de la Gare;-165,68\n"
+        "03/11/2026;Prélèvement énergie;82,10\n"
+        "04/11/2026;Achat boulangerie Noël;14,50\n"
+    )
+    payload = content.encode("cp1252")
+    monkeypatch.setattr(api, "TOO_BIG_SEQUENCE", len(payload) // 2)
+    monkeypatch.setattr(models, "TOO_BIG_SEQUENCE", len(payload) // 2)
+
+    matches = from_bytes(payload)
+    best_guess = matches.best()
+
+    assert best_guess is not None
+    assert best_guess.encoding == "cp1252"
+    assert best_guess._string is None
+    assert best_guess._sample_chunks is None
+    assert str(best_guess) == content
