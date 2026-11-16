@@ -367,6 +367,7 @@ cdef double _characters_popularity_compare_index(
     cdef Py_ssize_t character_rank_in_language
     cdef Py_ssize_t character_rank
     cdef Py_ssize_t character_rank_projection
+    cdef Py_ssize_t rank_distance
     cdef Py_ssize_t after_len
     cdef Py_ssize_t before_match_count
     cdef Py_ssize_t after_match_count
@@ -504,17 +505,13 @@ cdef double _characters_popularity_compare_index(
             character_rank_projection = <Py_ssize_t>(
                 character_rank * expected_projection_ratio
             )
+            rank_distance = character_rank_projection - character_rank_in_language
+            if rank_distance < 0:
+                rank_distance = -rank_distance
 
-            if (
-                not large_alphabet
-                and abs(character_rank_projection - character_rank_in_language) > 4
-            ):
+            if not large_alphabet and rank_distance > 4:
                 continue
-            if (
-                large_alphabet
-                and abs(character_rank_projection - character_rank_in_language)
-                < large_alphabet_threshold
-            ):
+            if large_alphabet and rank_distance < large_alphabet_threshold:
                 character_approved_count += 1
                 continue
             if character_rank_in_language == 0:
@@ -655,6 +652,7 @@ cpdef list alpha_unicode_split(str decoded_sequence):
     cdef CharInfo last_info = None
     cdef list ascii_char_info = _ASCII_CHAR_INFO
     cdef int character_range
+    cdef int ascii_range = (<CharInfo>ascii_char_info[97]).range_id
     cdef int prev_character_range = NO_RANGE_ID
     # First-layer storage covers ordinary 512-character samples without a
     # heap allocation. Other layers grow only when characters are retained.
@@ -673,20 +671,22 @@ cpdef list alpha_unicode_split(str decoded_sequence):
             codepoint = _unicode_read(
                 decoded_sequence, unicode_kind, unicode_data, index
             )
-            if codepoint == last_codepoint:
-                info = last_info
-            elif codepoint < 128:
-                info = <CharInfo>ascii_char_info[<Py_ssize_t>codepoint]
+            if codepoint < 128:
+                if not (65 <= codepoint <= 90 or 97 <= codepoint <= 122):
+                    continue
+                character_range = ascii_range
             else:
-                info = _char_info_from_codepoint(codepoint)
-            last_codepoint = codepoint
-            last_info = info
-
-            if not info.alpha:
-                continue
-            character_range = info.range_id
-            if character_range == NO_RANGE_ID:
-                continue
+                if codepoint == last_codepoint:
+                    info = last_info
+                else:
+                    info = _char_info_from_codepoint(codepoint)
+                    last_codepoint = codepoint
+                    last_info = info
+                if not info.alpha:
+                    continue
+                character_range = info.range_id
+                if character_range == NO_RANGE_ID:
+                    continue
 
             if character_range != prev_character_range:
                 for layer in range(layer_count):
