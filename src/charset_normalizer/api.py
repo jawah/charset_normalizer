@@ -781,15 +781,7 @@ def from_bytes(
                 fallback_specified.encoding,
             )
             results.append(fallback_specified)
-        elif (
-            (fallback_u8 and fallback_ascii is None)
-            or (
-                fallback_u8
-                and fallback_ascii
-                and fallback_u8.fingerprint != fallback_ascii.fingerprint
-            )
-            or (fallback_u8 is not None)
-        ):
+        elif fallback_u8 is not None:
             logger.debug("Encoding detection: utf_8 will be used as a fallback match")
             results.append(fallback_u8)
         elif fallback_ascii:
