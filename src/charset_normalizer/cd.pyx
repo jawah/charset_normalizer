@@ -6,20 +6,28 @@
 # cython: freethreading_compatible=True
 
 import importlib
+import sys
 from functools import lru_cache
 from operator import itemgetter
 
-from cpython.mem cimport PyMem_Free, PyMem_Malloc
+from cpython.mem cimport PyMem_Free, PyMem_Malloc, PyMem_Realloc
+from cpython.pyport cimport PY_SSIZE_T_MAX
 from libc.stddef cimport size_t
 from libc.stdint cimport uint8_t, uint16_t, uint32_t, uint64_t
-from libc.string cimport memset
+from libc.string cimport memcpy, memset
 
 from charset_normalizer._cython_compat cimport (
     _unicode_data,
     _unicode_kind,
     _unicode_read,
 )
-from charset_normalizer.md cimport CharInfo, _char_info_from_codepoint
+from charset_normalizer.md cimport (
+    NO_RANGE_ID,
+    UNICODE_RANGE_CAPACITY,
+    CharInfo,
+    _char_info_from_codepoint,
+    _is_suspicious_range_ids,
+)
 
 from charset_normalizer.constant import (
     FREQUENCIES,
@@ -31,9 +39,19 @@ from charset_normalizer.constant import (
 from charset_normalizer.md import (
     _ASCII_CHAR_INFO,
     _char_info,
-    is_suspiciously_successive_range,
+    is_suspiciously_successive_range as _range_compatibility,
 )
 from charset_normalizer.utils import is_multi_byte_encoding, is_unicode_range_secondary
+
+# Preserve the same module-level export as the Python implementation.
+is_suspiciously_successive_range = _range_compatibility
+
+
+cdef extern from "Python.h":
+    # Part of the stable ABI, hence usable for the abi3 wheels as well.
+    object PyUnicode_DecodeUTF32(
+        const char* s, Py_ssize_t size, const char* errors, int* byteorder
+    )
 
 
 cdef enum:
@@ -41,6 +59,8 @@ cdef enum:
     BMP_CODEPOINT_COUNT = 65536
     STACK_RANK_CAPACITY = 512
     LANGUAGE_RANK_CAPACITY = 128
+    STACK_LAYER_CAPACITY = 512
+    INITIAL_LAYER_CAPACITY = 32
 
 cdef uint8_t _LANGUAGE_RANKS[LANGUAGE_COUNT][BMP_CODEPOINT_COUNT]
 cdef uint16_t _LANGUAGE_LENGTHS[LANGUAGE_COUNT]
@@ -48,6 +68,9 @@ cdef bint _LANGUAGE_HAS_ACCENTS[LANGUAGE_COUNT]
 cdef bint _LANGUAGE_PURE_LATIN[LANGUAGE_COUNT]
 cdef dict _LANGUAGE_INDEX = {}
 cdef list _LANGUAGE_NAMES = []
+cdef list _LANGUAGE_DISPLAY_NAMES = []
+# PyUnicode_DecodeUTF32 byte order matching the in-memory uint32_t layout.
+cdef int _NATIVE_BYTEORDER = -1 if sys.byteorder == "little" else 1
 
 
 cdef void _initialize_language_ranks():
@@ -71,6 +94,7 @@ cdef void _initialize_language_ranks():
             raise RuntimeError(f"Language profile {language!r} contains duplicates")
         _LANGUAGE_INDEX[language] = language_index
         _LANGUAGE_NAMES.append(language)
+        _LANGUAGE_DISPLAY_NAMES.append(language.replace("—", ""))
         _LANGUAGE_LENGTHS[language_index] = len(characters)
         _LANGUAGE_PURE_LATIN[language_index] = True
         for rank, character in enumerate(characters):
@@ -280,7 +304,7 @@ cdef uint64_t _alphabet_language_ids(
     bint ignore_non_latin,
     uint8_t* language_ids,
     Py_ssize_t* language_count,
-) except *:
+) except -1:
     cdef uint16_t match_counts[LANGUAGE_COUNT]
     cdef double ratios[LANGUAGE_COUNT]
     cdef uint64_t result_mask = 0
@@ -335,7 +359,7 @@ cdef double _characters_popularity_compare_index(
     Py_ssize_t language_index,
     uint32_t* ordered_codepoints,
     Py_ssize_t ordered_characters_count,
-) except *:
+) except -1:
     """Compare observed character popularity with a language profile."""
     cdef Py_ssize_t target_language_characters_count
     cdef Py_ssize_t character_approved_count = 0
@@ -404,8 +428,11 @@ cdef double _characters_popularity_compare_index(
                 common_orr[common_count] = popularity_rank
                 common_count += 1
 
+        # Direct counting avoids tree setup for small intersections. This
+        # selects an equivalent counting algorithm, not a scoring threshold.
         use_fenwick = (
-            ordered_characters_count <= STACK_RANK_CAPACITY
+            common_count >= 32
+            and ordered_characters_count <= STACK_RANK_CAPACITY
             and target_language_characters_count <= LANGUAGE_RANK_CAPACITY
         )
         if use_fenwick:
@@ -572,17 +599,51 @@ cpdef double characters_popularity_compare(str language, list ordered_characters
             PyMem_Free(codepoints)
 
 
+cdef struct _UnicodeLayer:
+    uint32_t* codepoints
+    Py_ssize_t length
+    Py_ssize_t capacity
+    int range_id
+
+
+cdef int _grow_unicode_layer(
+    _UnicodeLayer* layer, uint32_t* stack_codepoints
+) except -1:
+    cdef Py_ssize_t maximum_capacity = (
+        PY_SSIZE_T_MAX // <Py_ssize_t>sizeof(uint32_t)
+    )
+    cdef Py_ssize_t new_capacity
+    cdef uint32_t* new_codepoints
+    if layer.capacity >= maximum_capacity:
+        raise MemoryError()
+    new_capacity = (
+        layer.capacity * 2 if layer.capacity else INITIAL_LAYER_CAPACITY
+    )
+    if new_capacity > maximum_capacity:
+        new_capacity = maximum_capacity
+    if layer.codepoints == stack_codepoints:
+        new_codepoints = <uint32_t*>PyMem_Malloc(
+            <size_t>new_capacity * sizeof(uint32_t)
+        )
+        if new_codepoints == NULL:
+            raise MemoryError()
+        memcpy(
+            new_codepoints, layer.codepoints,
+            <size_t>layer.length * sizeof(uint32_t),
+        )
+    else:
+        new_codepoints = <uint32_t*>PyMem_Realloc(
+            layer.codepoints, <size_t>new_capacity * sizeof(uint32_t)
+        )
+        if new_codepoints == NULL:
+            raise MemoryError()
+    layer.codepoints = new_codepoints
+    layer.capacity = new_capacity
+    return 0
+
+
 cpdef list alpha_unicode_split(str decoded_sequence):
     """Split alphabetic characters into compatible Unicode-range layers."""
-    cdef dict layers = {}
-    cdef object single_layer_key = None
-    cdef bint multi_layer = False
-    cdef object prev_character_range = None
-    cdef list prev_layer_chars = None
-    cdef object character_range
-    cdef object layer_target_range
-    cdef object discovered_range
-    cdef object chars
     cdef list result = []
     cdef Py_ssize_t index
     cdef Py_ssize_t sequence_length = len(decoded_sequence)
@@ -590,65 +651,84 @@ cpdef list alpha_unicode_split(str decoded_sequence):
     cdef int unicode_kind = _unicode_kind(decoded_sequence)
     cdef void* unicode_data = _unicode_data(decoded_sequence)
     cdef Py_UCS4 last_codepoint = <Py_UCS4>-1
-    cdef str character
     cdef CharInfo info
     cdef CharInfo last_info = None
     cdef list ascii_char_info = _ASCII_CHAR_INFO
+    cdef int character_range
+    cdef int prev_character_range = NO_RANGE_ID
+    # First-layer storage covers ordinary 512-character samples without a
+    # heap allocation. Other layers grow only when characters are retained.
+    cdef uint32_t stack_codepoints[STACK_LAYER_CAPACITY]
+    cdef _UnicodeLayer layers[UNICODE_RANGE_CAPACITY]
+    cdef _UnicodeLayer* current_layer = NULL
+    cdef int layer_count = 0
+    cdef int layer = 0
+    cdef int byteorder
 
-    for index in range(sequence_length):
-        codepoint = _unicode_read(
-            decoded_sequence, unicode_kind, unicode_data, index
-        )
-        if codepoint == last_codepoint:
-            info = last_info
-        elif codepoint < 128:
-            info = ascii_char_info[<Py_ssize_t>codepoint]
-        else:
-            info = _char_info_from_codepoint(codepoint)
-        last_codepoint = codepoint
-        last_info = info
+    if sequence_length == 0:
+        return result
 
-        if not info.alpha:
-            continue
-        character_range = info.range
-        if character_range is None:
-            continue
-        character = info.character
-
-        if character_range == prev_character_range:
-            if prev_layer_chars is not None:
-                prev_layer_chars.append(character)
-            continue
-
-        layer_target_range = None
-        if multi_layer:
-            for discovered_range in layers:
-                if not is_suspiciously_successive_range(
-                    discovered_range, character_range
-                ):
-                    layer_target_range = discovered_range
-                    break
-        elif single_layer_key is not None:
-            if not is_suspiciously_successive_range(
-                single_layer_key, character_range
-            ):
-                layer_target_range = single_layer_key
-
-        if layer_target_range is None:
-            layer_target_range = character_range
-        if layer_target_range not in layers:
-            layers[layer_target_range] = []
-            if single_layer_key is None:
-                single_layer_key = layer_target_range
+    try:
+        for index in range(sequence_length):
+            codepoint = _unicode_read(
+                decoded_sequence, unicode_kind, unicode_data, index
+            )
+            if codepoint == last_codepoint:
+                info = last_info
+            elif codepoint < 128:
+                info = <CharInfo>ascii_char_info[<Py_ssize_t>codepoint]
             else:
-                multi_layer = True
+                info = _char_info_from_codepoint(codepoint)
+            last_codepoint = codepoint
+            last_info = info
 
-        prev_layer_chars = layers[layer_target_range]
-        prev_layer_chars.append(character)
-        prev_character_range = character_range
+            if not info.alpha:
+                continue
+            character_range = info.range_id
+            if character_range == NO_RANGE_ID:
+                continue
 
-    for chars in layers.values():
-        result.append("".join(chars).lower())
+            if character_range != prev_character_range:
+                for layer in range(layer_count):
+                    if not _is_suspicious_range_ids(
+                        layers[layer].range_id, character_range
+                    ):
+                        break
+                else:
+                    if layer_count == UNICODE_RANGE_CAPACITY:
+                        raise RuntimeError("Too many Unicode layers")
+                    layer = layer_count
+                    layers[layer].range_id = character_range
+                    layers[layer].length = 0
+                    if layer == 0:
+                        layers[layer].codepoints = stack_codepoints
+                        layers[layer].capacity = STACK_LAYER_CAPACITY
+                    else:
+                        layers[layer].codepoints = NULL
+                        layers[layer].capacity = 0
+                    layer_count += 1
+                current_layer = &layers[layer]
+                prev_character_range = character_range
+
+            if current_layer.length == current_layer.capacity:
+                _grow_unicode_layer(current_layer, stack_codepoints)
+            current_layer.codepoints[current_layer.length] = codepoint
+            current_layer.length += 1
+
+        for layer in range(layer_count):
+            byteorder = _NATIVE_BYTEORDER
+            result.append(
+                PyUnicode_DecodeUTF32(
+                    <char*>layers[layer].codepoints,
+                    layers[layer].length * <Py_ssize_t>sizeof(uint32_t),
+                    NULL,
+                    &byteorder,
+                ).lower()
+            )
+    finally:
+        for layer in range(layer_count):
+            if layers[layer].codepoints != stack_codepoints:
+                PyMem_Free(layers[layer].codepoints)
     return result
 
 
@@ -768,7 +848,7 @@ cpdef list coherence_ratio(
     str decoded_sequence, double threshold=0.1, str lg_inclusion=None
 ):
     """Detect languages represented in a decoded sequence."""
-    cdef list results = []
+    cdef dict results = {}
     cdef bint ignore_non_latin = False
     cdef Py_ssize_t sufficient_match_count = 0
     cdef list lg_inclusion_list
@@ -782,6 +862,7 @@ cpdef list coherence_ratio(
     cdef double ratio
     cdef str layer
     cdef object language
+    cdef object rounded_ratio
     cdef object language_index_object
     cdef uint64_t language_mask = 0
     cdef uint32_t stack_codepoints[STACK_RANK_CAPACITY]
@@ -861,8 +942,10 @@ cpdef list coherence_ratio(
                         continue
                     if ratio >= 0.8:
                         sufficient_match_count += 1
-                    language = _LANGUAGE_NAMES[language_index]
-                    results.append((language, round(ratio, 4)))
+                    language = _LANGUAGE_DISPLAY_NAMES[language_index]
+                    rounded_ratio = round(ratio, 4)
+                    if language not in results or rounded_ratio > results[language]:
+                        results[language] = rounded_ratio
                     if sufficient_match_count >= 3:
                         break
             finally:
@@ -874,6 +957,4 @@ cpdef list coherence_ratio(
         if language_ids_heap_allocated:
             PyMem_Free(language_ids)
 
-    return sorted(
-        filter_alt_coherence_matches(results), key=itemgetter(1), reverse=True
-    )
+    return sorted(results.items(), key=itemgetter(1), reverse=True)
