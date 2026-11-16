@@ -7,7 +7,8 @@ cimport cython
 from functools import lru_cache
 from logging import getLogger
 
-from libc.stdint cimport uint32_t
+from libc.stdint cimport uint32_t, uint64_t
+from libc.string cimport memset
 
 from charset_normalizer._cython_compat cimport (
     _unicode_data,
@@ -19,6 +20,7 @@ from charset_normalizer.constant import (
     COMMON_CJK_CHARACTERS,
     COMMON_SAFE_ASCII_CHARACTERS,
     TRACE,
+    UNICODE_RANGES_COMBINED,
     CompatibleFamillyRange,
     _ACCENTUATED,
     _ARABIC,
@@ -66,6 +68,79 @@ cdef enum:
     UNICODE_PAGE_SIZE = 256
     UNICODE_PAGE_MASK = 255
     UNICODE_PAGE_COUNT = 4352
+    UNICODE_RANGE_WORD_COUNT = (UNICODE_RANGE_CAPACITY + 63) // 64
+
+
+# Unicode ranges are identified by a small integer so that the hot paths can
+# compare ranges without Python lookups in the hot paths.
+cdef dict _RANGE_IDS = {
+    name: index for index, name in enumerate(UNICODE_RANGES_COMBINED)
+}
+# Filled during module initialization and never written during detection.
+# 0: compatible, 1: suspicious (including the NO_RANGE_ID row/column).
+cdef unsigned char _SUSPICIOUS_RANGES[UNICODE_RANGE_CAPACITY][UNICODE_RANGE_CAPACITY]
+
+if len(_RANGE_IDS) > NO_RANGE_ID:
+    raise RuntimeError(
+        f"Expected at most {NO_RANGE_ID} unicode ranges, got {len(_RANGE_IDS)}"
+    )
+
+
+cdef void _initialize_suspicious_ranges():
+    """Expand the existing family rules into an immutable range lookup table."""
+    cdef dict family_ids = {}
+    cdef int families[UNICODE_RANGE_CAPACITY]
+    cdef unsigned char any_compatible[UNICODE_RANGE_CAPACITY]
+    cdef unsigned char latin_compatible[UNICODE_RANGE_CAPACITY]
+    cdef uint64_t compatible[UNICODE_RANGE_CAPACITY][UNICODE_RANGE_WORD_COUNT]
+    cdef int range_count = len(_RANGE_IDS)
+    cdef int basic_latin = _RANGE_IDS["Basic Latin"]
+    cdef int index, other, family_a, family_b
+    cdef object name, family, relation, name_a, name_b
+
+    memset(compatible, 0, sizeof(compatible))
+    memset(_SUSPICIOUS_RANGES, 1, sizeof(_SUSPICIOUS_RANGES))
+    for name, index in _RANGE_IDS.items():
+        family = _RANGE_FAMILIES[name]
+        if family not in family_ids:
+            family_ids[family] = len(family_ids)
+        families[index] = family_ids[family]
+        any_compatible[index] = family in _COMPATIBLE_WITH_ANY_RANGE_FAMILIES
+        latin_compatible[index] = family in _BASIC_LATIN_COMPATIBLE_RANGE_FAMILIES
+
+    for relation in _COMPATIBLE_RANGE_FAMILIES:
+        for name_a in relation._families:
+            family_a = family_ids.get(name_a, -1)
+            if family_a < 0:
+                continue
+            for name_b in relation._families:
+                family_b = family_ids.get(name_b, -1)
+                if family_b >= 0:
+                    compatible[family_a][family_b >> 6] |= (
+                        <uint64_t>1 << (family_b & 63)
+                    )
+
+    for index in range(range_count):
+        family_a = families[index]
+        for other in range(range_count):
+            family_b = families[other]
+            _SUSPICIOUS_RANGES[index][other] = not (
+                family_a == family_b
+                or any_compatible[index]
+                or any_compatible[other]
+                or (compatible[family_a][family_b >> 6]
+                    & (<uint64_t>1 << (family_b & 63)))
+                or (index == basic_latin and latin_compatible[other])
+                or (other == basic_latin and latin_compatible[index])
+            )
+
+
+_initialize_suspicious_ranges()
+
+
+cdef bint _is_suspicious_range_ids(int range_id_a, int range_id_b) noexcept:
+    """Read the table initialized before this module becomes available."""
+    return _SUSPICIOUS_RANGES[range_id_a][range_id_b] != 0
 
 
 cdef class CharInfo:
@@ -193,6 +268,9 @@ cdef class CharInfo:
                 self.sym = False
 
         self.range = unicode_range(character)
+        self.range_id = (
+            NO_RANGE_ID if self.range is None else _RANGE_IDS[self.range]
+        )
         self.sep = is_separator(character)
 
 
@@ -202,7 +280,7 @@ def _char_info(str character):
 
 
 _ASCII_CHAR_INFO = [CharInfo(chr(codepoint)) for codepoint in range(128)]
-_CHAR_INFO_PAGES = [None] * UNICODE_PAGE_COUNT
+cdef list _CHAR_INFO_PAGES = [None] * UNICODE_PAGE_COUNT
 
 
 cdef CharInfo _char_info_from_codepoint(Py_UCS4 codepoint):
@@ -359,7 +437,7 @@ cdef class SuspiciousDuplicateAccentPlugin(MessDetectorPlugin):
         self._last_latin_character = None
         self._last_was_accentuated = False
 
-    cdef inline void _feed(self, Py_UCS4 codepoint, CharInfo info):
+    cdef inline void _feed(self, Py_UCS4 codepoint, CharInfo info) noexcept:
         cdef CharInfo previous
         self._character_count += 1
         if (
@@ -400,27 +478,27 @@ cdef class SuspiciousRange(MessDetectorPlugin):
         self._suspicious_successive_range_count = 0
         self._character_count = 0
         self._has_last_printable = False
-        self._last_printable_range = None
+        self._last_printable_range_id = NO_RANGE_ID
 
-    cdef inline void _feed(self, Py_UCS4 codepoint, CharInfo info):
-        cdef object range_a
-        cdef object range_b
+    cdef inline void _feed(self, Py_UCS4 codepoint, CharInfo info) noexcept:
+        cdef int range_a
+        cdef int range_b
         self._character_count += 1
         if info.space or info.punct or info.safe:
             self._has_last_printable = False
-            self._last_printable_range = None
+            self._last_printable_range_id = NO_RANGE_ID
             return
         if not self._has_last_printable:
             self._has_last_printable = True
-            self._last_printable_range = info.range
+            self._last_printable_range_id = info.range_id
             return
-        range_a = self._last_printable_range
-        range_b = info.range
+        range_a = self._last_printable_range_id
+        range_b = info.range_id
         if (
-            range_a != range_b or range_a is None
-        ) and is_suspiciously_successive_range(range_a, range_b):
+            range_a != range_b or range_a == NO_RANGE_ID
+        ) and _is_suspicious_range_ids(range_a, range_b):
             self._suspicious_successive_range_count += 1
-        self._last_printable_range = range_b
+        self._last_printable_range_id = range_b
 
     cpdef void feed_info(self, str character, CharInfo info):
         self._feed(_public_codepoint(character), info)
@@ -429,7 +507,7 @@ cdef class SuspiciousRange(MessDetectorPlugin):
         self._character_count = 0
         self._suspicious_successive_range_count = 0
         self._has_last_printable = False
-        self._last_printable_range = None
+        self._last_printable_range_id = NO_RANGE_ID
 
     cdef double _ratio(self) noexcept:
         if self._character_count <= 13:
