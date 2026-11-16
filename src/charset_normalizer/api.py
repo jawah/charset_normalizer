@@ -98,36 +98,42 @@ def from_bytes(
             logger.setLevel(previous_logger_level)
         return CharsetMatches([CharsetMatch(sequences, "utf_8", 0.0, False, [], "")])
 
+    # Snapshot TRACE for this call after explain has configured the logger.
+    trace_enabled: bool = logger.isEnabledFor(TRACE) and not logger.disabled
+
     if cp_isolation is not None:
-        logger.log(
-            TRACE,
-            "cp_isolation is set. use this flag for debugging purpose. "
-            "limited list of encoding allowed : %s.",
-            ", ".join(cp_isolation),
-        )
+        if trace_enabled:
+            logger.log(
+                TRACE,
+                "cp_isolation is set. use this flag for debugging purpose. "
+                "limited list of encoding allowed : %s.",
+                ", ".join(cp_isolation),
+            )
         cp_isolation = [iana_name(cp, False) for cp in cp_isolation]
     else:
         cp_isolation = []
 
     if cp_exclusion is not None:
-        logger.log(
-            TRACE,
-            "cp_exclusion is set. use this flag for debugging purpose. "
-            "limited list of encoding excluded : %s.",
-            ", ".join(cp_exclusion),
-        )
+        if trace_enabled:
+            logger.log(
+                TRACE,
+                "cp_exclusion is set. use this flag for debugging purpose. "
+                "limited list of encoding excluded : %s.",
+                ", ".join(cp_exclusion),
+            )
         cp_exclusion = [iana_name(cp, False) for cp in cp_exclusion]
     else:
         cp_exclusion = []
 
     if length <= (chunk_size * steps):
-        logger.log(
-            TRACE,
-            "override steps (%i) and chunk_size (%i) as content does not fit (%i byte(s) given) parameters.",
-            steps,
-            chunk_size,
-            length,
-        )
+        if trace_enabled:
+            logger.log(
+                TRACE,
+                "override steps (%i) and chunk_size (%i) as content does not fit (%i byte(s) given) parameters.",
+                steps,
+                chunk_size,
+                length,
+            )
         steps = 1
         chunk_size = length
 
@@ -138,17 +144,19 @@ def from_bytes(
     is_too_large_sequence: bool = len(sequences) >= TOO_BIG_SEQUENCE
 
     if is_too_small_sequence:
-        logger.log(
-            TRACE,
-            "Trying to detect encoding from a tiny portion of (%i) byte(s).",
-            length,
-        )
+        if trace_enabled:
+            logger.log(
+                TRACE,
+                "Trying to detect encoding from a tiny portion of (%i) byte(s).",
+                length,
+            )
     elif is_too_large_sequence:
-        logger.log(
-            TRACE,
-            "Using lazy str decoding because the payload is quite large, (%i) byte(s).",
-            length,
-        )
+        if trace_enabled:
+            logger.log(
+                TRACE,
+                "Using lazy str decoding because the payload is quite large, (%i) byte(s).",
+                length,
+            )
 
     prioritized_encodings: list[str] = []
 
@@ -158,11 +166,12 @@ def from_bytes(
 
     if specified_encoding is not None:
         prioritized_encodings.append(specified_encoding)
-        logger.log(
-            TRACE,
-            "Detected declarative mark in sequence. Priority +1 given for %s.",
-            specified_encoding,
-        )
+        if trace_enabled:
+            logger.log(
+                TRACE,
+                "Detected declarative mark in sequence. Priority +1 given for %s.",
+                specified_encoding,
+            )
 
     tested: set[str] = set()
     tested_but_hard_failure: list[str] = []
@@ -215,12 +224,13 @@ def from_bytes(
 
     if sig_encoding is not None:
         prioritized_encodings.insert(0, sig_encoding)
-        logger.log(
-            TRACE,
-            "Detected a SIG or BOM mark on first %i byte(s). Priority +1 given for %s.",
-            len(sig_payload),
-            sig_encoding,
-        )
+        if trace_enabled:
+            logger.log(
+                TRACE,
+                "Detected a SIG or BOM mark on first %i byte(s). Priority +1 given for %s.",
+                len(sig_payload),
+                sig_encoding,
+            )
 
     prioritized_encodings.append("ascii")
 
@@ -246,38 +256,42 @@ def from_bytes(
         )
 
         if encoding_iana in {"utf_16", "utf_32"} and not bom_or_sig_available:
-            logger.log(
-                TRACE,
-                "Encoding %s won't be tested as-is because it require a BOM. Will try some sub-encoder LE/BE.",
-                encoding_iana,
-            )
+            if trace_enabled:
+                logger.log(
+                    TRACE,
+                    "Encoding %s won't be tested as-is because it require a BOM. Will try some sub-encoder LE/BE.",
+                    encoding_iana,
+                )
             continue
         if encoding_iana in {"utf_7"} and not bom_or_sig_available:
-            logger.log(
-                TRACE,
-                "Encoding %s won't be tested as-is because detection is unreliable without BOM/SIG.",
-                encoding_iana,
-            )
+            if trace_enabled:
+                logger.log(
+                    TRACE,
+                    "Encoding %s won't be tested as-is because detection is unreliable without BOM/SIG.",
+                    encoding_iana,
+                )
             continue
 
         # Skip encodings similar to ones that already soft-failed (high mess ratio).
         # Checked BEFORE the expensive decode attempt.
         if encoding_iana in soft_failure_skip:
-            logger.log(
-                TRACE,
-                "%s is deemed too similar to a code page that was already considered unsuited. Continuing!",
-                encoding_iana,
-            )
+            if trace_enabled:
+                logger.log(
+                    TRACE,
+                    "%s is deemed too similar to a code page that was already considered unsuited. Continuing!",
+                    encoding_iana,
+                )
             continue
 
         try:
             is_multi_byte_decoder: bool = is_multi_byte_encoding(encoding_iana)
         except (ModuleNotFoundError, ImportError):  # Defensive:
-            logger.log(
-                TRACE,
-                "Encoding %s does not provide an IncrementalDecoder",
-                encoding_iana,
-            )
+            if trace_enabled:
+                logger.log(
+                    TRACE,
+                    "Encoding %s does not provide an IncrementalDecoder",
+                    encoding_iana,
+                )
             continue
 
         # When we've already found a definitive match (chaos=0.0 with good coherence)
@@ -291,13 +305,14 @@ def from_bytes(
             else:
                 enc_languages = set(mb_encoding_languages(encoding_iana))
             if not enc_languages.intersection(definitive_target_languages):
-                logger.log(
-                    TRACE,
-                    "Skipping %s: definitive match already found, this encoding targets different languages (%s vs %s).",
-                    encoding_iana,
-                    enc_languages,
-                    definitive_target_languages,
-                )
+                if trace_enabled:
+                    logger.log(
+                        TRACE,
+                        "Skipping %s: definitive match already found, this encoding targets different languages (%s vs %s).",
+                        encoding_iana,
+                        enc_languages,
+                        definitive_target_languages,
+                    )
                 continue
 
         # After the definitive match, cap the number of additional same-family
@@ -309,24 +324,26 @@ def from_bytes(
             and not is_multi_byte_decoder
             and post_definitive_sb_success_count >= POST_DEFINITIVE_SB_CAP
         ):
-            logger.log(
-                TRACE,
-                "Skipping %s: already accumulated %d same-family results after definitive match (cap=%d).",
-                encoding_iana,
-                post_definitive_sb_success_count,
-                POST_DEFINITIVE_SB_CAP,
-            )
+            if trace_enabled:
+                logger.log(
+                    TRACE,
+                    "Skipping %s: already accumulated %d same-family results after definitive match (cap=%d).",
+                    encoding_iana,
+                    post_definitive_sb_success_count,
+                    POST_DEFINITIVE_SB_CAP,
+                )
             continue
 
         # When a multibyte encoding with significant multibyte content has already
         # passed chaos probing, skip all single-byte encodings. They will either fail
         # chaos probing (wasting mess_ratio time) or produce inferior results.
         if mb_definitive_match_found and not is_multi_byte_decoder:
-            logger.log(
-                TRACE,
-                "Skipping single-byte %s: multi-byte definitive match already found.",
-                encoding_iana,
-            )
+            if trace_enabled:
+                logger.log(
+                    TRACE,
+                    "Skipping single-byte %s: multi-byte definitive match already found.",
+                    encoding_iana,
+                )
             continue
 
         # Single-byte candidates of regular size defer the expensive whole
@@ -374,12 +391,13 @@ def from_bytes(
                     )
         except (UnicodeDecodeError, LookupError) as e:
             if not isinstance(e, LookupError):
-                logger.log(
-                    TRACE,
-                    "Code page %s does not fit given bytes sequence at ALL. %s",
-                    encoding_iana,
-                    str(e),
-                )
+                if trace_enabled:
+                    logger.log(
+                        TRACE,
+                        "Code page %s does not fit given bytes sequence at ALL. %s",
+                        encoding_iana,
+                        str(e),
+                    )
             tested_but_hard_failure.append(encoding_iana)
             continue
 
@@ -396,12 +414,13 @@ def from_bytes(
         )
 
         if multi_byte_bonus:
-            logger.log(
-                TRACE,
-                "Code page %s is a multi byte encoding table and it appear that at least one character "
-                "was encoded using n-bytes.",
-                encoding_iana,
-            )
+            if trace_enabled:
+                logger.log(
+                    TRACE,
+                    "Code page %s is a multi byte encoding table and it appear that at least one character "
+                    "was encoded using n-bytes.",
+                    encoding_iana,
+                )
 
         max_chunk_gave_up: int = int(len(r_) / 4)
 
@@ -450,20 +469,22 @@ def from_bytes(
                 # Deferred single-byte validation failed on a chunk (or the
                 # codec is unavailable on this interpreter build): identical
                 # outcome and bookkeeping to the eager full-decode failure.
+                if trace_enabled:
+                    logger.log(
+                        TRACE,
+                        "Code page %s does not fit given bytes sequence at ALL. %s",
+                        encoding_iana,
+                        str(e),
+                    )
+                tested_but_hard_failure.append(encoding_iana)
+                continue
+            if trace_enabled:
                 logger.log(
                     TRACE,
-                    "Code page %s does not fit given bytes sequence at ALL. %s",
+                    "LazyStr Loading: After MD chunk decode, code page %s does not fit given bytes sequence at ALL. %s",
                     encoding_iana,
                     str(e),
                 )
-                tested_but_hard_failure.append(encoding_iana)
-                continue
-            logger.log(
-                TRACE,
-                "LazyStr Loading: After MD chunk decode, code page %s does not fit given bytes sequence at ALL. %s",
-                encoding_iana,
-                str(e),
-            )
             early_stop_count = max_chunk_gave_up
             lazy_str_hard_failure = True
 
@@ -481,12 +502,13 @@ def from_bytes(
             try:
                 sequences[int(50e3) :].decode(encoding_iana, errors="strict")
             except UnicodeDecodeError as e:
-                logger.log(
-                    TRACE,
-                    "LazyStr Loading: After final lookup, code page %s does not fit given bytes sequence at ALL. %s",
-                    encoding_iana,
-                    str(e),
-                )
+                if trace_enabled:
+                    logger.log(
+                        TRACE,
+                        "LazyStr Loading: After final lookup, code page %s does not fit given bytes sequence at ALL. %s",
+                        encoding_iana,
+                        str(e),
+                    )
                 tested_but_hard_failure.append(encoding_iana)
                 continue
 
@@ -494,14 +516,15 @@ def from_bytes(
             tested_but_soft_failure.append(encoding_iana)
             if encoding_iana in IANA_SUPPORTED_SIMILAR:
                 soft_failure_skip.update(IANA_SUPPORTED_SIMILAR[encoding_iana])
-            logger.log(
-                TRACE,
-                "%s was excluded because of initial chaos probing. Gave up %i time(s). "
-                "Computed mean chaos is %f %%.",
-                encoding_iana,
-                early_stop_count,
-                round(mean_mess_ratio * 100, ndigits=3),
-            )
+            if trace_enabled:
+                logger.log(
+                    TRACE,
+                    "%s was excluded because of initial chaos probing. Gave up %i time(s). "
+                    "Computed mean chaos is %f %%.",
+                    encoding_iana,
+                    early_stop_count,
+                    round(mean_mess_ratio * 100, ndigits=3),
+                )
             # Preparing those fallbacks in case we got nothing.
             if (
                 enable_fallback
@@ -524,11 +547,12 @@ def from_bytes(
                             encoding=encoding_iana,
                         )
                     except (UnicodeDecodeError, LookupError):
-                        logger.log(
-                            TRACE,
-                            "%s does not decode the whole payload: fallback entry withheld.",
-                            encoding_iana,
-                        )
+                        if trace_enabled:
+                            logger.log(
+                                TRACE,
+                                "%s does not decode the whole payload: fallback entry withheld.",
+                                encoding_iana,
+                            )
                         continue
                     if is_too_large_sequence:
                         # Don't retain huge payload in RAM.
@@ -564,21 +588,23 @@ def from_bytes(
                     encoding=encoding_iana,
                 )
             except (UnicodeDecodeError, LookupError) as e:
-                logger.log(
-                    TRACE,
-                    "Code page %s does not fit given bytes sequence at ALL. %s",
-                    encoding_iana,
-                    str(e),
-                )
+                if trace_enabled:
+                    logger.log(
+                        TRACE,
+                        "Code page %s does not fit given bytes sequence at ALL. %s",
+                        encoding_iana,
+                        str(e),
+                    )
                 tested_but_hard_failure.append(encoding_iana)
                 continue
 
-        logger.log(
-            TRACE,
-            "%s passed initial chaos probing. Mean measured chaos is %f %%",
-            encoding_iana,
-            round(mean_mess_ratio * 100, ndigits=3),
-        )
+        if trace_enabled:
+            logger.log(
+                TRACE,
+                "%s passed initial chaos probing. Mean measured chaos is %f %%",
+                encoding_iana,
+                round(mean_mess_ratio * 100, ndigits=3),
+            )
 
         if not is_multi_byte_decoder:
             target_languages: list[str] = encoding_languages(encoding_iana)
@@ -586,12 +612,13 @@ def from_bytes(
             target_languages = mb_encoding_languages(encoding_iana)
 
         if target_languages:
-            logger.log(
-                TRACE,
-                "%s should target any language(s) of %s",
-                encoding_iana,
-                target_languages,
-            )
+            if trace_enabled:
+                logger.log(
+                    TRACE,
+                    "%s should target any language(s) of %s",
+                    encoding_iana,
+                    target_languages,
+                )
 
         cd_ratios = []
 
@@ -624,12 +651,13 @@ def from_bytes(
         )
 
         if cd_ratios_merged:
-            logger.log(
-                TRACE,
-                "We detected language %s using %s",
-                cd_ratios_merged,
-                encoding_iana,
-            )
+            if trace_enabled:
+                logger.log(
+                    TRACE,
+                    "We detected language %s using %s",
+                    cd_ratios_merged,
+                    encoding_iana,
+                )
 
         current_match = CharsetMatch(
             sequences,
@@ -713,13 +741,14 @@ def from_bytes(
             if best_coherence >= 0.5 and "ascii" in tested and "utf_8" in tested:
                 definitive_match_found = True
                 definitive_target_languages.update(target_languages)
-                logger.log(
-                    TRACE,
-                    "Definitive match found: %s (chaos=%.3f, coherence=%.2f). Encodings targeting different language families will be skipped.",
-                    encoding_iana,
-                    mean_mess_ratio,
-                    best_coherence,
-                )
+                if trace_enabled:
+                    logger.log(
+                        TRACE,
+                        "Definitive match found: %s (chaos=%.3f, coherence=%.2f). Encodings targeting different language families will be skipped.",
+                        encoding_iana,
+                        mean_mess_ratio,
+                        best_coherence,
+                    )
 
         # When a non-UTF multibyte encoding passes chaos probing with significant
         # multibyte content (decoded < 98% of raw), activate mb_definitive_match.
@@ -747,15 +776,16 @@ def from_bytes(
             and "utf_8" in tested
         ):
             mb_definitive_match_found = True
-            logger.log(
-                TRACE,
-                "Multi-byte definitive match: %s (chaos=%.3f, decoded=%d/%d=%.1f%%). Single-byte encodings will be skipped.",
-                encoding_iana,
-                mean_mess_ratio,
-                len(decoded_payload),
-                length,
-                len(decoded_payload) / length * 100,
-            )
+            if trace_enabled:
+                logger.log(
+                    TRACE,
+                    "Multi-byte definitive match: %s (chaos=%.3f, decoded=%d/%d=%.1f%%). Single-byte encodings will be skipped.",
+                    encoding_iana,
+                    mean_mess_ratio,
+                    len(decoded_payload),
+                    length,
+                    len(decoded_payload) / length * 100,
+                )
 
         if encoding_iana == sig_encoding:
             logger.debug(
@@ -770,10 +800,11 @@ def from_bytes(
 
     if len(results) == 0:
         if fallback_u8 or fallback_ascii or fallback_specified:
-            logger.log(
-                TRACE,
-                "Nothing got out of the detection process. Using ASCII/UTF-8/Specified fallback.",
-            )
+            if trace_enabled:
+                logger.log(
+                    TRACE,
+                    "Nothing got out of the detection process. Using ASCII/UTF-8/Specified fallback.",
+                )
 
         if fallback_specified:
             logger.debug(
