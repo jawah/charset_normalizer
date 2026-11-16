@@ -616,7 +616,12 @@ def from_bytes(
 
                 cd_ratios.append(chunk_languages)
 
-        cd_ratios_merged = merge_coherence_ratios(cd_ratios)
+        # One chunk is already normalized, rounded and sorted by coherence_ratio.
+        cd_ratios_merged = (
+            list(cd_ratios[0])
+            if len(cd_ratios) == 1
+            else merge_coherence_ratios(cd_ratios)
+        )
 
         if cd_ratios_merged:
             logger.log(
