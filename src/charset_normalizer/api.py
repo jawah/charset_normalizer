@@ -173,8 +173,6 @@ def from_bytes(
             )
 
     tested: set[str] = set()
-    tested_but_hard_failure: list[str] = []
-    tested_but_soft_failure: list[str] = []
     soft_failure_skip: set[str] = set()
 
     # Thresholds and the explain setting are shared by every chunk in this call.
@@ -234,6 +232,7 @@ def from_bytes(
     if "utf_8" not in prioritized_encodings:
         prioritized_encodings.append("utf_8")
 
+    sample_offsets: range | None = None
     for encoding_iana in prioritized_encodings + IANA_SUPPORTED_MB_FIRST:
         if cp_isolation and encoding_iana not in cp_isolation:
             continue
@@ -298,16 +297,16 @@ def from_bytes(
         # when the definitive match is Latin-based).
         if definitive_match_found:
             if not is_multi_byte_decoder:
-                enc_languages = set(encoding_languages(encoding_iana))
+                enc_languages = encoding_languages(encoding_iana)
             else:
-                enc_languages = set(mb_encoding_languages(encoding_iana))
-            if not enc_languages.intersection(definitive_target_languages):
+                enc_languages = mb_encoding_languages(encoding_iana)
+            if definitive_target_languages.isdisjoint(enc_languages):
                 if trace_enabled:
                     logger.log(
                         TRACE,
                         "Skipping %s: definitive match already found, this encoding targets different languages (%s vs %s).",
                         encoding_iana,
-                        enc_languages,
+                        set(enc_languages),
                         definitive_target_languages,
                     )
                 continue
@@ -395,14 +394,13 @@ def from_bytes(
                         encoding_iana,
                         str(e),
                     )
-            tested_but_hard_failure.append(encoding_iana)
             continue
 
-        r_ = range(
-            0 if not bom_or_sig_available else len(sig_payload),
-            length,
-            int(length / steps),
-        )
+        # Candidates with the same starting offset use the same samples and cutoff.
+        sample_start = len(sig_payload) if bom_or_sig_available else 0
+        if sample_offsets is None or sample_offsets.start != sample_start:
+            sample_offsets = range(sample_start, length, int(length / steps))
+            max_chunk_gave_up = max(2, int(len(sample_offsets) / 4))
 
         multi_byte_bonus: bool = (
             is_multi_byte_decoder
@@ -419,9 +417,6 @@ def from_bytes(
                     encoding_iana,
                 )
 
-        max_chunk_gave_up: int = int(len(r_) / 4)
-
-        max_chunk_gave_up = max(max_chunk_gave_up, 2)
         early_stop_count: int = 0
         lazy_str_hard_failure = False
 
@@ -432,7 +427,7 @@ def from_bytes(
             for chunk in cut_sequence_chunks(
                 sequences,
                 encoding_iana,
-                r_,
+                sample_offsets,
                 chunk_size,
                 bom_or_sig_available,
                 strip_sig_or_bom,
@@ -471,7 +466,6 @@ def from_bytes(
                         encoding_iana,
                         str(e),
                     )
-                tested_but_hard_failure.append(encoding_iana)
                 continue
             if trace_enabled:
                 logger.log(
@@ -504,11 +498,9 @@ def from_bytes(
                         encoding_iana,
                         str(e),
                     )
-                tested_but_hard_failure.append(encoding_iana)
                 continue
 
         if mean_mess_ratio >= threshold or early_stop_count >= max_chunk_gave_up:
-            tested_but_soft_failure.append(encoding_iana)
             if encoding_iana in IANA_SUPPORTED_SIMILAR:
                 soft_failure_skip.update(IANA_SUPPORTED_SIMILAR[encoding_iana])
             if trace_enabled:
@@ -590,7 +582,6 @@ def from_bytes(
                         encoding_iana,
                         str(e),
                     )
-                tested_but_hard_failure.append(encoding_iana)
                 continue
 
         if trace_enabled:
@@ -729,11 +720,7 @@ def from_bytes(
         # We require coherence >= 0.5 to avoid false positives (e.g., cp1251 decoding
         # Hebrew text with 0.0 chaos but wrong language detection at coherence 0.33).
         if not definitive_match_found and not is_multi_byte_decoder:
-            best_coherence = (
-                max((v for _, v in cd_ratios_merged), default=0.0)
-                if cd_ratios_merged
-                else 0.0
-            )
+            best_coherence = cd_ratios_merged[0][1] if cd_ratios_merged else 0.0
             if best_coherence >= 0.5 and "ascii" in tested and "utf_8" in tested:
                 definitive_match_found = True
                 definitive_target_languages.update(target_languages)
