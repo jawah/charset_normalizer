@@ -18,7 +18,7 @@ jobs:
 
   universal-wheel:
     name: Build Universal Wheel
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs:
       - pre_flight_check
     steps:
@@ -49,7 +49,7 @@ jobs:
     strategy:
       matrix:
         target: &native_targets
-          - os: ubuntu-latest
+          - os: ubuntu-24.04
             qemu: ''
           - os: windows-latest
             qemu: ''
@@ -178,20 +178,20 @@ jobs:
   emulated-wheels:
     name: Build ${{ matrix.variant.name }} wheels on ${{ matrix.target.qemu }}
     needs: [pre_flight_check, macos-abi3-smoke]
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.target.os }}
     strategy:
       matrix:
         target:
-          - os: ubuntu-latest
+          - os: ubuntu-24.04
             qemu: ppc64le
             mac_arch: ''
-          - os: ubuntu-latest
+          - os: ubuntu-24.04
             qemu: riscv64
             mac_arch: ''
-          - os: ubuntu-latest
+          - os: ubuntu-24.04
             qemu: s390x
             mac_arch: ''
-          - os: ubuntu-latest
+          - os: ubuntu-24.04
             qemu: armv7l
             mac_arch: ''
         variant: [*native_variant, *abi3_variant]
@@ -214,7 +214,7 @@ jobs:
       matrix:
         include:
           - name: pyodide
-            runner: ubuntu-latest
+            runner: ubuntu-24.04
             platform: pyodide
             build: >-
               cp313-pyodide_wasm32
@@ -222,7 +222,7 @@ jobs:
             archs: wasm32
             enable: pyodide-eol
           - name: android
-            runner: ubuntu-latest
+            runner: ubuntu-24.04
             platform: android
             build: >-
               cp313-android_*
