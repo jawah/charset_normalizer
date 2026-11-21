@@ -7,6 +7,9 @@ on:
 permissions:
   contents: read
 
+env:
+  CHARSET_NORMALIZER_USE_PGO: ${{ (vars.CHARSET_NORMALIZER_USE_PGO || '1') != '0' && '1' || '0' }}
+
 jobs:
   lint:
     name: 🎨 Linters

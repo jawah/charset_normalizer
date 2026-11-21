@@ -42,40 +42,33 @@ jobs:
           name: dist-universal
           path: dist
 
-  build-wheels:
-    name: Build ${{ matrix.variant.name }} wheels on ${{ matrix.target.os }} ${{ matrix.target.qemu }}
+  # Exercise the native toolchains and the merged abi3 wheel before fanning out.
+  native-abi3:
+    name: Build abi3 wheels on ${{ matrix.target.os }}
     runs-on: ${{ matrix.target.os }}
-    needs: pre_flight_check
     strategy:
       matrix:
-        target:
+        target: &native_targets
           - os: ubuntu-latest
             qemu: ''
           - os: windows-latest
             qemu: ''
-          - os: macos-14
+          - os: macos-15
             qemu: ''
+            mac_arch: arm64
+          - os: macos-15-intel
+            qemu: ''
+            mac_arch: x86_64
           - os: windows-11-arm
             qemu: ''
           - os: ubuntu-24.04-arm
             qemu: ''
-          # Split ubuntu job for the sake of speed-up
-          - os: ubuntu-latest
-            qemu: ppc64le
-          - os: ubuntu-latest
-            qemu: riscv64
-          - os: ubuntu-latest
-            qemu: s390x
-          - os: ubuntu-latest
-            qemu: armv7l
         variant:
-          - name: native
-            build: 'cp3*-*'
-            abi3: '0'
-          - name: abi3
+          - &abi3_variant
+            name: abi3
             build: 'cp39-* cp311-win_arm64'
             abi3: '1'
-    steps:
+    steps: &wheel_steps
       - name: Checkout
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
@@ -99,22 +92,123 @@ jobs:
         env:
           CIBW_BUILD_FRONTEND: build
           CIBW_BUILD: ${{ matrix.variant.build }}
-          CIBW_ARCHS_MACOS: universal2
+          CIBW_ARCHS_MACOS: ${{ matrix.target.mac_arch || 'auto' }}
           CIBW_ENVIRONMENT: >-
             CHARSET_NORMALIZER_USE_CYTHON='1'
             CHARSET_NORMALIZER_CYTHON_ABI3='${{ matrix.variant.abi3 }}'
+            CHARSET_NORMALIZER_USE_PGO='${{ matrix.target.qemu == '' && (vars.CHARSET_NORMALIZER_USE_PGO || '1') != '0' && '1' || '0' }}'
           CIBW_TEST_REQUIRES: pytest
           CIBW_TEST_COMMAND: pytest -c {package} {package}/tests
       - name: Upload artifacts
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
-          name: dist-${{ matrix.target.os }}-${{ matrix.target.qemu }}-${{ matrix.variant.name }}
+          name: ${{ matrix.target.mac_arch && format('slices-{0}-{1}', matrix.variant.name, matrix.target.mac_arch) || format('dist-{0}-{1}-{2}', matrix.target.os, matrix.target.qemu, matrix.variant.name) }}
           path: ./wheelhouse/*.whl
+          if-no-files-found: error
+
+  macos-abi3-merge:
+    name: Merge macOS abi3 slices
+    needs: native-abi3
+    runs-on: macos-15
+    env:
+      WHEEL_VARIANT: abi3
+    steps: &universal2_merge_steps
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+        with:
+          name: slices-${{ env.WHEEL_VARIANT }}-x86_64
+          path: slices/x86_64
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+        with:
+          name: slices-${{ env.WHEEL_VARIANT }}-arm64
+          path: slices/arm64
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.12'
+      - run: python -m pip install delocate==0.13.0
+      - run: python bin/merge_macos_wheels.py slices/x86_64 slices/arm64 wheelhouse
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: dist-macos-universal2-${{ env.WHEEL_VARIANT }}
+          path: wheelhouse/*_universal2.whl
+          if-no-files-found: error
+
+  macos-abi3-smoke:
+    name: Import merged abi3 wheel on ${{ matrix.os }}
+    needs: macos-abi3-merge
+    strategy:
+      matrix:
+        os: [macos-15, macos-15-intel]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+        with:
+          name: dist-macos-universal2-abi3
+          path: wheelhouse
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.12'
+      - run: python -m pip install --no-index --no-deps --force-reinstall --find-links=wheelhouse charset-normalizer
+      - name: Load the compiled detectors and run detection
+        run: |
+          python -I - <<'PY'
+          from importlib.machinery import ExtensionFileLoader
+          from charset_normalizer import cd, md, from_bytes
+
+          assert all(isinstance(m.__loader__, ExtensionFileLoader) for m in (cd, md))
+          assert from_bytes(b"plain ASCII text").best().encoding == "ascii"
+          PY
+
+  build-wheels:
+    name: Build native wheels on ${{ matrix.target.os }}
+    needs: [pre_flight_check, macos-abi3-smoke]
+    runs-on: ${{ matrix.target.os }}
+    strategy:
+      matrix:
+        target: *native_targets
+        variant:
+          - &native_variant
+            name: native
+            build: 'cp3*-*'
+            abi3: '0'
+    steps: *wheel_steps
+
+  emulated-wheels:
+    name: Build ${{ matrix.variant.name }} wheels on ${{ matrix.target.qemu }}
+    needs: [pre_flight_check, macos-abi3-smoke]
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        target:
+          - os: ubuntu-latest
+            qemu: ppc64le
+            mac_arch: ''
+          - os: ubuntu-latest
+            qemu: riscv64
+            mac_arch: ''
+          - os: ubuntu-latest
+            qemu: s390x
+            mac_arch: ''
+          - os: ubuntu-latest
+            qemu: armv7l
+            mac_arch: ''
+        variant: [*native_variant, *abi3_variant]
+    steps: *wheel_steps
+
+  macos-native-merge:
+    name: Merge macOS native slices
+    needs: build-wheels
+    runs-on: macos-15
+    env:
+      WHEEL_VARIANT: native
+    steps: *universal2_merge_steps
 
   build-cross-wheels:
     name: Build ${{ matrix.name }} wheels
     runs-on: ${{ matrix.runner }}
-    needs: pre_flight_check
+    needs: [pre_flight_check, macos-abi3-smoke]
     strategy:
       fail-fast: false
       matrix:
@@ -137,7 +231,7 @@ jobs:
               x86_64
               arm64_v8a
           - name: ios
-            runner: macos-14
+            runner: macos-15
             platform: ios
             build: >-
               cp313-ios_*
@@ -162,6 +256,7 @@ jobs:
           CIBW_ENVIRONMENT: >-
             CHARSET_NORMALIZER_USE_CYTHON='1'
             CHARSET_NORMALIZER_CYTHON_ABI3='0'
+            CHARSET_NORMALIZER_USE_PGO='0'
           CIBW_TEST_REQUIRES: pytest
           CIBW_TEST_SKIP: ${{ matrix.platform == 'pyodide' && '*-pyodide_*' || '' }}
           CIBW_TEST_SOURCES: >-
@@ -186,7 +281,8 @@ jobs:
     name: Compute hashes
     runs-on: ubuntu-latest
     needs:
-      - build-wheels
+      - emulated-wheels
+      - macos-native-merge
       - build-cross-wheels
       - universal-wheel
     outputs:
