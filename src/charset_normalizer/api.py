@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import logging
-from functools import lru_cache
 from os import PathLike
 from typing import BinaryIO
 
@@ -19,7 +18,7 @@ from .constant import (
     TRACE,
 )
 from .md import mess_ratio
-from .models import CharsetMatch, CharsetMatches
+from .models import CharsetMatch, CharsetMatches, CoherenceMatches
 from .utils import (
     any_specified_encoding,
     cut_sequence_chunks,
@@ -178,12 +177,10 @@ def from_bytes(
     tested_but_soft_failure: list[str] = []
     soft_failure_skip: set[str] = set()
 
-    # Avoid unoptimized RSS usage.
-    # this cache is mostly interesting for
-    # local usage. Garbage collected at the
-    # end. Like it should.
-    cached_mess_ratio = lru_cache(maxsize=None)(mess_ratio)
-    cached_coherence_ratio = lru_cache(maxsize=None)(coherence_ratio)
+    # Thresholds and the explain setting are shared by every chunk in this call.
+    mess_by_chunk: dict[str, float] = {}
+    coherence_by_chunk: dict[tuple[str, str | None], CoherenceMatches] = {}
+    explain_mess = explain and 1 <= len(cp_isolation) <= 2
 
     # When a definitive result (chaos=0.0 and good coherence) is found after testing
     # the prioritized encodings (ascii, utf_8), we can significantly reduce the remaining
@@ -446,15 +443,13 @@ def from_bytes(
             ):
                 md_chunks.append(chunk)
 
-                md_ratios.append(
-                    cached_mess_ratio(
-                        chunk,
-                        threshold,
-                        explain and 1 <= len(cp_isolation) <= 2,
-                    )
-                )
+                chunk_mess = mess_by_chunk.get(chunk)
+                if chunk_mess is None:
+                    chunk_mess = mess_ratio(chunk, threshold, explain_mess)
+                    mess_by_chunk[chunk] = chunk_mess
+                md_ratios.append(chunk_mess)
 
-                if md_ratios[-1] >= threshold:
+                if chunk_mess >= threshold:
                     early_stop_count += 1
 
                 if (early_stop_count >= max_chunk_gave_up) or (
@@ -635,12 +630,13 @@ def from_bytes(
             )
 
             for chunk in md_chunks:
-                chunk_languages = cached_coherence_ratio(
-                    chunk,
-                    language_threshold,
-                    lg_inclusion,
-                )
-
+                key = (chunk, lg_inclusion)
+                chunk_languages = coherence_by_chunk.get(key)
+                if chunk_languages is None:
+                    chunk_languages = coherence_ratio(
+                        chunk, language_threshold, lg_inclusion
+                    )
+                    coherence_by_chunk[key] = chunk_languages
                 cd_ratios.append(chunk_languages)
 
         # One chunk is already normalized, rounded and sorted by coherence_ratio.
