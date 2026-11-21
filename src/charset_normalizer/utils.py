@@ -399,6 +399,12 @@ def cut_sequence_chunks(
                 break
             yield str(cut_sequence, encoding_iana)
     else:
+        # UTF-8 resynchronizes at the next complete character. Ignoring
+        # partial edge characters leaves a substring of the validated text.
+        check_alignment = is_multi_byte_decoder and (
+            encoding_iana not in {"utf_8", "utf_8_sig"}
+            or (bom_or_sig_available and not strip_sig_or_bom)
+        )
         for i in offsets:
             chunk_end = i + chunk_size
             if chunk_end > len(sequences) + 8:
@@ -416,29 +422,35 @@ def cut_sequence_chunks(
 
             # multi-byte bad cutting detector and adjustment
             # not the cleanest way to perform that fix but clever enough for now.
-            if is_multi_byte_decoder and i > 0:
+            if check_alignment and i > 0:
                 chunk_partial_size_chk: int = min(chunk_size, 16)
                 chunk_prefix = chunk[:chunk_partial_size_chk]
                 found_nearby = False
 
-                if decoded_payload:
+                if decoded_payload is not None:
                     decoded_length = len(decoded_payload)
-                    expected_offset = i * decoded_length // len(sequences)
-                    search_start = max(0, expected_offset - _MULTIBYTE_SEARCH_RADIUS)
-                    search_end = min(
-                        decoded_length, expected_offset + _MULTIBYTE_SEARCH_RADIUS
-                    )
-                    found_nearby = (
-                        decoded_payload.find(chunk_prefix, search_start, search_end)
-                        >= 0
-                    )
+                    # For short text the window covers the whole payload;
+                    # use the global membership check once below.
+                    if decoded_length > _MULTIBYTE_SEARCH_RADIUS:
+                        expected_offset = i * decoded_length // len(sequences)
+                        search_start = max(
+                            0, expected_offset - _MULTIBYTE_SEARCH_RADIUS
+                        )
+                        search_end = min(
+                            decoded_length, expected_offset + _MULTIBYTE_SEARCH_RADIUS
+                        )
+                        found_nearby = (
+                            decoded_payload.find(chunk_prefix, search_start, search_end)
+                            >= 0
+                        )
 
                 if (
                     decoded_payload
                     and not found_nearby
                     and chunk_prefix not in decoded_payload
                 ):
-                    for j in range(i, i - 4, -1):
+                    # The original offset was already decoded and checked above.
+                    for j in range(i - 1, i - 4, -1):
                         cut_sequence = sequences[j:chunk_end]
 
                         if bom_or_sig_available and not strip_sig_or_bom:
