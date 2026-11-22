@@ -42,6 +42,11 @@ def _character_flags(character: str) -> int:
     except ValueError:
         return 0
 
+    if desc.startswith(("CJK UNIFIED IDEOGRAPH-", "CJK COMPATIBILITY IDEOGRAPH-")):
+        return _CJK
+    if desc.startswith("HANGUL SYLLABLE "):
+        return _HANGUL
+
     flags: int = 0
 
     if "LATIN" in desc:

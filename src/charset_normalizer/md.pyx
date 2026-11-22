@@ -6,6 +6,7 @@ cimport cython
 
 from functools import lru_cache
 from logging import getLogger
+from unicodedata import category as unicode_category
 
 from libc.stdint cimport uint32_t, uint64_t
 from libc.string cimport memset
@@ -42,7 +43,7 @@ from charset_normalizer.constant import (
 )
 from charset_normalizer.utils import (
     _character_flags,
-    is_emoticon,
+    is_emoticon as _is_emoticon,
     is_punctuation,
     is_separator,
     is_symbol,
@@ -50,6 +51,9 @@ from charset_normalizer.utils import (
     unicode_range,
 )
 
+
+# Keep the existing module-level export alongside the Python implementation.
+is_emoticon = _is_emoticon
 
 cdef int _GLYPH_MASK = _CJK | _HANGUL | _KATAKANA | _HIRAGANA | _THAI
 cdef int _ACCENTUATED_MASK = _ACCENTUATED
@@ -151,6 +155,7 @@ cdef class CharInfo:
         cdef int flags
 
         self.character = character
+        self.range = unicode_range(character)
         if codepoint < 128:
             self.is_ascii = True
             self.accentuated = False
@@ -240,7 +245,9 @@ cdef class CharInfo:
             if self.alpha:
                 self.emoticon = False
             else:
-                self.emoticon = is_emoticon(character)
+                self.emoticon = self.range is not None and (
+                    "Emoticons" in self.range or "Pictographs" in self.range
+                )
             self.flags = flags
             self.accentuated = bool(flags & _ACCENTUATED_MASK)
             self.latin = bool(flags & _LATIN_MASK)
@@ -260,18 +267,36 @@ cdef class CharInfo:
                 else character
             )
             self.common_cjk = self.is_cjk and character in COMMON_CJK_CHARACTERS
+            category = unicode_category(character)
             if self.printable:
-                self.punct = is_punctuation(character)
-                self.sym = is_symbol(character)
+                self.punct = "P" in category or (
+                    self.range is not None and "Punctuation" in self.range
+                )
+                self.sym = (
+                    "S" in category
+                    or "N" in category
+                    or (
+                        self.range is not None
+                        and "Forms" in self.range
+                        and category != "Lo"
+                    )
+                )
             else:
                 self.punct = False
                 self.sym = False
 
-        self.range = unicode_range(character)
         self.range_id = (
             NO_RANGE_ID if self.range is None else _RANGE_IDS[self.range]
         )
-        self.sep = is_separator(character)
+        if self.is_ascii:
+            self.sep = is_separator(character)
+        else:
+            self.sep = (
+                self.space
+                or character in {"｜", "+", "<", ">"}
+                or "Z" in category
+                or category in {"Po", "Pd", "Pc"}
+            )
 
 
 def _char_info(str character):
