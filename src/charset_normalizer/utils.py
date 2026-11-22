@@ -358,7 +358,7 @@ def cut_sequence_chunks(
         and is_multi_byte_decoder
         and (
             encoding_iana not in _KNOWN_MB_DECODERS
-            or encoding_iana.startswith("iso2022_") 
+            or encoding_iana.startswith("iso2022_")
             or encoding_iana == "utf_7"
         )
     ):
