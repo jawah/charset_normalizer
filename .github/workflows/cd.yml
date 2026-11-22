@@ -98,7 +98,7 @@ jobs:
             CHARSET_NORMALIZER_CYTHON_ABI3='${{ matrix.variant.abi3 }}'
             CHARSET_NORMALIZER_USE_PGO='${{ matrix.target.qemu == '' && (vars.CHARSET_NORMALIZER_USE_PGO || '1') != '0' && '1' || '0' }}'
           CIBW_TEST_REQUIRES: pytest
-          CIBW_TEST_COMMAND: pytest -c {package} {package}/tests
+          CIBW_TEST_COMMAND: pytest -c "{package}/pyproject.toml" "{package}/tests"
       - name: Upload artifacts
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
