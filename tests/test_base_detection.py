@@ -207,6 +207,22 @@ def test_obviously_utf8_content(payload):
     ), "Dead-simple UTF-8 detection is wrongly detected!"
 
 
+def test_clean_big5_without_language_evidence():
+    text = "Read this note: 你好 is a greeting. Say it to a friend."
+    match = from_bytes(text.encode("big5")).best()
+    assert match is not None
+    assert str(match) == text
+
+
+def test_noisy_johab_without_language_evidence_keeps_single_byte_candidates():
+    text = (
+        "Le cœur a ses raisons que la raison ne connaît point. "
+        "Être ou ne pas être, telle est la question. Ça alors! "
+    )
+    matches = from_bytes(text.encode("cp1252"))
+    assert str(matches["cp1252"]) == text
+
+
 def test_mb_cutting_chk():
     # This payload should be wrongfully split and the autofix should ran automatically
     # on chunks extraction.
