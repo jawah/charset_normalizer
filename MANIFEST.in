@@ -1,5 +1,6 @@
 include LICENSE README.md CHANGELOG.md src/charset_normalizer/py.typed dev-requirements.txt SECURITY.md noxfile.py _build_hook/*.py
 include src/charset_normalizer/*.pyx src/charset_normalizer/*.pxd
+include bin/train_pgo.py
 exclude src/charset_normalizer/*.c
 recursive-include data *.md
 recursive-include data *.txt

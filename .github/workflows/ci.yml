@@ -7,6 +7,9 @@ on:
 permissions:
   contents: read
 
+env:
+  CHARSET_NORMALIZER_USE_PGO: ${{ (vars.CHARSET_NORMALIZER_USE_PGO || '1') != '0' && '1' || '0' }}
+
 jobs:
   lint:
     name: 🎨 Linters
@@ -27,7 +30,7 @@ jobs:
 
   tests:
     name: ✅ Tests
-    runs-on: ubuntu-22.04
+    runs-on: ${{ matrix.python-version == '3.7' && 'ubuntu-22.04' || 'ubuntu-24.04' }}
 
     strategy:
       fail-fast: false
@@ -167,7 +170,8 @@ jobs:
           - "3.15"
           - "3.14t"
           - "3.15t"
-        os: [ ubuntu-latest, macos-latest, windows-latest ]
+        # setup-python provides Linux 3.8 and 3.9 builds on 24.04.
+        os: [ ubuntu-24.04, macos-latest, windows-latest ]
     env:
       PYTHONIOENCODING: utf8  # only needed for Windows (console IO output encoding)
     steps:
