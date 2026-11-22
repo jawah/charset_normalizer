@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from functools import lru_cache
 from logging import getLogger
+from re import compile as re_compile
+from unicodedata import category as unicode_category
 
 
 from .constant import (
@@ -29,7 +31,7 @@ from .constant import (
 )
 from .utils import (
     _character_flags,
-    is_emoticon,
+    is_emoticon as is_emoticon,
     is_punctuation,
     is_separator,
     is_symbol,
@@ -108,6 +110,7 @@ class CharInfo:
         """Compute all properties for *character* (built once per codepoint,
         every branch assigns every slot)."""
         self.character = character
+        self.range = unicode_range(character)
 
         # ASCII fast-path: for characters with ord < 128, we can skip
         # _character_flags() entirely and derive most properties from ord.
@@ -210,7 +213,9 @@ class CharInfo:
             if self.alpha:
                 self.emoticon = False
             else:
-                self.emoticon = is_emoticon(character)
+                self.emoticon = self.range is not None and (
+                    "Emoticons" in self.range or "Pictographs" in self.range
+                )
             self.flags = flags
             self.accentuated = bool(flags & _ACCENTUATED)
             self.latin = bool(flags & _LATIN)
@@ -232,15 +237,33 @@ class CharInfo:
 
             # Eagerly compute punct and sym (avoids property dispatch overhead
             # on 300K+ accesses in the hot loop).
+            category = unicode_category(character)
             if self.printable:
-                self.punct = is_punctuation(character)
-                self.sym = is_symbol(character)
+                self.punct = "P" in category or (
+                    self.range is not None and "Punctuation" in self.range
+                )
+                self.sym = (
+                    "S" in category
+                    or "N" in category
+                    or (
+                        self.range is not None
+                        and "Forms" in self.range
+                        and category != "Lo"
+                    )
+                )
             else:
                 self.punct = False
                 self.sym = False
 
-        self.range = unicode_range(character)
-        self.sep = is_separator(character)
+        if self.is_ascii:
+            self.sep = is_separator(character)
+        else:
+            self.sep = (
+                self.space
+                or character in {"｜", "+", "<", ">"}
+                or "Z" in category
+                or category in {"Po", "Pd", "Pc"}
+            )
 
 
 # Per-codepoint cache of CharInfo instances
@@ -908,6 +931,9 @@ def is_suspiciously_successive_range(
     return True
 
 
+_OUTSIDE_LATIN_BLOCKS = re_compile(r"[^\x00-\u024f]").search
+
+
 def mess_ratio(
     decoded_sequence: str, maximum_threshold: float = 0.2, debug: bool = False
 ) -> float:
@@ -928,6 +954,22 @@ def mess_ratio(
     # ten detectors provably keep a 0.0 ratio on ASCII-only input and are
     # therefore not fed at all.
     is_pure_ascii: bool = decoded_sequence.isascii()
+    # Avoid whole-string prechecks on arbitrarily large caller-supplied samples.
+    check_unprintable = True
+    check_ranges = check_case = not is_pure_ascii
+    if seq_len <= 5 * 512:
+        check_unprintable = (
+            not decoded_sequence.replace("\n", " ")
+            .replace("\r", " ")
+            .replace("\t", " ")
+            .isprintable()
+        )
+        check_ranges = (
+            not is_pure_ascii and _OUTSIDE_LATIN_BLOCKS(decoded_sequence) is not None
+        )
+        check_case = not is_pure_ascii and not (
+            decoded_sequence.islower() or decoded_sequence.isupper()
+        )
 
     # Cached per-codepoint character properties (see CharInfo). ASCII
     # characters resolve through the immutable import-time table; anything
@@ -977,7 +1019,8 @@ def mess_ratio(
                 info = char_info(character)
 
             # Detectors with eligible() == always True
-            d_up_feed(character, info)
+            if check_unprintable:
+                d_up_feed(character, info)
             d_sw_feed(character, info)
 
             if is_pure_ascii:
@@ -986,12 +1029,14 @@ def mess_ratio(
                     d_sp_feed(character, info)
                 continue
 
-            d_au_feed(character, info)
+            if check_case:
+                d_au_feed(character, info)
 
             # Detectors with eligible() == isprintable
             if info.printable:
                 d_sp_feed(character, info)
-                d_sr_feed(character, info)
+                if check_ranges:
+                    d_sr_feed(character, info)
 
             # Detectors with eligible() == isalpha
             if info.alpha:

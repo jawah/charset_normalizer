@@ -2,6 +2,8 @@
 from __future__ import annotations
 
 import os
+from pathlib import Path
+from runpy import run_path
 
 from setuptools import Extension, setup
 
@@ -54,8 +56,14 @@ if USE_CYTHON:
             },
         )
 
+cmdclass = {}
+if CYTHON_MODULES and os.getenv("CHARSET_NORMALIZER_USE_PGO", "1") == "1":
+    pgo_hook = Path(__file__).resolve().parent / "_build_hook" / "pgo.py"
+    cmdclass["build_ext"] = run_path(str(pgo_hook))["PGOBuildExt"]
+
 setup(
     name="charset-normalizer",
+    cmdclass=cmdclass,
     ext_modules=CYTHON_MODULES,
     options={"bdist_wheel": {"py_limited_api": "cp37"}} if LIMITED_API else {},
 )

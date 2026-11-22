@@ -117,7 +117,7 @@ def coverage(session: nox.Session) -> None:
 
     # Install deps and the package itself.
     session.install("-r", "dev-requirements.txt", "--require-hashes", silent=False)
-    session.install("chardet==7.5.1")
+    session.install("chardet==7.7.0")
 
     session.install(".", silent=False)
 
@@ -147,7 +147,7 @@ def performance(session: nox.Session) -> None:
     session.install("-r", "dev-requirements.txt", "--require-hashes", silent=False)
 
     session.install(
-        "chardet==7.5.1",
+        "chardet==7.7.0",
     )
 
     session.install(".", silent=False, env={"CHARSET_NORMALIZER_USE_CYTHON": "1"})
