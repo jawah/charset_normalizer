@@ -5,7 +5,6 @@ import logging
 import unicodedata
 from bisect import bisect_right
 from codecs import IncrementalDecoder
-from functools import lru_cache
 from typing import Generator
 
 from .constant import (
@@ -30,7 +29,7 @@ from .constant import (
     _ACCENT_KEYWORDS,
     _ACCENTUATED,
     _KNOWN_MB_DECODERS,
-    _KNOWN_MB_CLASSES,
+    _SINGLE_BYTE_DECODERS,
     _IANA_NAMES,
     _MULTIBYTE_SEARCH_RADIUS,
 )
@@ -250,29 +249,9 @@ def any_specified_encoding(
     return None
 
 
-@lru_cache(maxsize=None)
 def is_multi_byte_encoding(name: str) -> bool:
-    """
-    Verify is a specific encoding is a multi byte one based on it IANA name
-    """
-    if name in _KNOWN_MB_DECODERS:
-        return True
-
-    # Besides the Unicode family above, every multibyte codec shipped with
-    # Python is implemented by _multibytecodec through exactly one of the six
-    # cjkcodecs providers below. Probing those providers directly (getcodec)
-    # classifies a name without importing its "encodings.<name>" module:
-    # classifying the whole IANA_SUPPORTED list would otherwise import many
-    # modules and dominate "import charset_normalizer" wall time.
-    # see https://github.com/jawah/charset_normalizer/issues/742
-    for provider in _KNOWN_MB_CLASSES:
-        try:
-            importlib.import_module(provider).getcodec(name)  # type: ignore[attr-defined]
-        except (ImportError, AttributeError, LookupError):  # Defensive: edge cases
-            continue
-        return True
-
-    return False
+    """Return whether the codec may be multibyte, resolving known aliases."""
+    return iana_name(name, False) not in _SINGLE_BYTE_DECODERS
 
 
 def identify_sig_or_bom(sequence: bytes | bytearray) -> tuple[str | None, bytes]:
@@ -367,10 +346,20 @@ def cut_sequence_chunks(
     decoded_payload: str | None = None,
     deferred_decoding: bool = False,
 ) -> Generator[str, None, None]:
-    # iso2022 codec is stateful, generic mb cuter isn't going to cut it!
-    if decoded_payload and encoding_iana.startswith("iso2022_"):
+    # ISO-2022 needs decoder state, and custom codecs have no known boundaries.
+    # Sample their strictly decoded text at proportional character offsets.
+    if (
+        decoded_payload is not None
+        and is_multi_byte_decoder
+        and (
+            encoding_iana not in _KNOWN_MB_DECODERS
+            or encoding_iana.startswith("iso2022_")
+        )
+    ):
         decoded_length = len(decoded_payload)
         sequence_length = len(sequences)
+        if not sequence_length:
+            return
         for i in offsets:
             decoded_offset = i * decoded_length // sequence_length
             chunk = decoded_payload[decoded_offset : decoded_offset + chunk_size]

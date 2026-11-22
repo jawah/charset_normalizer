@@ -16,6 +16,9 @@ from .constant import (
     TOO_BIG_SEQUENCE,
     TOO_SMALL_SEQUENCE,
     TRACE,
+    _CJK_DECODERS,
+    _KNOWN_MB_DECODERS,
+    _SINGLE_BYTE_DECODERS,
 )
 from .md import mess_ratio
 from .models import CharsetMatch, CharsetMatches, CoherenceMatches
@@ -24,7 +27,6 @@ from .utils import (
     cut_sequence_chunks,
     iana_name,
     identify_sig_or_bom,
-    is_multi_byte_encoding,
     should_strip_sig_or_bom,
 )
 
@@ -34,15 +36,10 @@ explain_handler.setFormatter(
     logging.Formatter("%(asctime)s | %(levelname)s | %(message)s")
 )
 
-# Pre-compute a reordered encoding list: multibyte first, then single-byte.
-# This allows the mb_definitive_match optimization to fire earlier, skipping
-# all single-byte encodings for genuine CJK content. Multibyte codecs
-# hard-fail (UnicodeDecodeError) on single-byte data almost instantly, so
-# testing them first costs negligible time for non-CJK files.
-# Stable sort on a boolean key: multibyte (False) first, IANA order kept
-# within each group.
+# Try known multibyte codecs first so a strong CJK match can skip single-byte
+# candidates. The stable sort preserves IANA order within each group.
 IANA_SUPPORTED_MB_FIRST: list[str] = sorted(
-    IANA_SUPPORTED, key=lambda encoding: not is_multi_byte_encoding(encoding)
+    IANA_SUPPORTED, key=_KNOWN_MB_DECODERS.__contains__, reverse=True
 )
 
 
@@ -279,23 +276,16 @@ def from_bytes(
                 )
             continue
 
-        try:
-            is_multi_byte_decoder: bool = is_multi_byte_encoding(encoding_iana)
-        except (ModuleNotFoundError, ImportError):  # Defensive:
-            if trace_enabled:
-                logger.log(
-                    TRACE,
-                    "Encoding %s does not provide an IncrementalDecoder",
-                    encoding_iana,
-                )
-            continue
+        is_multi_byte_decoder = encoding_iana not in _SINGLE_BYTE_DECODERS
 
         # When we've already found a definitive match (chaos=0.0 with good coherence)
         # after testing the prioritized encodings, skip encodings that target
         # completely different language families. This avoids running expensive
         # mess_ratio + coherence_ratio on clearly unrelated candidates (e.g., Cyrillic
         # when the definitive match is Latin-based).
-        if definitive_match_found:
+        if definitive_match_found and (
+            not is_multi_byte_decoder or encoding_iana in _KNOWN_MB_DECODERS
+        ):
             if not is_multi_byte_decoder:
                 enc_languages = encoding_languages(encoding_iana)
             else:
@@ -743,18 +733,7 @@ def from_bytes(
             and multi_byte_bonus
             and decoded_payload is not None
             and len(decoded_payload) < length * 0.98
-            and encoding_iana
-            not in {
-                "utf_8",
-                "utf_8_sig",
-                "utf_16",
-                "utf_16_be",
-                "utf_16_le",
-                "utf_32",
-                "utf_32_be",
-                "utf_32_le",
-                "utf_7",
-            }
+            and encoding_iana in _CJK_DECODERS
             and "ascii" in tested
             and "utf_8" in tested
         ):

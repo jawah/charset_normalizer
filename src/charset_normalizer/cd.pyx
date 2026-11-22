@@ -31,6 +31,7 @@ from charset_normalizer.md cimport (
 
 from charset_normalizer.constant import (
     FREQUENCIES,
+    JP_NAMES,
     KO_NAMES,
     LANGUAGE_SUPPORTED_COUNT,
     TOO_SMALL_SEQUENCE,
@@ -210,16 +211,11 @@ def encoding_languages(str iana_name):
 @lru_cache()
 def mb_encoding_languages(str iana_name):
     """Return the language association for a multi-byte encoding."""
-    if (
-        iana_name.startswith("shift_")
-        or iana_name.startswith("iso2022_jp")
-        or iana_name.startswith("euc_j")
-        or iana_name == "cp932"
-    ):
+    if iana_name in JP_NAMES:
         return ["Japanese"]
-    if iana_name.startswith("gb") or iana_name in ZH_NAMES:
+    if iana_name in ZH_NAMES:
         return ["Chinese"]
-    if iana_name.startswith("iso2022_kr") or iana_name in KO_NAMES:
+    if iana_name in KO_NAMES:
         return ["Korean"]
     return []
 
