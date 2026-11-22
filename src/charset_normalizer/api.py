@@ -194,14 +194,7 @@ def from_bytes(
     post_definitive_sb_success_count: int = 0
     POST_DEFINITIVE_SB_CAP: int = 7
 
-    # When a non-UTF multibyte encoding passes chaos probing with significant multibyte
-    # content (decoded length < 98% of raw length), skip all remaining single-byte encodings.
-    # Rationale: multi-byte decoders (CJK) have strict byte-sequence validation — if they
-    # decode without error AND pass chaos probing with substantial multibyte content, the
-    # data is genuinely multibyte encoded. Single-byte encodings will always decode (every
-    # byte maps to something) but waste time on mess_ratio before failing.
-    # The 98% threshold prevents false triggers on files that happen to have a few valid
-    # multibyte pairs (e.g., cp424/_ude_1.txt where big5 decodes with 99% ratio).
+    # A strong CJK match can rule out further single-byte probes.
     mb_definitive_match_found: bool = False
 
     fallback_ascii: CharsetMatch | None = None
@@ -723,10 +716,9 @@ def from_bytes(
                         best_coherence,
                     )
 
-        # When a non-UTF multibyte encoding passes chaos probing with significant
-        # multibyte content (decoded < 98% of raw), activate mb_definitive_match.
-        # This skips all remaining single-byte encodings which would either soft-fail
-        # (running expensive mess_ratio for nothing) or produce inferior results.
+        # A few valid byte pairs can occur by chance (e.g. Big5 on cp424/_ude_1.txt).
+        # Even above the 2% cutoff, noisy text needs language evidence. Clean CJK
+        # text can have too few letters for a coherence score.
         if (
             not mb_definitive_match_found
             and is_multi_byte_decoder
@@ -734,6 +726,7 @@ def from_bytes(
             and decoded_payload is not None
             and len(decoded_payload) < length * 0.98
             and encoding_iana in _CJK_DECODERS
+            and (mean_mess_ratio == 0.0 or cd_ratios_merged)
             and "ascii" in tested
             and "utf_8" in tested
         ):
