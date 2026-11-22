@@ -1,6 +1,12 @@
 from libc.stdint cimport uint32_t
 
 
+cdef enum:
+    UNICODE_RANGE_CAPACITY = 512
+    # Identifier used for characters that do not belong to any known range.
+    NO_RANGE_ID = UNICODE_RANGE_CAPACITY - 1
+
+
 cdef class CharInfo:
     cdef readonly str character
     cdef readonly bint printable
@@ -25,6 +31,7 @@ cdef class CharInfo:
     cdef readonly bint punct
     cdef readonly bint sym
     cdef readonly object range
+    cdef int range_id
     cdef readonly bint sep
     cdef readonly bint emoticon
     cdef readonly bint safe
@@ -33,6 +40,7 @@ cdef class CharInfo:
 
 
 cdef CharInfo _char_info_from_codepoint(Py_UCS4 codepoint)
+cdef bint _is_suspicious_range_ids(int range_id_a, int range_id_b) noexcept
 
 
 cdef class MessDetectorPlugin:
@@ -77,7 +85,7 @@ cdef class SuspiciousDuplicateAccentPlugin(MessDetectorPlugin):
     cdef bint _last_was_accentuated
     cpdef void feed_info(self, str character, CharInfo info)
     cpdef void reset(self)
-    cdef inline void _feed(self, Py_UCS4 codepoint, CharInfo info)
+    cdef inline void _feed(self, Py_UCS4 codepoint, CharInfo info) noexcept
     cdef double _ratio(self) noexcept
 
 
@@ -85,10 +93,10 @@ cdef class SuspiciousRange(MessDetectorPlugin):
     cdef int _suspicious_successive_range_count
     cdef int _character_count
     cdef bint _has_last_printable
-    cdef object _last_printable_range
+    cdef int _last_printable_range_id
     cpdef void feed_info(self, str character, CharInfo info)
     cpdef void reset(self)
-    cdef inline void _feed(self, Py_UCS4 codepoint, CharInfo info)
+    cdef inline void _feed(self, Py_UCS4 codepoint, CharInfo info) noexcept
     cdef double _ratio(self) noexcept
 
 

@@ -25,6 +25,14 @@ the extensions locally with a C compiler and Python development headers:
     export CHARSET_NORMALIZER_USE_CYTHON=1
     pip install charset-normalizer --no-binary charset-normalizer
 
+Native x86-64 and ARM64 extension builds on Linux, macOS and Windows use
+profile-guided optimization (PGO) by default with GCC, Clang or MSVC. The build
+trains the extensions in a separate Python process using the text samples
+bundled in ``data/``. To compile in a single pass, set
+``CHARSET_NORMALIZER_USE_PGO=0`` alongside
+``CHARSET_NORMALIZER_USE_CYTHON=1``. Set the same opt-out under CPU emulation.
+Maintainers can set the GitHub Actions repository variable
+``CHARSET_NORMALIZER_USE_PGO`` to ``0`` for CI and release builds.
 
 How not to?
 -----------
