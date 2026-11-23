@@ -2,7 +2,7 @@
 All notable changes to charset-normalizer will be documented in this file. This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [3.5.3](https://github.com/Ousret/charset_normalizer/compare/3.5.2...master) (unreleased)
+## [3.5.3](https://github.com/Ousret/charset_normalizer/compare/3.5.2...3.5.3) (2026-11-23)
 
 ### Changed
 
@@ -24,6 +24,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Recognized ASCII information separators (`0x1C` through `0x1F`) as whitespace when
   scoring text, including record-separated JSON. (#821)
 - Removed the leading GB18030 signature from lazily decoded matches on large inputs. (#820)
+- Fixed UTF-7 text with a signature being misidentified as ASCII when a sample
+  started in the middle of a long encoded sequence. (#839)
 - Fixed language detection returning names such as `English—` when only an alternative
   language profile met the coherence threshold. (#823)
 - `CharsetMatch.output()` now updates a UTF-8 declaration when transcoding to another
@@ -33,6 +35,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   propagate the CLI exit status. (#817)
 - CLI JSON output with `--with-alternative` now always uses a top-level array,
   including for a single result or a file with no match. (#822)
+- `normalizer --normalize` now appends the detected encoding to extensionless
+  filenames when creating a copy (for example, `README` becomes `README.cp1252`). (#838)
 - Excluded Python 3.16's `utf_7_imap` mailbox codec from detection to prevent
   errors when probing unrelated encodings. (#825)
 
