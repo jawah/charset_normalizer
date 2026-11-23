@@ -182,6 +182,24 @@ class TestCommandLineInterface(unittest.TestCase):
                 except OSError:
                     pass
 
+    def test_single_file_normalize_without_extension(self):
+        source = DIR_PATH + "/data/sample-arabic-1.txt"
+        no_extension = DIR_PATH + "/data/sample-arabic-1"
+        normalized = DIR_PATH + "/data/sample-arabic-1.cp1256"
+
+        with open(source, "rb") as src, open(no_extension, "wb") as dst:
+            dst.write(src.read())
+
+        try:
+            self.assertEqual(0, cli_detect([no_extension, "--normalize"]))
+            self.assertTrue(exists(normalized))
+        finally:
+            for p in (no_extension, normalized):
+                try:
+                    remove(p)
+                except OSError:
+                    pass
+
     def test_multiple_file_normalize_with_alternatives(self):
         """Same as above but with --with-alternative, ensuring that
         alternative entries appended between files do not confuse the
