@@ -297,6 +297,14 @@ def cli_detect(argv: list[str] | None = None) -> int:
                         my_file.close()
                     continue
 
+                if my_file in (sys.stdin, sys.stdin.buffer):
+                    # "-": there is no file to name the result after, or to replace
+                    print(
+                        "Standard input cannot be normalized, give a file instead.",
+                        file=sys.stderr,
+                    )
+                    continue
+
                 dir_path = dirname(realpath(my_file.name))
                 file_name = basename(realpath(my_file.name))
 

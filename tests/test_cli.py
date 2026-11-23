@@ -3,8 +3,11 @@ from __future__ import annotations
 import subprocess
 import sys
 import unittest
-from os import pardir, path, remove
+from io import BytesIO
+from os import chdir, getcwd, listdir, pardir, path, remove
 from os.path import exists
+from tempfile import TemporaryDirectory
+from types import SimpleNamespace
 from unittest.mock import patch
 
 import pytest
@@ -199,6 +202,26 @@ class TestCommandLineInterface(unittest.TestCase):
                     remove(p)
                 except OSError:
                     pass
+
+    def test_normalize_standard_input(self):
+        """Standard input has no file name: nothing is written, not "<stdin>.cp1256"."""
+        with open(DIR_PATH + "/data/sample-arabic-1.txt", "rb") as src:
+            payload = BytesIO(src.read())
+        payload.name = "<stdin>"
+
+        for replace in ([], ["--replace", "--force"]):
+            with TemporaryDirectory() as tmp:
+                previous = getcwd()
+                chdir(tmp)
+                try:
+                    with patch("sys.stdin", SimpleNamespace(buffer=payload)):
+                        payload.seek(0)
+                        self.assertEqual(
+                            0, cli_detect(["-", "--normalize", "--minimal", *replace])
+                        )
+                    self.assertEqual([], listdir(tmp))
+                finally:
+                    chdir(previous)
 
     def test_multiple_file_normalize_with_alternatives(self):
         """Same as above but with --with-alternative, ensuring that
