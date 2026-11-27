@@ -5,7 +5,12 @@ from re import sub
 from typing import Any, Iterator, List, Tuple
 
 from .constant import RE_POSSIBLE_ENCODING_INDICATION, TOO_BIG_SEQUENCE
-from .utils import iana_name, is_multi_byte_encoding, unicode_range
+from .utils import (
+    iana_name,
+    is_multi_byte_encoding,
+    latin_orthography_profile,
+    unicode_range,
+)
 
 
 class CharsetMatch:
@@ -18,6 +23,7 @@ class CharsetMatch:
         languages: CoherenceMatches,
         decoded_payload: str | None = None,
         preemptive_declaration: str | None = None,
+        sample_chunks: list[str] | None = None,
     ):
         self._payload: bytes | bytearray = payload
 
@@ -36,6 +42,8 @@ class CharsetMatch:
         self._string: str | None = decoded_payload
 
         self._preemptive_declaration: str | None = preemptive_declaration
+        self._sample_chunks: list[str] | None = sample_chunks
+        self._orthography_score_cache: tuple[float, float, int] | None = None
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, CharsetMatch):
@@ -64,11 +72,40 @@ class CharsetMatch:
         elif chaos_difference < 0.005 and coherence_difference <= 0.02:
             # When having a difficult decision, use the result that decoded as many multi-byte as possible.
             # preserve RAM usage!
-            if len(self._payload) >= TOO_BIG_SEQUENCE:
-                return self.chaos < other.chaos
-            return self.multi_byte_usage > other.multi_byte_usage
+            if (
+                len(self._payload) < TOO_BIG_SEQUENCE
+                and len(other._payload) < TOO_BIG_SEQUENCE
+                and self.multi_byte_usage != other.multi_byte_usage
+            ):
+                return self.multi_byte_usage > other.multi_byte_usage
+            if self._orthography_score != other._orthography_score:
+                return self._orthography_score > other._orthography_score
+            if self.coherence != other.coherence:
+                return self.coherence > other.coherence
+            return self.chaos < other.chaos
 
         return self.chaos < other.chaos
+
+    @property
+    def _orthography_score(self) -> tuple[float, float, int]:
+        if self._orthography_score_cache is None:
+            texts: list[str]
+            if self._string is not None:
+                texts = [self._string]
+            elif self._sample_chunks is not None:
+                texts = self._sample_chunks
+            elif len(self._payload) < TOO_BIG_SEQUENCE:
+                try:
+                    texts = [str(self)]
+                except UnicodeDecodeError:
+                    texts = []
+            else:
+                texts = [str(self._payload[:8192], self._encoding, "ignore")]
+            self._orthography_score_cache = latin_orthography_profile(
+                texts, self._languages
+            )
+            self._sample_chunks = None
+        return self._orthography_score_cache
 
     @property
     def multi_byte_usage(self) -> float:
@@ -107,6 +144,7 @@ class CharsetMatch:
             )
 
         other._string = None  # Unload RAM usage; dirty trick.
+        other._sample_chunks = None
         self._leaves.append(other)
 
     @property
